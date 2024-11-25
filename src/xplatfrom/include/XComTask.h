@@ -13,11 +13,10 @@
 
 #include "XPlatfrom_Global.h"
 #include "XTask.h"
+#include "XMsg.h"
 
 #include <memory>
 #include <string>
-
-struct XMsg;
 
 class XPLATFROM_EXPORT XComTask : public XTask
 {
@@ -28,7 +27,7 @@ public:
 public:
     auto init() -> bool override;
 
-    void setServerIp(const std::string ip);
+    void setServerIp(const char* ip);
 
     void setServerPort(int port);
 
@@ -41,15 +40,11 @@ public:
 
     virtual void connectCB();
 
-    virtual void readCB();
+    virtual void readCB() = 0;
 
-    virtual bool read(const XMsg* msg) = 0;
-
-    virtual void read(void* data, int size);
+    virtual int read(void* data, int size);
 
     virtual void writeCB();
-
-    virtual bool write(const XMsg* msg);
 
     virtual bool write(const void* data, int size);
 

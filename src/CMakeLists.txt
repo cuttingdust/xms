@@ -21,8 +21,8 @@ set(CMAKE_BUILD_TYPE Debug)
 # QT
 # UIC 的自控一下会生成大量的配置文件 和一个ui 和 四个 ui_*.h的情况 ，所以我们采用老办法
 set(CMAKE_AUTOUIC OFF)
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOMOC OFF)
+set(CMAKE_AUTORCC OFF)
 
 # set(AUTOUIC_EXECUTABLE "$ENV{QTDIR}/bin/uic.exe")
 # set(AUTOMOC_EXECUTABLE "$ENV{QTDIR}/bin/moc.exe")

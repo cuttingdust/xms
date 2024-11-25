@@ -584,3 +584,7 @@ compile_commands.json
 *creator.user*
 
 *_qmlcache.qrc
+
+# ProtoBuf generate 
+*.pb.h
+*.pb.cc
