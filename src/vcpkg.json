@@ -1,0 +1,10 @@
+{
+	"name": "xms",
+	"version-string": "0.1.0",
+	"dependencies": [
+		"openssl",
+		"zlib",
+		"libevent",
+		"protobuf"
+	]
+}
