@@ -2,6 +2,12 @@
 
 #include "XThread.h"
 
+#ifdef _WIN32
+#include <winsock.h>
+#else
+#include <signal.h>
+#endif
+
 #include <vector>
 #include <thread>
 #include <iostream>
@@ -72,7 +78,7 @@ auto XThreadPool::exitAllThread() -> void
 
 auto XThreadPool::wait() -> void
 {
-    while (isExitAll)
+    while (!isExitAll)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -80,5 +86,20 @@ auto XThreadPool::wait() -> void
 
 auto XThreadPoolFactory::create() -> XThreadPool *
 {
+    static std::once_flag flag;
+    std::call_once(flag,
+                   []()
+                   {
+#ifdef _WIN32
+                       /// 初始化socket库
+                       WSADATA wsa;
+                       WSAStartup(MAKEWORD(2, 2), &wsa);
+#else
+                        ///使用断开连接socket，会发出此信号，造成程序退出
+                        if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+                            return;
+#endif
+                   });
+
     return new CThreadPool();
 }

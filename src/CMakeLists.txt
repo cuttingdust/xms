@@ -77,3 +77,4 @@ include(CommonTools)
 
 
 add_subdirectory(xplatfrom)
+add_subdirectory(xtest_service_client)

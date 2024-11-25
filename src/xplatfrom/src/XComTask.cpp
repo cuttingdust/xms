@@ -75,7 +75,7 @@ auto XComTask::init() -> bool
     bufferevent_setcb(impl_->bev_, SReadCb, SWriteCb, SEventCb, this);
     bufferevent_enable(impl_->bev_, EV_READ | EV_WRITE);
 
-    timeval tv = { 10, 0 };
+    timeval tv = { 3, 0 };
     bufferevent_set_timeouts(impl_->bev_, &tv, &tv);
 
     /// 连接服务器
@@ -146,7 +146,7 @@ void XComTask::eventCB(short events)
 
 void XComTask::connectCB()
 {
-    std::cout << "connectCB" << std::endl;
+    std::cout << "XComTask::connectCB" << std::endl;
 }
 
 int XComTask::read(void *data, int size)
