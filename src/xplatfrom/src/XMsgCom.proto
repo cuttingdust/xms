@@ -51,7 +51,7 @@ message XDirRes
 	message XDir
 	{
 		string filename = 1;
-		int32 filesize  = 2;
+		int32  filesize = 2;
 	}
 
 	XDirType resType   = 1;	///< 目录结果类型

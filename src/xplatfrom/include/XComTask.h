@@ -25,8 +25,27 @@ public:
     virtual ~XComTask();
 
 public:
+    /// \brief 初始化bufferevent，客户端建立连接
+    /// \return
     auto init() -> bool override;
 
+    /// \brief 开始连接服务器，调用成员 server_ip_ server_port_
+    /// 考虑自动重连
+    /// \return
+    auto connect() const -> bool;
+
+protected:
+    /// \brief 是否已连接
+    /// \return
+    auto isConnected() const -> bool;
+
+    /// \brief 是否正在连接
+    /// \return
+    auto isConnecting() const -> bool;
+
+public:
+    /// \brief 设置服务器ip
+    /// \param ip
     void setServerIp(const char* ip);
 
     void setServerPort(int port);

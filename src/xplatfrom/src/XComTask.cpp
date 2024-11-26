@@ -7,6 +7,7 @@
 #include <event2/event.h>
 
 #include <iostream>
+#include <mutex>
 
 static void SReadCb(struct bufferevent *bev, void *ctx)
 {
@@ -33,6 +34,9 @@ public:
     ~PImpl();
 
 public:
+    auto initBev(int com_sock) -> bool;
+
+public:
     XComTask           *owenr_        = nullptr;
     struct bufferevent *bev_          = nullptr;
     std::string         serverPath_   = "";
@@ -40,15 +44,46 @@ public:
     int                 serverPort_   = -1;
     char                buffer_[1024] = { 0 };
     XMsg                msg_;
+    bool                isRecvMsg = true; ///< 是否接受消息
 
-    bool isRecvMsg = true; /// 是否接受消息
+    /// 客户单的连接状态
+    /// 1 未处理  => 开始连接 （加入到线程池处理）
+    /// 2 连接中 => 等待连接成功
+    /// 3 已连接 => 做业务操作
+    /// 4 连接后失败 => 根据连接间隔时间，开始连接
+    bool        is_connecting_ = true;  ///< 连接中
+    bool        is_connected_  = false; ///< 连接成功
+    std::mutex *mtx_           = nullptr;
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
 {
+    mtx_ = new std::mutex();
 }
 
-XComTask::PImpl::~PImpl() = default;
+XComTask::PImpl::~PImpl()
+{
+    if (mtx_)
+    {
+        delete mtx_;
+        mtx_ = nullptr;
+    }
+}
+
+auto XComTask::PImpl::initBev(int com_sock) -> bool
+{
+    /// 用bufferevent建立连接
+    bev_ = bufferevent_socket_new(owenr_->base(), com_sock, BEV_OPT_CLOSE_ON_FREE);
+    if (!bev_)
+    {
+        LOGERROR("bufferevent_socket_new failed");
+        return false;
+    }
+
+    bufferevent_setcb(bev_, SReadCb, SWriteCb, SEventCb, owenr_);
+    bufferevent_enable(bev_, EV_READ | EV_WRITE);
+    return true;
+}
 
 XComTask::XComTask()
 {
@@ -57,38 +92,23 @@ XComTask::XComTask()
 
 XComTask::~XComTask() = default;
 
-auto XComTask::init() -> bool
+auto XComTask::connect() const -> bool
 {
-    /// 区分客户端和服务器
-    int comSock = this->sock();
-    if (comSock <= 0)
-        comSock = -1;
-
-    /// 用bufferevent建立连接
-    impl_->bev_ = bufferevent_socket_new(base(), comSock, BEV_OPT_CLOSE_ON_FREE);
-    if (!impl_->bev_)
-    {
-        std::cerr << "bufferevent_socket_new failed" << std::endl;
-        return false;
-    }
-
-    bufferevent_setcb(impl_->bev_, SReadCb, SWriteCb, SEventCb, this);
-    bufferevent_enable(impl_->bev_, EV_READ | EV_WRITE);
-
-    timeval tv = { 3, 0 };
-    bufferevent_set_timeouts(impl_->bev_, &tv, &tv);
-
-    /// 连接服务器
-    if (impl_->serverIp_[0] == '\0')
-    {
-        return true;
-    }
-
     sockaddr_in sin;
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
     sin.sin_port   = htons(impl_->serverPort_);
     evutil_inet_pton(AF_INET, impl_->serverIp_, &sin.sin_addr.s_addr);
+    impl_->mtx_->lock();
+    impl_->is_connected_  = false;
+    impl_->is_connecting_ = false;
+    if (!impl_->bev_)
+        impl_->initBev(-1);
+    if (!impl_->bev_)
+    {
+        LOGERROR("XComTask::Connect failed! bev is null!");
+        return false;
+    }
 
     int ret = bufferevent_socket_connect(impl_->bev_, reinterpret_cast<sockaddr *>(&sin), sizeof(sin));
     if (ret < 0)
@@ -96,8 +116,42 @@ auto XComTask::init() -> bool
         std::cerr << "bufferevent_socket_connect failed" << std::endl;
         return false;
     }
-
+    /// 开始连接
+    impl_->is_connecting_ = true;
     return true;
+}
+
+auto XComTask::isConnected() const -> bool
+{
+    return impl_->is_connected_;
+}
+
+auto XComTask::isConnecting() const -> bool
+{
+    return impl_->is_connecting_;
+}
+
+auto XComTask::init() -> bool
+{
+    /// 区分客户端和服务器
+    int comSock = this->sock();
+    if (comSock <= 0)
+        comSock = -1;
+
+    impl_->mtx_->lock();
+    impl_->initBev(comSock);
+    impl_->mtx_->unlock();
+
+    // timeval tv = { 3, 0 };
+    // bufferevent_set_timeouts(impl_->bev_, &tv, &tv);
+
+    /// 连接服务器
+    if (impl_->serverIp_[0] == '\0')
+    {
+        return true;
+    }
+
+    return connect();
 }
 
 void XComTask::setServerIp(const char *ip)
@@ -127,6 +181,8 @@ void XComTask::eventCB(short events)
         std::cout << "BEV_EVENT_CONNECTED" << std::endl;
 
         /// 连接成功后发送消息
+        impl_->is_connected_  = true;
+        impl_->is_connecting_ = false;
         connectCB();
     }
 
@@ -189,6 +245,10 @@ void XComTask::beginWriteCB()
 
 void XComTask::close()
 {
+    impl_->mtx_->lock();
+    impl_->is_connected_  = false;
+    impl_->is_connecting_ = false;
+
     if (impl_->bev_)
     {
         bufferevent_free(impl_->bev_);
@@ -200,6 +260,7 @@ void XComTask::close()
         delete impl_->msg_.data;
         memset(&impl_->msg_, 0, sizeof(impl_->msg_));
     }
+    impl_->mtx_->unlock();
 
     delete this;
 }

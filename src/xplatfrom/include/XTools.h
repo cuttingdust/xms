@@ -13,6 +13,7 @@
 
 #include "XPlatfrom_Global.h"
 #include <string>
+#include <iostream>
 
 #define LOG(level, msg) (std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl)
 #define LOGDEBUG(msg)   LOG("DEBUG", msg)

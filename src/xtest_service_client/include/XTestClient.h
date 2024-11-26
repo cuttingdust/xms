@@ -18,6 +18,7 @@ class XTestClient : public XServiceClient
 public:
     void readCB() override;
     void connectCB() override;
+    bool autoConnect(int timeout_ms);
 };
 
 #endif // XTESTCLIENT_H
