@@ -2,10 +2,10 @@
 
 #include "XThread.h"
 
-#ifdef _WIN32
-#include <winsock.h>
-#else
+#ifndef _WIN32
 #include <signal.h>
+#else
+#include <winsock2.h>
 #endif
 
 #include <vector>
@@ -91,11 +91,11 @@ auto XThreadPoolFactory::create() -> XThreadPool *
                    []()
                    {
 #ifdef _WIN32
-                       /// 初始化socket库
-                       WSADATA wsa;
-                       WSAStartup(MAKEWORD(2, 2), &wsa);
+                       WSADATA wsaData;
+                       WSAStartup(MAKEWORD(2, 2), &wsaData);
+
 #else
-                        ///使用断开连接socket，会发出此信号，造成程序退出
+                        /// 忽略管道信号，发送数据给已关闭的socket
                         if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
                             return;
 #endif
