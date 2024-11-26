@@ -18,6 +18,16 @@ class XTestClient : public XServiceClient
 public:
     void readCB() override;
     void connectCB() override;
+
+public:
+    /// \brief
+    /// \param path 请求的根目录
+    /// \return 是否请求成功，不保证目录获取
+    bool getDir(const std::string& path);
+
+    /// \brief 检查连接，自动重连,连接失败立刻返回，已连接立刻返回
+    /// \param timeout_ms 超时时间
+    /// \return 连接成功返回true
     bool autoConnect(int timeout_ms);
 };
 

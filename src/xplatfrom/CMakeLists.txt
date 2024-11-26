@@ -7,7 +7,7 @@ protobuf::libprotobuf
 protobuf::libprotobuf-lite
 )
 
-# protoc.exe生成相关代码
+set(${PROJECT_NAME}_SHARED OFF CACHE BOOL "" FORCE)
 
 cpp_library(${PROJECT_NAME})
 

@@ -10,9 +10,10 @@ public:
     ~PImpl() = default;
 
 public:
-    XMsgEvent *owenr_ = nullptr;
-    XMsg       head_; /// 消息头
-    XMsg       msg_;  /// 消息内容
+    XMsgEvent      *owenr_ = nullptr;
+    XMsg            head_;    /// 消息头
+    XMsg            msg_;     /// 消息内容
+    xmsg::XMsgHead *pb_head_; /// <pb消息头
 };
 
 XMsgEvent::PImpl::PImpl(XMsgEvent *owenr) : owenr_(owenr)
@@ -26,6 +27,28 @@ XMsgEvent::XMsgEvent()
 }
 
 XMsgEvent::~XMsgEvent() = default;
+
+void XMsgEvent::readCB()
+{
+    if (!recvMsg())
+    {
+        std::cerr << "recvMsg failed!" << std::endl;
+        clear();
+        return;
+    }
+
+    auto *msg = getMsg();
+    if (!msg)
+    {
+        std::cerr << "getMsg failed!" << std::endl;
+        return;
+    }
+
+    std::cout << "service_name = " << impl_->pb_head_->servername() << std::endl;
+
+    /// 消息处理
+    // handleMsg(msg);
+}
 
 bool XMsgEvent::recvMsg()
 {
@@ -61,26 +84,29 @@ bool XMsgEvent::recvMsg()
         impl_->head_.recvSize += len;
         if (!impl_->head_.recved())
             return true;
+        if (impl_->pb_head_)
+        {
+            impl_->pb_head_ = new xmsg::XMsgHead();
+        }
 
         /// 完整的头部数据接收完成
         /// 反序列化
-        xmsg::XMsgHead pb_head;
-        if (!pb_head.ParseFromArray(impl_->head_.data, impl_->head_.size))
+        if (!impl_->pb_head_->ParseFromArray(impl_->head_.data, impl_->head_.size))
         {
-            std::cerr << "pb_head.ParseFromArray failed!" << std::endl;
+            std::cerr << "pb_head_.ParseFromArray failed!" << std::endl;
             return false;
         }
 
         /// 鉴权
         /// 消息内容大小
         /// 分配消息内容空间
-        if (!impl_->msg_.alloc(pb_head.msgsize()))
+        if (!impl_->msg_.alloc(impl_->pb_head_->msgsize()))
         {
             std::cerr << "msg_.alloc failed!" << std::endl;
             return false;
         }
         /// 设置消息类型
-        impl_->msg_.type = pb_head.msgtype();
+        impl_->msg_.type = impl_->pb_head_->msgtype();
     }
 
     /// 3 开始接收消息内容
@@ -110,33 +136,48 @@ auto XMsgEvent::getMsg() const -> XMsg *
     return impl_->msg_.recved() ? &impl_->msg_ : nullptr;
 }
 
-void XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg)
+bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg)
 {
-    if (!msg)
-        return;
-
-    xmsg::XMsgHead head;
-    head.set_msgtype(msgType);
+    if (!msg || !head)
+        return false;
 
     ////////////////////////封包////////////////////////
 
     /// 消息内容序列化
     std::string msgStr  = msg->SerializeAsString();
     int         msgSize = msgStr.size();
-    head.set_msgsize(msgSize);
+    head->set_msgsize(msgSize);
 
     /// 消息头序列化
-    std::string headStr  = head.SerializeAsString();
+    std::string headStr  = head->SerializeAsString();
     int         headSize = headStr.size();
 
     /// 1 发送消息头大小 4字节 暂时不考虑字节序问题
-    write(&headSize, sizeof(headSize));
+    int re = write(&headSize, sizeof(headSize));
+    if (!re)
+        return false;
 
     /// 2 发送消息头（pb序列化） XMsgHead （设置消息内容的大小）
-    write(headStr.data(), headStr.size());
+    re = write(headStr.data(), headStr.size());
+    if (!re)
+        return false;
 
     /// 3 发送消息内容 （pb序列化） 业务proto
-    write(msgStr.data(), msgStr.size());
+    re = write(msgStr.data(), msgStr.size());
+    if (!re)
+        return false;
+
+    return true;
+}
+
+bool XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg)
+{
+    if (!msg)
+        return false;
+
+    xmsg::XMsgHead head;
+    head.set_msgtype(msgType);
+    return sendMsg(&head, msg);
 }
 
 void XMsgEvent::clear()

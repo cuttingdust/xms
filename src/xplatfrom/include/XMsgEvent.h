@@ -14,6 +14,7 @@
 #include "XMsgType.pb.h"
 #include "XMsg.h"
 #include "XComTask.h"
+#include "XMsgCom.pb.h"
 
 #include <memory>
 
@@ -23,6 +24,10 @@ class XMsgEvent : public XComTask
 public:
     XMsgEvent();
     ~XMsgEvent() override;
+
+public:
+    /// \brief 接收消息 分发消息
+    void readCB() override;
 
 public:
     /// \brief 接收数据包，
@@ -37,10 +42,14 @@ public:
     /// \return 如果没有完整的数据包，返回NULL
     auto getMsg() const -> XMsg *;
 
+
+    auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool;
+
     /// \brief 发送消息 包含头部（自动创建）
     /// \param msgType  消息类型
     /// \param msg      消息内容
-    auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> void;
+    auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool;
+
 
     /// \brief 清理缓存消息头和消息内容，用于接收下一次消息
     auto clear() -> void;

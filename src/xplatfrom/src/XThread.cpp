@@ -14,6 +14,7 @@
 #include <unistd.h>
 #endif
 
+/// 激活线程任务的回调函数
 static void notify_cb(evutil_socket_t fd, short which, void *arg)
 {
     auto *t = (XThread *)arg;
@@ -192,7 +193,15 @@ auto XThread::threadFun() -> void
         return;
     }
 
-    event_base_dispatch(impl_->base_);
+    /// 设置为不阻塞分发消息
+    while (!impl_->is_exit_)
+    {
+        /// 一次处理多条消息
+        event_base_loop(impl_->base_, EVLOOP_NONBLOCK);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
+
+    // event_base_dispatch(impl_->base_);
     event_base_free(impl_->base_);
     std::cout << impl_->id_ << " XThread::threadFun "
               << "end" << std::endl;

@@ -1,6 +1,9 @@
 #include "XTestClient.h"
-#include "XThreadPool.h"
+
+#include <XThreadPool.h>
+
 #include <iostream>
+#include <thread>
 
 #define SPORT 8080
 
@@ -10,6 +13,14 @@ int main(int argc, char *argv[])
     client->setServerIp("127.0.0.1");
     client->setServerPort(SPORT);
     client->StartConnect();
+    for (int i = 0; i < 100000; ++i)
+    {
+        std::stringstream ss;
+        ss << "/root/" << i;
+        client->getDir(ss.str());
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+
     XThreadPool::wait();
     return 0;
 }

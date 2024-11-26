@@ -17,9 +17,6 @@ class XDirServiceHandle : public XServiceHandle
 public:
     XDirServiceHandle();
     ~XDirServiceHandle() override;
-
-public:
-    void readCB() override;
 };
 
 

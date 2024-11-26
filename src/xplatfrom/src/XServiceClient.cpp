@@ -19,8 +19,8 @@ XServiceClient::PImpl::PImpl(XServiceClient *owenr) : owenr_(owenr)
 
 XServiceClient::PImpl::~PImpl()
 {
-    delete thread_pool_;
-    thread_pool_ = nullptr;
+    // delete thread_pool_;
+    // thread_pool_ = nullptr;
 }
 
 
