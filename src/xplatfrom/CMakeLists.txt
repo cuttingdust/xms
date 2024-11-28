@@ -2,13 +2,24 @@ cmake_minimum_required(VERSION 3.20)
 project(xplatfrom)
 
 set(DPS_LIBRARYS 
-protobuf::libprotoc
-protobuf::libprotobuf
-protobuf::libprotobuf-lite
+    protobuf::libprotoc
+    protobuf::libprotobuf
+    protobuf::libprotobuf-lite
 )
 
 set(${PROJECT_NAME}_SHARED ON CACHE BOOL "" FORCE)
+
+#################### 导出PB-h ####################
+set(PROTOC_EXPORT_INCLUDE XPlatfrom_Global.h)
+set(PROTOC_EXPORT_CLASS 
+    XMsgHead 
+    XDirReq
+    XDirRes
+)
+set(PROTOC_EXPORT_DEFINE XPLATFROM_EXPORT)
+
 cpp_library(${PROJECT_NAME})
+
 
 if(MSVC)
     #设为启动项

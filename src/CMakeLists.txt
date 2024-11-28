@@ -41,7 +41,7 @@ find_program(PROTOC_EXECUTABLE protoc)
 if(NOT PROTOC_EXECUTABLE)
     message(FATAL_ERROR "protoc executable not found")
 else()
-    message(STATUS "Found protoc: ${PROTOC_EXECUTABLE}")
+    message(STATUS "Found protoc: ${PROTOC_EXECUTABLE}")	
 endif()
 
 # OpenMP

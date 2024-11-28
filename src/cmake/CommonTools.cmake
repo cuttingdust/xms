@@ -82,16 +82,28 @@ macro(get_src_include)
             COMMAND ${PROTOC_EXECUTABLE} -I=${CMAKE_CURRENT_LIST_DIR}/src --cpp_out=${CMAKE_CURRENT_LIST_DIR}/src ${PROTO_FILES}
             WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
         )
+
         FILE(GLOB PROTO_CC_FILE ${CMAKE_CURRENT_LIST_DIR}/src/*.pb.cc)
         FILE(GLOB PROTO_HREADER_FILE ${CMAKE_CURRENT_LIST_DIR}/src/*.pb.h)
+        
         FILE(COPY ${PROTO_HREADER_FILE} DESTINATION ${CMAKE_CURRENT_LIST_DIR}/include)
         FILE(REMOVE ${PROTO_HREADER_FILE})
+
         FILE(GLOB PROTO_HREADER_FILE ${CMAKE_CURRENT_LIST_DIR}/include/*.pb.h)
+		
+		if(PROTOC_EXPORT_INCLUDE)
+			add_include_to_headers(PROTO_HREADER_FILE ${PROTOC_EXPORT_INCLUDE})
+            if(PROTOC_EXPORT_CLASS)
+                if(PROTOC_EXPORT_DEFINE)
+                    replace_class_name_in_headers(PROTO_HREADER_FILE PROTOC_EXPORT_CLASS ${PROTOC_EXPORT_DEFINE})
+                endif()
+            endif()
+		endif()
+		
         source_group("Generate Files" FILES ${PROTO_CC_FILE})
         source_group("Generate Files" FILES ${PROTO_HREADER_FILE})		
         endif()
 	endif()
-	
 endmacro()
 
 # GCC 设置忽略编译告警
@@ -251,6 +263,7 @@ function(cpp_library name)
         ${PROTO_HREADER_FILE}
     )
 
+
     if(NOT version)
         set(version 1.0)
     endif()
@@ -303,7 +316,6 @@ function(cpp_library name)
     install(FILES ${CONF_VER_FILE}
         DESTINATION lib/config/${name}-${version}
     )
-
     message(STATUS "==================================================================")
 endfunction()
 
@@ -341,3 +353,66 @@ function(cpp_execute name)
 
     message(STATUS "==================================================================")
 endfunction()
+
+#########################################额外的工具函数###################################
+function(print_list list)
+    foreach(val IN LISTS ${list})
+        message("val = ${val}")
+    endforeach()
+endfunction()
+
+function(add_include_to_header header_file include_file)
+    # 检查文件是否存在
+    if(NOT EXISTS "${header_file}")
+        message(FATAL_ERROR "Header file ${header_file} does not exist!")
+    endif()
+
+    # 读取原始文件内容
+    file(READ "${header_file}" original_content)
+
+    # 构建包含的内容
+    set(include_statement "#pragma once\n#include \"${include_file}\"\n")
+
+    # 将新内容写入文件
+    file(WRITE "${header_file}" "${include_statement}${original_content}")
+
+    message(STATUS "Added include for ${include_file} to ${header_file}")
+endfunction()
+
+function(add_include_to_headers header_list include_file)
+    foreach(header_file IN LISTS ${header_list}) 
+        add_include_to_header(${header_file} ${include_file})
+    endforeach()
+endfunction()
+
+function(replace_class_name_in_header header_file class_name macro_name)
+    # 确保头文件存在
+    if(NOT EXISTS "${header_file}")
+        message(FATAL_ERROR "Header file ${header_file} does not exist!")
+    endif()
+
+    # 读取头文件内容
+    file(READ "${header_file}" original_content)
+
+    # 替换类名
+    string(REPLACE "class ${class_name} final" "class ${macro_name} ${class_name} final" modified_content "${original_content}")
+
+    # 写回到头文件
+    file(WRITE "${header_file}" "${modified_content}")
+
+    message(STATUS "Replaced class name '${class_name}' with '${macro_name}' in ${header_file}")
+endfunction()
+
+function(replace_class_name_in_headers header_list class_name macro_name)
+    foreach(header_file IN LISTS ${header_list})
+        replace_class_names(${header_file} ${class_name} ${macro_name})
+    endforeach()
+endfunction()
+
+function(replace_class_names header_file class_names macro_name)
+    foreach(class_name IN LISTS ${class_names})
+        #message("class_name = ${class_name}")    
+        replace_class_name_in_header(${header_file} ${class_name} ${macro_name})
+    endforeach()
+endfunction()
+########################################################################################
