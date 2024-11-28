@@ -11,6 +11,8 @@
 #ifndef XMSGEVENT_H
 #define XMSGEVENT_H
 
+#include "XPlatfrom_Global.h"
+
 #include "XMsgType.pb.h"
 #include "XMsg.h"
 #include "XComTask.h"
@@ -19,15 +21,23 @@
 #include <memory>
 
 /// 不调用bufferevent接口，直接调用XComTask的封装
-class XMsgEvent : public XComTask
+class XPLATFROM_EXPORT XMsgEvent : public XComTask
 {
 public:
     XMsgEvent();
     ~XMsgEvent() override;
+    typedef void (XMsgEvent::*MsgCBFunc)(xmsg::XMsgHead *head, XMsg *msg);
 
 public:
     /// \brief 接收消息 分发消息
     void readCB() override;
+
+    void readCB(xmsg::XMsgHead *head, XMsg *msg);
+
+    /// \brief 添加消息处理的回调函数，根据消息类型分发 ,同一个类型只能有一个回调函数
+    /// \param type 消息类型
+    /// \param func 消息回调函数
+    static void regCB(const xmsg::MsgType &type, MsgCBFunc func);
 
 public:
     /// \brief 接收数据包，
@@ -41,7 +51,6 @@ public:
     /// 由调用者清理XMsg
     /// \return 如果没有完整的数据包，返回NULL
     auto getMsg() const -> XMsg *;
-
 
     auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool;
 

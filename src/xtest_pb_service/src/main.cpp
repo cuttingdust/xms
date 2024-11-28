@@ -20,6 +20,8 @@ public:
 
 int main(int argc, char *argv[])
 {
+    XDirServiceHandle::regMsgCallback();
+
     XTestService service;
     service.setServerPort(SPORT);
     service.start();

@@ -10,8 +10,10 @@
 
 #ifndef XMSG_H
 #define XMSG_H
-
+#include "XPlatfrom_Global.h"
 #include "XMsgType.pb.h"
+#include "XMsgCom.pb.h"
+
 #include <cstring>
 #define MAX_MSG_SIZE 8192 /// 头部消息的最大字节数
 

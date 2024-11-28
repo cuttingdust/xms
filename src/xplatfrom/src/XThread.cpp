@@ -17,7 +17,7 @@
 /// 激活线程任务的回调函数
 static void notify_cb(evutil_socket_t fd, short which, void *arg)
 {
-    auto *t = (XThread *)arg;
+    auto *t = static_cast<XThread *>(arg);
     t->notify(fd, which);
 }
 
@@ -47,9 +47,7 @@ XThread::XThread()
     impl_ = std::make_shared<PImpl>(this);
 }
 
-XThread::~XThread()
-{
-}
+XThread::~XThread() = default;
 
 /// 安装线程，初始化event_base和管道监听事件用于激活
 auto XThread::setup() -> bool

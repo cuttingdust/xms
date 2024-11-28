@@ -9,10 +9,13 @@
 
 int main(int argc, char *argv[])
 {
+    XTestClient::regMsgCallback();
+
     XTestClient *client = new XTestClient;
     client->setServerIp("127.0.0.1");
     client->setServerPort(SPORT);
     client->StartConnect();
+
     for (int i = 0; i < 100000; ++i)
     {
         std::stringstream ss;

@@ -7,8 +7,7 @@ protobuf::libprotobuf
 protobuf::libprotobuf-lite
 )
 
-set(${PROJECT_NAME}_SHARED OFF CACHE BOOL "" FORCE)
-
+set(${PROJECT_NAME}_SHARED ON CACHE BOOL "" FORCE)
 cpp_library(${PROJECT_NAME})
 
 if(MSVC)

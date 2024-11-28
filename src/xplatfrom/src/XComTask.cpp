@@ -7,7 +7,6 @@
 #include <event2/event.h>
 
 #include <iostream>
-#include <mutex>
 
 static void SReadCb(struct bufferevent *bev, void *ctx)
 {
@@ -99,7 +98,7 @@ auto XComTask::connect() const -> bool
     sin.sin_family = AF_INET;
     sin.sin_port   = htons(impl_->serverPort_);
     evutil_inet_pton(AF_INET, impl_->serverIp_, &sin.sin_addr.s_addr);
-    impl_->mtx_->lock();
+    XMutex xMtx(impl_->mtx_);
     impl_->is_connected_  = false;
     impl_->is_connecting_ = false;
     if (!impl_->bev_)
@@ -138,9 +137,10 @@ auto XComTask::init() -> bool
     if (comSock <= 0)
         comSock = -1;
 
-    impl_->mtx_->lock();
-    impl_->initBev(comSock);
-    impl_->mtx_->unlock();
+    {
+        XMutex xMtx(impl_->mtx_);
+        impl_->initBev(comSock);
+    }
 
     // timeval tv = { 3, 0 };
     // bufferevent_set_timeouts(impl_->bev_, &tv, &tv);
@@ -218,7 +218,7 @@ int XComTask::read(void *data, int size)
 
 void XComTask::writeCB()
 {
-    std::cout << "writeCB" << std::endl;
+    std::cout << "XComTask::writeCB" << std::endl;
 }
 
 bool XComTask::write(const void *data, int size)
@@ -245,7 +245,8 @@ void XComTask::beginWriteCB()
 
 void XComTask::close()
 {
-    impl_->mtx_->lock();
+    XMutex xMtx(impl_->mtx_);
+
     impl_->is_connected_  = false;
     impl_->is_connecting_ = false;
 
@@ -260,7 +261,6 @@ void XComTask::close()
         delete impl_->msg_.data;
         memset(&impl_->msg_, 0, sizeof(impl_->msg_));
     }
-    impl_->mtx_->unlock();
 
-    delete this;
+    // delete this;
 }

@@ -5,12 +5,6 @@
 
 #include <thread>
 
-
-void XTestClient::readCB()
-{
-    LOGDEBUG("XTestClient::readCB");
-}
-
 void XTestClient::connectCB()
 {
     LOGDEBUG("XTestClient::connectCB()");
@@ -37,6 +31,38 @@ bool XTestClient::getDir(const std::string &path)
     head.set_token("test token");
     return sendMsg(&head, &req);
 }
+
+void XTestClient::dirRes(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("XTestClient::dirRes");
+    if (!head || !msg || !msg->data || msg->size <= 0)
+    {
+        LOGDEBUG("XTestClient::dirRes msg error");
+        return;
+    }
+
+    xmsg::XDirRes res;
+    if (!res.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("res.ParseFromArray failed!");
+        return;
+    }
+
+    std::cout << "============= recv dir ==================" << std::endl;
+    for (int i = 0; i < res.dirs_size(); i++)
+    {
+        const auto       &dir = res.dirs(i);
+        std::stringstream ss;
+        ss << "filename = " << dir.filename() << " filesize = " << dir.filesize();
+        LOGDEBUG(ss.str().c_str());
+    }
+}
+
+void XTestClient::regMsgCallback()
+{
+    regCB(xmsg::MT_DIR_RES, static_cast<MsgCBFunc>(&XTestClient::dirRes));
+}
+
 
 bool XTestClient::autoConnect(int timeout_ms)
 {

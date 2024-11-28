@@ -17,6 +17,12 @@ class XDirServiceHandle : public XServiceHandle
 public:
     XDirServiceHandle();
     ~XDirServiceHandle() override;
+
+    ///处理用户的目录请求
+    void dirReq(xmsg::XMsgHead *head, XMsg *msg);
+
+    /// \brief 注册消息回调函数
+    static void regMsgCallback();
 };
 
 

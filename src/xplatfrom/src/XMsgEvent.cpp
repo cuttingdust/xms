@@ -1,7 +1,14 @@
 #include "XMsgEvent.h"
-#include "XMsgCom.pb.h"
+#include "XTools.h"
+
+#include <XMsgCom.pb.h>
 
 #include <event2/bufferevent.h>
+
+#include <sstream>
+#include <iostream>
+
+static std::map<xmsg::MsgType, XMsgEvent::MsgCBFunc> msg_callbacks;
 
 class XMsgEvent::PImpl
 {
@@ -11,9 +18,9 @@ public:
 
 public:
     XMsgEvent      *owenr_ = nullptr;
-    XMsg            head_;    /// 消息头
-    XMsg            msg_;     /// 消息内容
-    xmsg::XMsgHead *pb_head_; /// <pb消息头
+    XMsg            head_;              /// 消息头
+    XMsg            msg_;               /// 消息内容
+    xmsg::XMsgHead *pb_head_ = nullptr; /// <pb消息头
 };
 
 XMsgEvent::PImpl::PImpl(XMsgEvent *owenr) : owenr_(owenr)
@@ -44,10 +51,36 @@ void XMsgEvent::readCB()
         return;
     }
 
-    std::cout << "service_name = " << impl_->pb_head_->servername() << std::endl;
+    // std::cout << "service_name = " << impl_->pb_head_->servername() << std::endl;
+    LOGDEBUG(impl_->pb_head_->servername());
+    readCB(impl_->pb_head_, msg);
+    clear();
+}
 
-    /// 消息处理
-    // handleMsg(msg);
+void XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg)
+{
+    /// 回调消息函数
+    auto iter = msg_callbacks.find(head->msgtype());
+    if (iter == msg_callbacks.end())
+    {
+        clear();
+        LOGDEBUG("msg error func not set!");
+        return;
+    }
+    auto func = iter->second;
+    (this->*func)(impl_->pb_head_, msg);
+}
+void XMsgEvent::regCB(const xmsg::MsgType &type, MsgCBFunc func)
+{
+    if (msg_callbacks.find(type) != msg_callbacks.end())
+    {
+        std::stringstream ss;
+        ss << "regCB is error," << type << " have been set " << std::endl;
+        LOGERROR(ss.str().c_str());
+        return;
+    }
+
+    msg_callbacks[type] = func;
 }
 
 bool XMsgEvent::recvMsg()
@@ -84,7 +117,7 @@ bool XMsgEvent::recvMsg()
         impl_->head_.recvSize += len;
         if (!impl_->head_.recved())
             return true;
-        if (impl_->pb_head_)
+        if (!impl_->pb_head_)
         {
             impl_->pb_head_ = new xmsg::XMsgHead();
         }
@@ -177,6 +210,7 @@ bool XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Me
 
     xmsg::XMsgHead head;
     head.set_msgtype(msgType);
+
     return sendMsg(&head, msg);
 }
 
