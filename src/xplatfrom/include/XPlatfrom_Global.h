@@ -1,5 +1,5 @@
-#ifndef XCOM_GLOBAL_H
-#define XCOM_GLOBAL_H
+#ifndef XPLATFROM_GLOBAL_H
+#define XPLATFROM_GLOBAL_H
 
 #ifdef _WIN32
 
@@ -16,4 +16,4 @@
 #define XPLATFROM_EXPORT
 #endif
 
-#endif // XCOM_GLOBAL_H
+#endif // XPLATFROM_GLOBAL_H
