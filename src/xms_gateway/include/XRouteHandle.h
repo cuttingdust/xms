@@ -22,6 +22,8 @@ public:
 public:
     void readCB(xmsg::XMsgHead *head, XMsg *msg) override;
 
+
+    /// \brief
     void close() override;
 };
 

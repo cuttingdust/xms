@@ -230,3 +230,9 @@ void XMsgEvent::clear()
     impl_->head_.clear();
     impl_->msg_.clear();
 }
+
+auto XMsgEvent::close() -> void
+{
+    clear();
+    XComTask::close();
+}
