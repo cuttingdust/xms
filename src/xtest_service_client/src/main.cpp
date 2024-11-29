@@ -5,16 +5,14 @@
 #include <iostream>
 #include <thread>
 
-#define SPORT 8080
-
 int main(int argc, char *argv[])
 {
     XTestClient::regMsgCallback();
 
     XTestClient *client = new XTestClient;
     client->setServerIp("127.0.0.1");
-    client->setServerPort(SPORT);
-    client->StartConnect();
+    client->setServerPort(API_GATEWAY_PORT);
+    client->startConnect();
 
     for (int i = 0; i < 100000; ++i)
     {

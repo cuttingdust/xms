@@ -4,10 +4,6 @@
 #include <XThreadPool.h>
 #include <XTools.h>
 
-#include <iostream>
-
-#define SPORT 8080
-
 class XTestService : public XService
 {
 public:
@@ -20,10 +16,15 @@ public:
 
 int main(int argc, char *argv[])
 {
+    int server_port = 20011;
+    if (argc > 1)
+        server_port = atoi(argv[1]);
+    std::cout << "server port is " << server_port << std::endl;
+
     XDirServiceHandle::regMsgCallback();
 
     XTestService service;
-    service.setServerPort(SPORT);
+    service.setServerPort(server_port);
     service.start();
     XThreadPool::wait();
 

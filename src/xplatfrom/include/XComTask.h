@@ -34,7 +34,7 @@ public:
     /// \return
     auto connect() const -> bool;
 
-protected:
+    // protected:
     /// \brief 是否已连接
     /// \return
     auto isConnected() const -> bool;

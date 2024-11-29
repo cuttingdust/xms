@@ -10,13 +10,11 @@
 
 #ifndef XMSG_H
 #define XMSG_H
-#include "XPlatfrom_Global.h"
 #include "XMsgType.pb.h"
-#include "XMsgCom.pb.h"
 
 #include <cstring>
-#define MAX_MSG_SIZE 8192 /// 头部消息的最大字节数
-
+#define MAX_MSG_SIZE     8192 /// 头部消息的最大字节数
+#define API_GATEWAY_PORT 20010
 
 /// 所有的函数做内联
 class XMsg

@@ -10,13 +10,16 @@ set(DPS_LIBRARYS
 set(${PROJECT_NAME}_SHARED ON CACHE BOOL "" FORCE)
 
 #################### 导出PB-h ####################
-set(PROTOC_EXPORT_INCLUDE XPlatfrom_Global.h)
+set(PROTOC_EXPORT_INCLUDE "XPlatfrom_Global.h")
 set(PROTOC_EXPORT_CLASS 
     XMsgHead 
     XDirReq
     XDirRes
+    XServiceMap
+    XServiceMap_XService
+    XServiceMap_XServiceList
 )
-set(PROTOC_EXPORT_DEFINE XPLATFROM_EXPORT)
+set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 
 cpp_library(${PROJECT_NAME})
 

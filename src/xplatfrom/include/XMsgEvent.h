@@ -32,7 +32,7 @@ public:
     /// \brief 接收消息 分发消息
     void readCB() override;
 
-    void readCB(xmsg::XMsgHead *head, XMsg *msg);
+    virtual void readCB(xmsg::XMsgHead *head, XMsg *msg);
 
     /// \brief 添加消息处理的回调函数，根据消息类型分发 ,同一个类型只能有一个回调函数
     /// \param type 消息类型
@@ -52,12 +52,14 @@ public:
     /// \return 如果没有完整的数据包，返回NULL
     auto getMsg() const -> XMsg *;
 
-    auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool;
+    virtual auto sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool;
+
+    virtual auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool;
 
     /// \brief 发送消息 包含头部（自动创建）
     /// \param msgType  消息类型
     /// \param msg      消息内容
-    auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool;
+    virtual auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool;
 
 
     /// \brief 清理缓存消息头和消息内容，用于接收下一次消息

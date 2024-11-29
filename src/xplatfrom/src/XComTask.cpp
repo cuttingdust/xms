@@ -179,6 +179,9 @@ void XComTask::eventCB(short events)
     if (events & BEV_EVENT_CONNECTED)
     {
         std::cout << "BEV_EVENT_CONNECTED" << std::endl;
+        std::stringstream ss;
+        ss << "connnect server " << impl_->serverIp_ << ":" << impl_->serverPort_ << " success!";
+        LOGINFO(ss.str().c_str());
 
         /// 连接成功后发送消息
         impl_->is_connected_  = true;

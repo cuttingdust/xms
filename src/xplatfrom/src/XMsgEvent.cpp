@@ -169,17 +169,11 @@ auto XMsgEvent::getMsg() const -> XMsg *
     return impl_->msg_.recved() ? &impl_->msg_ : nullptr;
 }
 
-bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg)
+auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
 {
-    if (!msg || !head)
+    if (!head || !msg)
         return false;
-
-    ////////////////////////封包////////////////////////
-
-    /// 消息内容序列化
-    std::string msgStr  = msg->SerializeAsString();
-    int         msgSize = msgStr.size();
-    head->set_msgsize(msgSize);
+    head->set_msgsize(msg->size);
 
     /// 消息头序列化
     std::string headStr  = head->SerializeAsString();
@@ -196,11 +190,28 @@ bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *m
         return false;
 
     /// 3 发送消息内容 （pb序列化） 业务proto
-    re = write(msgStr.data(), msgStr.size());
+    re = write(msg->data, msg->size);
     if (!re)
         return false;
 
     return true;
+}
+
+bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg)
+{
+    if (!msg || !head)
+        return false;
+
+    ////////////////////////封包////////////////////////
+
+    /// 消息内容序列化
+    std::string msgStr  = msg->SerializeAsString();
+    int         msgSize = msgStr.size();
+
+    XMsg xMsg;
+    xMsg.data = (char *)msgStr.data();
+    xMsg.size = msgSize;
+    return sendMsg(head, &xMsg);
 }
 
 bool XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg)

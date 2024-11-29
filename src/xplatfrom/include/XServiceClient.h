@@ -22,7 +22,7 @@ public:
 
 public:
     /// \brief 将任务加入到线程池中，进行连接
-    virtual void StartConnect();
+    virtual void startConnect();
 
 private:
     class PImpl;
