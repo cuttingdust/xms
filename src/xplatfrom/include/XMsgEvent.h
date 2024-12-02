@@ -65,6 +65,8 @@ public:
     /// \brief 清理缓存消息头和消息内容，用于接收下一次消息
     auto clear() -> void;
 
+    auto close() -> void;
+
 private:
     class PImpl;
     std::shared_ptr<PImpl> impl_;

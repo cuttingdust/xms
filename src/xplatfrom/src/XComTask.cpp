@@ -226,6 +226,7 @@ void XComTask::writeCB()
 
 bool XComTask::write(const void *data, int size)
 {
+    XMutex xMtx(impl_->mtx_);
     if (!impl_->bev_ || !data || size <= 0)
     {
         return false;

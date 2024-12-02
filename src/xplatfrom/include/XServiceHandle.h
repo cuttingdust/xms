@@ -26,6 +26,9 @@ public:
 
     void setClientPort(int port);
 
+public:
+    void close() override;
+
 private:
     class PImpl;
     std::shared_ptr<PImpl> impl_;

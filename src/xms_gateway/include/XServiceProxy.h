@@ -22,15 +22,18 @@ public:
     }
 
 public:
+    /// \brief 清理消息回调
+    /// \param ev
     void delEvent(XMsgEvent *ev);
 
     /// \brief 负载均衡找到客户端连接 进行数据发送
-    /// \param head
+    /// \param head 消息头 含路由信息
     /// \param msg
     /// \param ev
     /// \return
     bool sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev);
 
+    /// \brief 开启自动重连的线程
     void start();
 
     /// \brief 初始化微服务列表(注册中心获取),建立连接

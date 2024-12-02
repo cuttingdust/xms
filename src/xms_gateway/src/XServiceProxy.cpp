@@ -35,6 +35,8 @@ void XServiceProxy::PImpl::threadFunc()
     /// 自动重连
     while (!is_exit_)
     {
+        /// 从注册中心获取 微服务的列表更新
+        /// 定时全部重新获取
         for (const auto &[service_name, proxyClient] : client_map_)
         {
             for (const auto c : proxyClient)

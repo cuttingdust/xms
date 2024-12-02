@@ -42,3 +42,8 @@ void XServiceHandle::setClientPort(int port)
 {
     impl_->client_port_ = port;
 }
+
+void XServiceHandle::close()
+{
+    XMsgEvent::close();
+}

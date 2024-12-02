@@ -17,6 +17,7 @@ void XRouteHandle::readCB(xmsg::XMsgHead *head, XMsg *msg)
 
 void XRouteHandle::close()
 {
+    LOGDEBUG("XRouteHandle::close");
     XServiceHandle::close();
     XServiceProxy::get()->delEvent(this);
 }
