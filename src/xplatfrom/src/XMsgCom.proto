@@ -73,3 +73,22 @@ message XServiceMap
 	}
 	map<string,XServiceList> serviceMap = 1;
 }
+
+message XRegisterReq
+{
+	string name = 1; ///< 服务名称
+	int32  port = 2; ///< 服务端口
+	string ip	= 3; ///< 服务ip
+}
+
+/// 通用响应 MT_REGISTER_RES 注册服务响应
+message XMessageRes
+{
+	enum XReturn
+	{
+		XR_OK	 = 0;		
+		XR_ERROR = 1;
+	}
+	XReturn return = 1;
+	string  msg	   = 2;
+}

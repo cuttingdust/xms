@@ -1,12 +1,13 @@
 syntax="proto3";	/// 语言版本
 package xmsg;		/// 包名(命名空间)
 
-enum MsgType {				/// 枚举类型
-	NONE_DO_NOT_USE = 0;	///<<< 无效值
-	
-	MT_LOGIN_REQ = 1;		///<<< 客户端用户名和密码登陆请求 XLoginReq
-	MT_LOGIN_RES = 2;		///<<< 服务端响应回复消息 XLoginRes
-	MT_DIR_REQ	 = 3;		///<<< 客户端请求目录 XDirReq
-	MT_DIR_RES   = 4;		///<<< 服务端响应目录 XDirRes
-	MT_MAX_TYPE  = 65535;
+enum MsgType {				 ///<<< 枚举类型
+	MT_NONE_DO_NOT_USE  = 0; ///<<< 无效值
+	MT_LOGIN_REQ		= 1; ///<<< 客户端用户名和密码登陆请求 XLoginReq
+	MT_LOGIN_RES		= 2; ///<<< 服务端响应回复消息 XLoginRes
+	MT_DIR_REQ			= 3; ///<<< 客户端请求目录 XDirReq
+	MT_DIR_RES			= 4; ///<<< 服务端响应目录 XDirRes
+	MT_REGISTER_RES		= 5; ///<<< 注册服务请求
+	MT_REGISTER_REQ		= 6; ///<<< 注册服务响应
+	MT_MAX_TYPE			= 65535;
 }

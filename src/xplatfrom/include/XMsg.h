@@ -13,17 +13,18 @@
 #include "XMsgType.pb.h"
 
 #include <cstring>
-#define MAX_MSG_SIZE     8192 /// 头部消息的最大字节数
-#define API_GATEWAY_PORT 20010
+#define MAX_MSG_SIZE     8192  /// 头部消息的最大字节数
+#define API_GATEWAY_PORT 20010 /// API网关端口
+#define REGISTER_PORT    20018 /// 注册中心端口
 
 /// 所有的函数做内联
 class XMsg
 {
 public:
-    int           size     = 0;                     ///< 数据大小
-    xmsg::MsgType type     = xmsg::NONE_DO_NOT_USE; ///< 消息类型
-    char         *data     = 0;                     ///< 数据存放（protobuf的序列化后的数据）
-    int           recvSize = 0;                     ///< 已经接收的数据大小
+    int           size     = 0;                        ///< 数据大小
+    xmsg::MsgType type     = xmsg::MT_NONE_DO_NOT_USE; ///< 消息类型
+    char         *data     = 0;                        ///< 数据存放（protobuf的序列化后的数据）
+    int           recvSize = 0;                        ///< 已经接收的数据大小
 public:
     bool alloc(int s)
     {

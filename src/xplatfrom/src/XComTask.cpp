@@ -266,5 +266,6 @@ void XComTask::close()
         memset(&impl_->msg_, 0, sizeof(impl_->msg_));
     }
 
-    // delete this;
+    /// TODO 清理连接对象空间，如果断开重连，需要单独处理
+    delete this;
 }
