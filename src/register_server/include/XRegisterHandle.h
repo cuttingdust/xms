@@ -16,8 +16,9 @@
 class XRegisterHandle : public XServiceHandle
 {
 public:
-    XRegisterHandle();
-    ~XRegisterHandle() override;
+    void registerReq(xmsg::XMsgHead *head, XMsg *msg);
+
+    static void regMsgCallback();
 };
 
 

@@ -36,6 +36,10 @@ public:
     /// \param ip            微服务IP 如果传递NULL，则采用客户端连接地址
     void registerServer(const char *service_name, int port, const char *ip);
 
+    void registerRes(xmsg::XMsgHead *head, XMsg *msg);
+
+    void regMsgCallback();
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;

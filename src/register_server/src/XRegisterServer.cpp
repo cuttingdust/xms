@@ -5,6 +5,8 @@
 
 void XRegisterServer::main(int argc, char *argv[])
 {
+    XRegisterHandle::regMsgCallback();
+
     int port = REGISTER_PORT;
     if (argc > 1)
         port = atoi(argv[1]);

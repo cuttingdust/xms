@@ -39,6 +39,8 @@ void XRegisterClient::connectCB()
 
 void XRegisterClient::registerServer(const char *service_name, int port, const char *ip)
 {
+    /// 注册消息回调函数
+    regMsgCallback();
     /// 发送消息到服务器
     /// 服务器连接是否成功？
     /// 注册中心的IP，注册中心的端口
@@ -50,4 +52,28 @@ void XRegisterClient::registerServer(const char *service_name, int port, const c
 
     /// 把任务加入到线程池中
     startConnect();
+}
+
+void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("接收到注册服务的响应");
+    xmsg::XMessageRes res;
+    if (!res.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("XRegisterClient::RegisterRes failed!res.ParseFromArray failed!");
+        return;
+    }
+    if (res.return_() == xmsg::XMessageRes::XR_OK)
+    {
+        LOGDEBUG("注册微服务成功");
+        return;
+    }
+    std::stringstream ss;
+    ss << "注册微服务失败 " << res.msg();
+    LOGDEBUG(ss.str().c_str());
+}
+
+void XRegisterClient::regMsgCallback()
+{
+    regCB(xmsg::MT_REGISTER_RES, static_cast<MsgCBFunc>(&XRegisterClient::registerRes));
 }
