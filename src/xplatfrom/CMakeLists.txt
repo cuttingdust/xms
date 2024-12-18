@@ -20,6 +20,7 @@ set(PROTOC_EXPORT_CLASS
     XServiceMap_XServiceList
 	XRegisterReq
 	XMessageRes
+    XGetServiceReq
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

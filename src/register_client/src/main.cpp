@@ -20,7 +20,12 @@ int main(int argc, char *argv[])
 
     XRegisterClient::get()->setServerIp(ip.c_str());
     XRegisterClient::get()->setServerPort(port);
-    XRegisterClient::get()->registerServer("test", 20020, "127.0.0.1");
+    XRegisterClient::get()->registerServer("test", 20020, 0);
+    XRegisterClient::get()->waitConnected(3);
+
+    XRegisterClient::get()->getServiceReq(NULL);
+    XRegisterClient::get()->getServiceReq("test");
+
     XThreadPool::wait();
     return 0;
 }

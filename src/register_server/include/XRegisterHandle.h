@@ -16,7 +16,15 @@
 class XRegisterHandle : public XServiceHandle
 {
 public:
+    /// \brief 接收服务的注册请求
+    /// \param head
+    /// \param msg
     void registerReq(xmsg::XMsgHead *head, XMsg *msg);
+
+    /// \brief 接收服务的发现请求
+    /// \param head
+    /// \param msg
+    void getServiceReq(xmsg::XMsgHead *head, XMsg *msg);
 
     static void regMsgCallback();
 };

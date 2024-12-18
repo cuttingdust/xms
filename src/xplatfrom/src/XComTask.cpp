@@ -174,6 +174,19 @@ void XComTask::setIsRecvMsg(bool isRecvMsg)
     impl_->isRecvMsg = isRecvMsg;
 }
 
+bool XComTask::waitConnected(int timeout_sec)
+{
+    /// 10∫¡√Îº‡Ã˝“ª¥Œ
+    int count = timeout_sec * 100;
+    for (int i = 0; i < count; i++)
+    {
+        if (isConnected())
+            return true;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    return isConnected();
+}
+
 void XComTask::eventCB(short events)
 {
     if (events & BEV_EVENT_CONNECTED)

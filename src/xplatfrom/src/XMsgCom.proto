@@ -72,6 +72,7 @@ message XServiceMap
 		repeated XService services = 1;
 	}
 	map<string,XServiceList> serviceMap = 1;
+	XMessageRes				 res		= 2;
 }
 
 message XRegisterReq
@@ -90,5 +91,17 @@ message XMessageRes
 		XR_ERROR = 1;
 	}
 	XReturn return = 1;
-	string  msg	   = 2;
+	bytes  msg	   = 2;
+}
+
+/// MT_GET_SERVICE_REQ = 7;	/// 发现服务请求
+message XGetServiceReq
+{
+	string name = 1; ///<	服务名称，如果未空，则获取所有服务
+	enum XType
+	{
+		XT_ONE = 0;	///<<< 只取一类服务	
+		XT_ALL = 1;	///<<< 取全部服务
+	}
+	XType type = 2;
 }

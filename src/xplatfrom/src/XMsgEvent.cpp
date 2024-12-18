@@ -37,24 +37,28 @@ XMsgEvent::~XMsgEvent() = default;
 
 void XMsgEvent::readCB()
 {
-    if (!recvMsg())
+    /// TODO 如果线程退出
+    while (true)
     {
-        std::cerr << "recvMsg failed!" << std::endl;
+        if (!recvMsg())
+        {
+            // std::cerr << "recvMsg failed!" << std::endl;
+            clear();
+            return;
+        }
+
+        auto *msg = getMsg();
+        if (!msg)
+        {
+            std::cerr << "getMsg failed!" << std::endl;
+            return;
+        }
+
+        // std::cout << "service_name = " << impl_->pb_head_->servername() << std::endl;
+        LOGDEBUG(impl_->pb_head_->servername());
+        readCB(impl_->pb_head_, msg);
         clear();
-        return;
     }
-
-    auto *msg = getMsg();
-    if (!msg)
-    {
-        std::cerr << "getMsg failed!" << std::endl;
-        return;
-    }
-
-    // std::cout << "service_name = " << impl_->pb_head_->servername() << std::endl;
-    LOGDEBUG(impl_->pb_head_->servername());
-    readCB(impl_->pb_head_, msg);
-    clear();
 }
 
 void XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg)

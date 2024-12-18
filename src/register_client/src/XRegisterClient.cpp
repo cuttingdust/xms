@@ -73,7 +73,37 @@ void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
     LOGDEBUG(ss.str().c_str());
 }
 
+void XRegisterClient::getServiceReq(const char *service_name)
+{
+    LOGDEBUG("发出有获取微服务列表的请求");
+    xmsg::XGetServiceReq req;
+    if (service_name)
+    {
+        req.set_type(xmsg::XGetServiceReq::XT_ONE);
+        req.set_name(service_name);
+    }
+    else
+    {
+        req.set_type(xmsg::XGetServiceReq::XT_ALL);
+    }
+
+    sendMsg(xmsg::MT_GET_SERVICE_REQ, &req);
+}
+
+void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("获取服务列表的响应");
+    xmsg::XServiceMap service_map;
+    if (!service_map.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("service_map.ParseFromArray failed!");
+        return;
+    }
+    LOGDEBUG(service_map.DebugString());
+}
+
 void XRegisterClient::regMsgCallback()
 {
     regCB(xmsg::MT_REGISTER_RES, static_cast<MsgCBFunc>(&XRegisterClient::registerRes));
+    regCB(xmsg::MT_GET_SERVICE_RES, static_cast<MsgCBFunc>(&XRegisterClient::getServiceRes));
 }

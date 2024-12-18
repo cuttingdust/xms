@@ -110,7 +110,38 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
     sendMsg(xmsg::MT_REGISTER_RES, &res);
 }
 
+void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
+{
+    /// 暂时只发送全部
+    LOGDEBUG("接收服务的发现请求");
+    xmsg::XGetServiceReq req;
+
+    /// 错误处理
+    xmsg::XServiceMap res;
+    res.mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_ERROR);
+    if (!req.ParseFromArray(msg->data, msg->size))
+    {
+        std::stringstream ss;
+        ss << "req.ParseFromArray failed!";
+        LOGDEBUG(ss.str().c_str());
+        res.mutable_res()->set_msg(ss.str().c_str());
+        sendMsg(xmsg::MT_GET_SERVICE_RES, &res);
+        return;
+    }
+    std::string       service_name = req.name();
+    std::stringstream ss;
+    ss << "GetServiceReq : service name " << service_name;
+    LOGDEBUG(ss.str().c_str());
+
+    /// 发送全部微服务数据
+    service_map_mutex.lock();
+    service_map->mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_OK);
+    sendMsg(xmsg::MT_GET_SERVICE_RES, service_map);
+    service_map_mutex.unlock();
+}
+
 void XRegisterHandle::regMsgCallback()
 {
     regCB(xmsg::MT_REGISTER_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::registerReq));
+    regCB(xmsg::MT_GET_SERVICE_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::getServiceReq));
 }

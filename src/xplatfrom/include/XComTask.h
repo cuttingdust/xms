@@ -54,6 +54,10 @@ public:
 
     void setIsRecvMsg(bool isRecvMsg);
 
+    /// \brief 等待连接成功
+    /// \param timeout_sec 最大等待时间
+    bool waitConnected(int timeout_sec);
+
 public:
     virtual void eventCB(short events);
 

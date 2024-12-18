@@ -7,7 +7,9 @@ enum MsgType {				 ///<<< 枚举类型
 	MT_LOGIN_RES		= 2; ///<<< 服务端响应回复消息 XLoginRes
 	MT_DIR_REQ			= 3; ///<<< 客户端请求目录 XDirReq
 	MT_DIR_RES			= 4; ///<<< 服务端响应目录 XDirRes
-	MT_REGISTER_RES		= 5; ///<<< 注册服务请求
-	MT_REGISTER_REQ		= 6; ///<<< 注册服务响应
+	MT_REGISTER_REQ		= 5; ///<<< 注册服务响应 XRegisterReq
+	MT_REGISTER_RES		= 6; ///<<< 注册服务请求 XMessageRes
+	MT_GET_SERVICE_REQ  = 7; ///<<< 发现服务请求 XGetServiceReq
+	MT_GET_SERVICE_RES  = 8; ///<<< 发现服务响应 XServiceMap
 	MT_MAX_TYPE			= 65535;
 }

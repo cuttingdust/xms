@@ -44,7 +44,19 @@ public:
     /// \param ip            微服务IP 如果传递NULL，则采用客户端连接地址
     void registerServer(const char *service_name, int port, const char *ip);
 
+    /// \brief 接收服务的注册响应
+    /// \param head
+    /// \param msg
     void registerRes(xmsg::XMsgHead *head, XMsg *msg);
+
+    /// \brief 发出有获取微服务列表的请求
+    /// \param service_name service_name == NULL 则取全部
+    void getServiceReq(const char *service_name);
+
+    /// \brief 获取服务列表的响应
+    /// \param head
+    /// \param msg
+    void getServiceRes(xmsg::XMsgHead *head, XMsg *msg);
 
     void regMsgCallback();
 
