@@ -18,8 +18,16 @@ class XRegisterClient : public XServiceClient
 public:
     static XRegisterClient *get()
     {
-        static XRegisterClient r;
-        return &r;
+        /// TODO 内部存在指针清理行为
+        static std::once_flag   s_flag;
+        static XRegisterClient *r = nullptr;
+        std::call_once(s_flag,
+                       [&]()
+                       {
+                           if (!r)
+                               r = new XRegisterClient;
+                       });
+        return r;
     }
 
 private:

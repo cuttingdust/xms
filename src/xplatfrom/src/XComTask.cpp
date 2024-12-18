@@ -249,21 +249,23 @@ void XComTask::beginWriteCB()
 
 void XComTask::close()
 {
-    XMutex xMtx(impl_->mtx_);
-
-    impl_->is_connected_  = false;
-    impl_->is_connecting_ = false;
-
-    if (impl_->bev_)
     {
-        bufferevent_free(impl_->bev_);
-        impl_->bev_ = nullptr;
-    }
+        XMutex xMtx(impl_->mtx_);
 
-    if (impl_->msg_.data)
-    {
-        delete impl_->msg_.data;
-        memset(&impl_->msg_, 0, sizeof(impl_->msg_));
+        impl_->is_connected_  = false;
+        impl_->is_connecting_ = false;
+
+        if (impl_->bev_)
+        {
+            bufferevent_free(impl_->bev_);
+            impl_->bev_ = nullptr;
+        }
+
+        if (impl_->msg_.data)
+        {
+            delete impl_->msg_.data;
+            memset(&impl_->msg_, 0, sizeof(impl_->msg_));
+        }
     }
 
     /// TODO 清理连接对象空间，如果断开重连，需要单独处理

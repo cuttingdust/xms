@@ -2,6 +2,12 @@
 
 #include <XTools.h>
 
+/// 注册服务列表的缓存
+static xmsg::XServiceMap *service_map = 0;
+
+/// 多线程访问的锁
+static std::mutex service_map_mutex;
+
 void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
 {
     LOGDEBUG("服务端接收到用户的注册请求");
@@ -59,6 +65,46 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
 
 
     /// 存储用户注册信息，如果已经注册需要更新
+    {
+        XMutex mutex(&service_map_mutex);
+        if (!service_map)
+            service_map = new xmsg::XServiceMap();
+        auto smap = service_map->mutable_servicemap();
+
+        /// 是否由同类型已经注册
+        /// 集群微服务
+        auto service_list = smap->find(service_name);
+        if (service_list == smap->end())
+        {
+            /// 没有注册过
+            (*smap)[service_name] = xmsg::XServiceMap::XServiceList();
+            service_list          = smap->find(service_name);
+        }
+        auto services = service_list->second.mutable_services();
+        /// 查找是否用同ip和端口的
+        for (const auto &service : (*services))
+        {
+            if (service.ip() == service_ip && service.port() == service_port)
+            {
+                std::stringstream ss;
+                ss << service_name << "|" << service_ip << ":" << service_port << "微服务已经注册过";
+                LOGDEBUG(ss.str().c_str());
+                res.set_return_(xmsg::XMessageRes::XR_ERROR);
+                res.set_msg(ss.str());
+                sendMsg(xmsg::MT_REGISTER_RES, &res);
+                return;
+            }
+        }
+        /// 添加新的微服务
+        auto ser = service_list->second.add_services();
+        ser->set_ip(service_ip);
+        ser->set_port(service_port);
+        ser->set_name(service_name);
+        std::stringstream ss;
+        ss << service_name << "|" << service_ip << ":" << service_port << "新的微服务注册成功！";
+        LOGDEBUG(ss.str().c_str());
+    }
+
     res.set_return_(xmsg::XMessageRes::XR_OK);
     res.set_msg("OK");
     sendMsg(xmsg::MT_REGISTER_RES, &res);
