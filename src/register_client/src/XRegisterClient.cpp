@@ -2,6 +2,13 @@
 
 #include <XTools.h>
 
+///注册服务列表的缓存
+static xmsg::XServiceMap *service_map = nullptr;
+static xmsg::XServiceMap *client_map  = nullptr;
+
+/// 多线程访问的锁
+static std::mutex service_map_mutex;
+
 class XRegisterClient::PImpl
 {
 public:
@@ -93,13 +100,33 @@ void XRegisterClient::getServiceReq(const char *service_name)
 void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
 {
     LOGDEBUG("获取服务列表的响应");
-    xmsg::XServiceMap service_map;
-    if (!service_map.ParseFromArray(msg->data, msg->size))
+    XMutex mutex(&service_map_mutex);
+    if (!service_map)
+    {
+        service_map = new xmsg::XServiceMap;
+    }
+
+    if (!service_map->ParseFromArray(msg->data, msg->size))
     {
         LOGDEBUG("service_map.ParseFromArray failed!");
         return;
     }
-    LOGDEBUG(service_map.DebugString());
+    LOGDEBUG(service_map->DebugString());
+}
+
+xmsg::XServiceMap *XRegisterClient::getAllService() const
+{
+    XMutex mutex(&service_map_mutex);
+    if (!service_map)
+    {
+        return nullptr;
+    }
+    if (!client_map)
+    {
+        client_map = new xmsg::XServiceMap();
+    }
+    client_map->CopyFrom(*service_map);
+    return client_map;
 }
 
 void XRegisterClient::regMsgCallback()

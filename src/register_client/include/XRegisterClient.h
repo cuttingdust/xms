@@ -58,6 +58,11 @@ public:
     /// \param msg
     void getServiceRes(xmsg::XMsgHead *head, XMsg *msg);
 
+
+    /// \brief   获取所有的服务列表，复制原数据，每次清理上次的复制数据
+    /// \return  此函数和操作XServiceMap数据的函数在一个线程
+    xmsg::XServiceMap *getAllService() const;
+
     void regMsgCallback();
 
 private:

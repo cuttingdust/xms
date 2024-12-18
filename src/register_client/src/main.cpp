@@ -1,6 +1,7 @@
 #include "XRegisterClient.h"
 
 #include <XThreadPool.h>
+#include <XTools.h>
 
 #include <iostream>
 
@@ -23,8 +24,17 @@ int main(int argc, char *argv[])
     XRegisterClient::get()->registerServer("test", 20020, 0);
     XRegisterClient::get()->waitConnected(3);
 
-    XRegisterClient::get()->getServiceReq(NULL);
+    /// 发送获取全部服务的请求
+    XRegisterClient::get()->getServiceReq(nullptr);
     XRegisterClient::get()->getServiceReq("test");
+    for (;;)
+    {
+        XRegisterClient::get()->getServiceReq(nullptr);
+        if (const auto services = XRegisterClient::get()->getAllService())
+            LOGDEBUG(services->DebugString());
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+
 
     XThreadPool::wait();
     return 0;

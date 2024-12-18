@@ -3,10 +3,10 @@
 #include <XTools.h>
 
 /// 注册服务列表的缓存
-static xmsg::XServiceMap *service_map = 0;
+static xmsg::XServiceMap *service_map = nullptr; // NOLINT(misc-use-anonymous-namespace)
 
 /// 多线程访问的锁
-static std::mutex service_map_mutex;
+static std::mutex service_map_mutex; // NOLINT(misc-use-anonymous-namespace)
 
 void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
 {
