@@ -43,7 +43,8 @@ public:
     int                 serverPort_   = -1;
     char                buffer_[1024] = { 0 };
     XMsg                msg_;
-    bool                isRecvMsg = true; ///< 是否接受消息
+    bool                isRecvMsg    = true; ///< 是否接受消息
+    bool                isAutoDelete = true; ///< 是否自动删除
 
     /// 客户单的连接状态
     /// 1 未处理  => 开始连接 （加入到线程池处理）
@@ -159,9 +160,19 @@ void XComTask::setServerIp(const char *ip)
     strncpy(impl_->serverIp_, ip, sizeof(impl_->serverIp_));
 }
 
+const char *XComTask::getServerIp() const
+{
+    return impl_->serverIp_;
+}
+
 void XComTask::setServerPort(int port)
 {
     impl_->serverPort_ = port;
+}
+
+int XComTask::getServerPort() const
+{
+    return impl_->serverPort_;
 }
 
 void XComTask::setServerRoot(const std::string path)
@@ -172,6 +183,11 @@ void XComTask::setServerRoot(const std::string path)
 void XComTask::setIsRecvMsg(bool isRecvMsg)
 {
     impl_->isRecvMsg = isRecvMsg;
+}
+
+void XComTask::setAutoDelete(bool bAuto)
+{
+    impl_->isAutoDelete = bAuto;
 }
 
 bool XComTask::waitConnected(int timeout_sec)
@@ -282,5 +298,6 @@ void XComTask::close()
     }
 
     /// TODO 清理连接对象空间，如果断开重连，需要单独处理
-    delete this;
+    if (impl_->isAutoDelete)
+        delete this;
 }

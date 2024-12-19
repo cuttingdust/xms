@@ -14,6 +14,7 @@
 
 #include <cstring>
 #define MAX_MSG_SIZE     8192  /// 头部消息的最大字节数
+#define API_GATEWAY_NAME "gw"  /// API网关名称
 #define API_GATEWAY_PORT 20010 /// API网关端口
 #define REGISTER_PORT    20018 /// 注册中心端口
 

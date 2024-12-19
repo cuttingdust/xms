@@ -11,9 +11,10 @@
 #ifndef XREGISTERCLIENT_H
 #define XREGISTERCLIENT_H
 
+#include "XPlatfrom_Global.h"
 #include "XServiceClient.h"
 
-class XRegisterClient : public XServiceClient
+class XPLATFROM_EXPORT XRegisterClient : public XServiceClient
 {
 public:
     static XRegisterClient *get()

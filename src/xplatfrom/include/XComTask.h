@@ -46,13 +46,19 @@ public:
 public:
     /// \brief 设置服务器ip
     /// \param ip
-    void setServerIp(const char* ip);
+    void        setServerIp(const char* ip);
+    const char* getServerIp() const;
 
+    /// \brief 设置服务器端口
+    /// \param port
     void setServerPort(int port);
+    int  getServerPort() const;
 
     void setServerRoot(const std::string path);
 
     void setIsRecvMsg(bool isRecvMsg);
+
+    void setAutoDelete(bool bAuto);
 
     /// \brief 等待连接成功
     /// \param timeout_sec 最大等待时间
