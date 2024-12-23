@@ -31,9 +31,11 @@ set(CMAKE_AUTORCC OFF)
 # 查找 vcpkg 安装的库
 find_package(Qt6 6.7.2 REQUIRED Core Gui Widgets)
 message("Found Qt6 FOUND: ${Qt6_FOUND}")
+
 find_package(Libevent CONFIG REQUIRED)
 message("Found Libevent FOUND: ${Libevent_FOUND}")
 message("Found Libevent VERSION: ${Libevent_VERSION}")
+
 find_package(protobuf CONFIG REQUIRED)
 message("Found protobuf FOUND: ${protobuf_FOUND}")
 message("Found protobuf VERSION: ${protobuf_VERSION}")
@@ -76,9 +78,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CommonTools)
 
 
+add_subdirectory(mysql_api)
 add_subdirectory(xplatfrom)
 add_subdirectory(xtest_service_client)
 add_subdirectory(xtest_pb_service)
 add_subdirectory(xms_gateway)
 add_subdirectory(register_client)
 add_subdirectory(register_server)
+add_subdirectory(config_server)
+add_subdirectory(config_client)
+

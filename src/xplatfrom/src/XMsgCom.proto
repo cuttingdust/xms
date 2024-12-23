@@ -105,3 +105,13 @@ message XGetServiceReq
 	}
 	XType type = 2;
 }
+
+/// ¥Ê¥¢≈‰÷√ƒ⁄»›
+message XConfig
+{
+	string service_name = 1;
+	int32  service_port = 2;
+	string service_ip	= 3;
+	bytes  private_pb	= 4;
+	bytes  proto		= 5;
+}

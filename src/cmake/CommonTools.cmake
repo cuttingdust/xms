@@ -11,12 +11,14 @@ set(SDK_INCLUDE
     # ${UPMODELEDITOR_ROOT}/SDK/me-sdk/include
     # ${UPMODELEDITOR_ROOT}/SDK/sdk/include
     # ${UPMODELEDITOR_ROOT}/SDK/wvm-sdk/include
+	$ENV{MYSQL_SERVER80}/include
 )
 
 set(SDK_LIB_DIRECTORY
     # ${UPMODELEDITOR_ROOT}/SDK/me-sdk/lib
     # ${UPMODELEDITOR_ROOT}/SDK/sdk/lib
     # ${UPMODELEDITOR_ROOT}/SDK/wvm-sdk/lib
+	$ENV{MYSQL_SERVER80}/lib
 )
 
 # 输出路径
