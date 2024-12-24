@@ -3,6 +3,10 @@
 #include <XThreadPool.h>
 #include <XTools.h>
 
+/// key ip_port
+static std::map<std::string, xmsg::XConfig> conf_map;
+static std::mutex                           conf_map_mutex;
+
 XConfigClient::XConfigClient()
 {
 }
@@ -62,6 +66,31 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
         return;
     }
     LOGDEBUG(conf.DebugString().c_str());
+
+    /// key ip_port
+    std::stringstream key;
+    key << conf.service_ip() << "_" << conf.service_port();
+    /// ¸üÐÂÅäÖÃ
+    conf_map_mutex.lock();
+    conf_map[key.str()] = conf;
+    conf_map_mutex.unlock();
+}
+
+bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
+{
+    std::stringstream key;
+    key << ip << "_" << port;
+    XMutex mutex(&conf_map_mutex);
+    /// s²éÕÒÅäÖÃ
+    auto conf = conf_map.find(key.str());
+    if (conf == conf_map.end())
+    {
+        LOGDEBUG("Can`t find conf");
+        return false;
+    }
+    //¸´ÖÆÅäÖÃ
+    out_conf->CopyFrom(conf->second);
+    return true;
 }
 
 

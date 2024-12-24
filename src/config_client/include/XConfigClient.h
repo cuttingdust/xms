@@ -44,6 +44,13 @@ public:
 
     void loadConfigRes(xmsg::XMsgHead *head, XMsg *msg);
 
+    /// \brief
+    /// \param ip
+    /// \param port
+    /// \param out_conf
+    /// \return
+    bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf);
+
     static void regMsgCallback();
 
     void wait();
