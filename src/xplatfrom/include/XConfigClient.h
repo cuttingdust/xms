@@ -11,10 +11,11 @@
 #ifndef XCONFIGCLIENT_H
 #define XCONFIGCLIENT_H
 
+#include "XPlatfrom_Global.h"
 #include <XServiceClient.h>
 
 
-class XConfigClient : public XServiceClient
+class XPLATFROM_EXPORT XConfigClient : public XServiceClient
 {
 public:
     static XConfigClient *get()

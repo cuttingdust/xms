@@ -23,6 +23,7 @@ set(PROTOC_EXPORT_CLASS
     XGetServiceReq
     XConfig
     XLoadConfigReq
+    XDirConfig
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

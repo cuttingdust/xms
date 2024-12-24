@@ -88,7 +88,7 @@ bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
         LOGDEBUG("Can`t find conf");
         return false;
     }
-    //¸´ÖÆÅäÖÃ
+    /// ¸´ÖÆÅäÖÃ
     out_conf->CopyFrom(conf->second);
     return true;
 }

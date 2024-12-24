@@ -59,10 +59,16 @@ public:
     /// \param msg
     void getServiceRes(xmsg::XMsgHead *head, XMsg *msg);
 
-
     /// \brief   获取所有的服务列表，复制原数据，每次清理上次的复制数据
     /// \return  此函数和操作XServiceMap数据的函数在一个线程
-    xmsg::XServiceMap *getAllService() const;
+    auto getAllService() const -> xmsg::XServiceMap *;
+
+    /// \brief 获取指定服务名称的微服务列表 （阻塞函数）
+    /// 1 等待连接成功 2 发送获取微服务的消息 3 等待微服务列表消息反馈（有可能拿到上一次的配置）
+    /// \param service_name 服务名称
+    /// \param timeout_sec 超时时间
+    /// \return 服务列表
+    auto getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList;
 
     void regMsgCallback();
 

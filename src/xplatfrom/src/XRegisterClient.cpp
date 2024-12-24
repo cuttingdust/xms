@@ -129,6 +129,69 @@ xmsg::XServiceMap *XRegisterClient::getAllService() const
     return client_map;
 }
 
+auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList
+{
+    xmsg::XServiceMap::XServiceList result;
+    /// 10ms判断一次
+    int totoal_count = timeout_sec * 100;
+    int count        = 0;
+
+    /// 1 等待连接成功
+    while (count < totoal_count)
+    {
+        //cout << "@" << flush;
+        if (isConnected())
+            break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        count++;
+    }
+
+    if (!isConnected())
+    {
+        LOGDEBUG("连接等待超时");
+        return result;
+    }
+
+    /// 2 发送获取微服务的消息
+    getServiceReq(service_name);
+
+    /// 3 等待微服务列表消息反馈（有可能拿到上一次的配置）
+    while (count < totoal_count)
+    {
+        std::cout << "." << std::flush;
+        XMutex mutex(&service_map_mutex);
+        if (!service_map)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            count++;
+            continue;
+        }
+        auto m = service_map->mutable_servicemap();
+        if (!m)
+        {
+            //cout << "#" << flush;
+            /// 没有找到指定的微服务
+            getServiceReq(service_name);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            count += 10;
+            continue;
+        }
+        auto s = m->find(service_name);
+        if (s == m->end())
+        {
+            // cout << "+" << flush;
+            /// 没有找到指定的微服务
+            getServiceReq(service_name);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            count += 10;
+            continue;
+        }
+        result.CopyFrom(s->second);
+        return result;
+    }
+    return result;
+}
+
 void XRegisterClient::regMsgCallback()
 {
     regCB(xmsg::MT_REGISTER_RES, static_cast<MsgCBFunc>(&XRegisterClient::registerRes));

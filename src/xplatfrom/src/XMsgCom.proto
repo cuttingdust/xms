@@ -122,3 +122,8 @@ message XLoadConfigReq
 	int32	service_port = 1;
 	string	service_ip	 = 2;
 }
+
+message XDirConfig
+{
+	string root = 1;
+}
