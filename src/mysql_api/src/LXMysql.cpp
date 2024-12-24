@@ -331,6 +331,7 @@ auto LXMysql::createTable(const std::string &table_name, const XFIELDS &fileds, 
         switch (field.type)
         {
             case LX_DATA_TYPE::LXD_TYPE_STRING:
+            case LX_DATA_TYPE::LXD_TYPE_VARCHAR:
                 {
                     if (field.length > 0)
                     {
@@ -766,8 +767,80 @@ auto LXMysql::updateBin(const XDATA &kv, const std::string &table_name, const st
         return -1;
     }
 
+    int count = mysql_stmt_affected_rows(stmt);
     mysql_stmt_close(stmt);
-    return mysql_stmt_affected_rows(stmt);
+    return count;
+}
+
+int LXMysql::updateBin(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres)
+{
+    if (!impl_->mysql_)
+    {
+        std::cerr << "Mysql updateBin failed! msyql is not init!!!" << std::endl;
+        return -1;
+    }
+
+    if (kv.empty() || table_name.empty())
+    {
+        std::cerr << "Mysql updateBin failed! kv or table_name is empty!!!" << std::endl;
+        return -1;
+    }
+
+    std::vector<std::string> sets;
+    MYSQL_BIND               bind[256] = { 0 };
+    int                      i         = 0;
+    for (const auto &[key, data] : kv)
+    {
+        sets.emplace_back("`" + key + "`=?");
+        bind[i].buffer        = const_cast<char *>(data.data);
+        bind[i].buffer_length = data.size;
+        bind[i].buffer_type   = static_cast<enum_field_types>(data.type);
+        ++i;
+    }
+
+    std::vector<std::string> temps;
+    temps.reserve(wheres.size());
+    for (const auto &[key, value] : wheres)
+    {
+        temps.emplace_back(std::format("`{}`='{}'", key, value));
+    }
+    auto where = join(temps, " AND ");
+
+    const std::string &set_str = join(sets, ",");
+    const std::string &sql     = std::format("UPDATE `{0}` SET {1} WHERE {2};", table_name, set_str, where);
+
+    /// Ô¤´¦ÀíSQLÓï¾ä
+    MYSQL_STMT *stmt = mysql_stmt_init(impl_->mysql_);
+    if (!stmt)
+    {
+        std::cerr << "Mysql updateBin failed! mysql_stmt_init failed!!!" << std::endl;
+        return -1;
+    }
+
+    if (mysql_stmt_prepare(stmt, sql.c_str(), static_cast<unsigned long>(sql.size())) != 0)
+    {
+        mysql_stmt_close(stmt);
+        std::cerr << "Mysql updateBin failed! mysql_stmt_prepare failed!!!" << std::endl;
+        return -1;
+    }
+
+    if (mysql_stmt_bind_param(stmt, bind) != 0)
+    {
+        mysql_stmt_close(stmt);
+        std::cerr << "Mysql updateBin failed! mysql_stmt_bind_param failed!!!" << std::endl;
+        return -1;
+    }
+
+    if (mysql_stmt_execute(stmt) != 0)
+    {
+        mysql_stmt_close(stmt);
+        std::cerr << "Mysql updateBin failed! mysql_stmt_execute failed!!!" << std::endl;
+        return -1;
+    }
+
+    int count = mysql_stmt_affected_rows(stmt);
+    mysql_stmt_close(stmt);
+    return count;
 }
 
 auto LXMysql::startTransaction() -> bool
@@ -888,8 +961,42 @@ auto LXMysql::getColumns(const char *table_name) -> XCOLUMNS
     return xcolumns;
 }
 
-auto LXMysql::getRows(const char *table_name, const char *selectCol, std::pair<std::string, std::string> where,
-                      std::pair<int, int> limit) -> XROWS
+auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::map<std::string, std::string> &wheres,
+                      const std::pair<int, int> &limit) -> XROWS
+{
+    XROWS rows;
+    if (!table_name || !selectCol)
+        return rows;
+
+    std::string sql = std::format("SELECT {} FROM {}", selectCol, table_name);
+
+    if (!wheres.empty())
+    {
+        sql += " WHERE ";
+        std::vector<std::string> temps;
+        temps.reserve(wheres.size());
+        for (const auto &[key, value] : wheres)
+        {
+            temps.emplace_back(std::format("`{}`='{}'", key, value));
+        }
+        sql += join(temps, " AND ");
+    }
+
+
+    auto [start, end] = limit;
+    if (start >= 0 && end > 0)
+    {
+        const auto str_start = std::to_string(start);
+        const auto str_end   = std::to_string(end);
+
+        sql += std::format(" LIMIT {}, {};", str_start, str_end);
+    }
+
+    return getResult(sql.c_str());
+}
+
+auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::pair<std::string, std::string> &where,
+                      const std::pair<int, int> &limit) -> XROWS
 {
     XROWS rows;
     if (!table_name || !selectCol)

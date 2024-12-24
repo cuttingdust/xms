@@ -22,6 +22,7 @@ set(PROTOC_EXPORT_CLASS
 	XMessageRes
     XGetServiceReq
     XConfig
+    XLoadConfigReq
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

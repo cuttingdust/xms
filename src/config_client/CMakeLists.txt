@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(config_client)
 
 set(DPS_TARGETS
-    
+    xplatfrom
 )
 
 cpp_execute(${PROJECT_NAME})

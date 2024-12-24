@@ -244,6 +244,13 @@ public:
     /// \return 返回更新数量，失败返回-1
     int updateBin(const XDATA &kv, const std::string &table_name, const std::string &where);
 
+    /// \brief 修改数据库(二进制数据)
+    /// \param kv  <字段名,字段值>
+    /// \param table_name  表名
+    /// \param wheres 修改选中条件
+    /// \return 返回更新数量，失败返回-1
+    int updateBin(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres);
+
     /// \brief 开启事务
     /// \return
     auto startTransaction() -> bool;
@@ -274,8 +281,13 @@ public:
     /// \param selectCol
     /// \param limit
     /// \return
-    auto getRows(const char *table_name, const char *selectCol, std::pair<std::string, std::string> where = { "", "" },
-                 std::pair<int, int> limit = { 0, 0 }) -> XROWS;
+    auto getRows(const char *table_name, const char *selectCol = "*",
+                 const std::map<std::string, std::string> &wheres = { "", "" },
+                 const std::pair<int, int>                &limit  = { 0, 0 }) -> XROWS;
+
+    auto getRows(const char *table_name, const char *selectCol = "*",
+                 const std::pair<std::string, std::string> &where = { "", "" }, const std::pair<int, int> & = { 0, 0 })
+            -> XROWS;
 
     /// \brief 统计数据
     /// \param table_name

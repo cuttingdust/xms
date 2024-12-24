@@ -115,3 +115,10 @@ message XConfig
 	bytes  private_pb	= 4;
 	bytes  proto		= 5;
 }
+
+/// 下载配置请求，响应是 XConfig
+message XLoadConfigReq
+{
+	int32	service_port = 1;
+	string	service_ip	 = 2;
+}

@@ -47,6 +47,14 @@ public:
     /// \return
     bool saveConfig(const xmsg::XConfig *conf);
 
+
+    /// \brief ∂¡»°≈‰÷√
+    /// \param ip
+    /// \param port
+    /// \return
+    xmsg::XConfig loadConfig(const char *ip, int port);
+
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;

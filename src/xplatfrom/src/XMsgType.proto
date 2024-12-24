@@ -11,5 +11,9 @@ enum MsgType {				 ///<<< 枚举类型
 	MT_REGISTER_RES		= 6; ///<<< 注册服务请求 XMessageRes
 	MT_GET_SERVICE_REQ  = 7; ///<<< 发现服务请求 XGetServiceReq
 	MT_GET_SERVICE_RES  = 8; ///<<< 发现服务响应 XServiceMap
+	MT_SAVE_CONFIG_REQ  = 9; ///<<< 配置中心的上传和下载
+	MT_SAVE_CONFIG_RES  = 10; 
+	MT_LOAD_CONFIG_REQ  = 11;
+	MT_LOAD_CONFIG_RES  = 12;
 	MT_MAX_TYPE			= 65535;
 }
