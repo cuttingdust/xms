@@ -125,7 +125,7 @@ bool ConfigDao::saveConfig(const xmsg::XConfig *conf)
     std::string private_pb;
     conf->SerializeToString(&private_pb);
     data[col_private_pb] = private_pb.c_str();
-    data[col_proto]           = conf->proto().c_str();
+    data[col_proto]      = conf->proto().c_str();
 
     const auto conf_ip   = conf->service_ip();
     const auto conf_port = conf->service_port();
@@ -189,4 +189,33 @@ xmsg::XConfig ConfigDao::loadConfig(const char *ip, int port)
     LOGDEBUG("download config success!");
     LOGDEBUG(conf.DebugString());
     return conf;
+}
+
+xmsg::XConfigList ConfigDao::loadAllConfig(unsigned int page, int page_count)
+{
+    xmsg::XConfigList confs;
+    LOGDEBUG("ConfigDao::LoadAllConfig");
+    XMutex mux(&my_mutex);
+    if (!impl_->mysql_)
+    {
+        LOGERROR("mysql not init");
+        return confs;
+    }
+    if (page <= 0 || page_count <= 0)
+    {
+        LOGERROR("LoadAllConfig para erorr");
+        return confs;
+    }
+
+    std::vector<std::string> sel = { col_server_name, col_server_ip, col_server_port };
+    auto rows = impl_->mysql_->getRows(table_name, sel, std::make_pair("", ""), { page, page_count });
+    for (auto row : rows)
+    {
+        /// 遍历结果集插入到proto类型中
+        auto conf = confs.add_config();
+        conf->set_service_name(row[0].data);
+        conf->set_service_ip(row[1].data);
+        conf->set_service_port(atoi(row[2].data));
+    }
+    return confs;
 }

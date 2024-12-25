@@ -54,6 +54,11 @@ public:
     /// \return
     xmsg::XConfig loadConfig(const char *ip, int port);
 
+    /// \brief 读取分页的配置列表
+    /// \param page 从 1开始
+    /// \param page_count 每页数量
+    /// \return
+    xmsg::XConfigList loadAllConfig(unsigned int page, int page_count);
 
 private:
     class PImpl;

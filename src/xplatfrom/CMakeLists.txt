@@ -24,6 +24,8 @@ set(PROTOC_EXPORT_CLASS
     XConfig
     XLoadConfigReq
     XDirConfig
+    XLoadAllConfigReq
+    XConfigList
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

@@ -289,6 +289,10 @@ public:
                  const std::pair<std::string, std::string> &where = { "", "" }, const std::pair<int, int> & = { 0, 0 })
             -> XROWS;
 
+    auto getRows(const char *table_name, const std::vector<std::string> &selectCols,
+                 const std::pair<std::string, std::string> &where = { "", "" },
+                 const std::pair<int, int>                 &limit = { 0, 0 }) -> XROWS;
+
     /// \brief 统计数据
     /// \param table_name
     /// \return

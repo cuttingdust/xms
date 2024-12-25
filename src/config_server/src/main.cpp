@@ -15,6 +15,14 @@ int main(int argc, char *argv[])
         std::cout << "ConfigDao::Get()->Init Success!" << std::endl;
         ConfigDao::get()->install();
     }
+    else
+    {
+        std::cout << "ConfigDao::Get()->Init Failed!" << std::endl;
+    }
+
+    auto re = ConfigDao::get()->loadAllConfig(1, 10000);
+    std::cout << re.DebugString();
+
     XConfigServer config;
     config.main(argc, argv);
     config.start();

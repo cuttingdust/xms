@@ -1021,6 +1021,39 @@ auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::
     return getResult(sql.c_str());
 }
 
+auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &selectCols,
+                      const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit) -> XROWS
+{
+    XROWS rows;
+    if (!table_name)
+        return rows;
+
+    std::string selectCol;
+    if (selectCol.empty())
+        selectCol = "*";
+
+    selectCol = join(selectCols, ",");
+
+
+    std::string sql   = std::format("SELECT {} FROM {}", selectCol, table_name);
+    auto [key, value] = where;
+    if (!key.empty() && !value.empty())
+    {
+        sql += std::format(" WHERE `{}`='{}'", key, value);
+    }
+
+    auto [start, end] = limit;
+    if (start >= 0 && end > 0)
+    {
+        const auto str_start = std::to_string(start);
+        const auto str_end   = std::to_string(end);
+
+        sql += std::format(" LIMIT {}, {};", str_start, str_end);
+    }
+
+    return getResult(sql.c_str());
+}
+
 auto LXMysql::getCount(const char *table_name, std::pair<std::string, std::string> where) -> int
 {
     if (!table_name)

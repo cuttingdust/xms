@@ -127,3 +127,20 @@ message XDirConfig
 {
 	string root = 1;
 }
+
+/// 请求获取配置列表
+/// MT_LOAD_ALL_CONFIG_REQ = 13;	//XLoadAllConfigReq
+message XLoadAllConfigReq
+{
+	int32 page		 = 1;	///< 分页的第几页 从1开始
+	int32 page_count = 2;	///< 每页显示的记录数量
+}
+
+/// MT_LOAD_ALL_CONFIG_RES = 14;	//XConfigList
+
+/// 响应配置列表
+/// 只包含微服务名称，IP，port
+message XConfigList
+{
+	repeated XConfig config = 1;
+}
