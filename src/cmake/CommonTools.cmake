@@ -323,7 +323,7 @@ endfunction()
 
 function(cpp_execute name)
     message(STATUS "================ ${name} cpp_execute =================")
-    get_src_include()
+	get_src_include()
 
     # 添加执行程序
     add_executable(${name}
