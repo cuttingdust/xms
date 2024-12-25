@@ -51,15 +51,17 @@ int main(int argc, char *argv[])
     {
         /// 只取第一个配置中心
         auto conf = conf_s.services()[0];
-        XConfigClient::get()->regMsgCallback();
-        XConfigClient::get()->setServerIp(conf.ip().c_str());
-        XConfigClient::get()->setServerPort(conf.port());
-        XConfigClient::get()->startConnect();
-        if (!XConfigClient::get()->waitConnected(10))
-        {
-            std::cout << "连接配置中心失败" << std::endl;
-        }
-        std::cout << "连接配置中心成功" << std::endl;
+        // XConfigClient::get()->regMsgCallback();
+        // XConfigClient::get()->setServerIp(conf.ip().c_str());
+        // XConfigClient::get()->setServerPort(conf.port());
+        // XConfigClient::get()->startConnect();
+        // if (!XConfigClient::get()->waitConnected(10))
+        // {
+        //     std::cout << "连接配置中心失败" << std::endl;
+        // }
+        static xmsg::XDirConfig cur_dir_conf;
+        if (XConfigClient::get()->startGetConf(conf.ip().c_str(), conf.port(), "127.0.0.1", server_port, &cur_dir_conf))
+            std::cout << "连接配置中心成功" << cur_dir_conf.DebugString() << std::endl;
 
 
         /// 写入测试的配置

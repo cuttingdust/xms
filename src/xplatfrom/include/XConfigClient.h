@@ -55,6 +55,32 @@ public:
     static void regMsgCallback();
 
     void wait();
+
+    /// \brief 连接配置中心，开始定时器获取配置
+    /// \param server_ip
+    /// \param server_port
+    /// \param local_ip
+    /// \param local_port
+    /// \param conf_message
+    /// \param timeout_sec
+    /// \return
+    bool startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
+                      google::protobuf::Message *conf_message, int timeout_sec = 10);
+
+    /// \brief 获取下载的本地参数
+    /// \return
+    std::string getString(const char *key);
+    int         getInt(const char *key);
+
+    void timerCB() override;
+
+    /// \brief 设置当前配置的对象
+    /// \param message
+    void setCurServiceMessage(google::protobuf::Message *message);
+
+private:
+    class PImpl;
+    std::unique_ptr<PImpl> impl_;
 };
 
 

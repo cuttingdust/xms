@@ -35,4 +35,5 @@ void XServiceClient::startConnect()
 {
     impl_->thread_pool_->init(1);
     impl_->thread_pool_->dispatch(this);
+    setAutoDelete(false);
 }

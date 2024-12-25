@@ -1,5 +1,6 @@
 #include "XDirServiceHandle.h"
 #include <XTools.h>
+#include <XConfigClient.h>
 
 XDirServiceHandle::XDirServiceHandle() = default;
 
@@ -25,7 +26,7 @@ void XDirServiceHandle::dirReq(xmsg::XMsgHead *head, XMsg *msg)
 
     /// 响应客户端 头部信息保留，用于路由
     xmsg::XDirRes res;
-
+    std::string   root = XConfigClient::get()->getString("root");
     //////////测试代码/////////////
     for (int i = 0; i < 10; ++i)
     {
@@ -33,6 +34,7 @@ void XDirServiceHandle::dirReq(xmsg::XMsgHead *head, XMsg *msg)
         static int count = 0;
         ++count;
         std::stringstream ss;
+        ss << root << "/";
         ss << "filename" << count << "_" << i;
         auto dir = res.add_dirs();
         dir->set_filename(ss.str());

@@ -26,6 +26,12 @@ static void SEventCb(struct bufferevent *bev, short events, void *ctx)
     task->eventCB(events);
 }
 
+void STimerCB(evutil_socket_t s, short w, void *ctx)
+{
+    auto task = static_cast<XComTask *>(ctx);
+    task->timerCB();
+}
+
 class XComTask::PImpl
 {
 public:
@@ -54,6 +60,8 @@ public:
     bool        is_connecting_ = true;  ///< 连接中
     bool        is_connected_  = false; ///< 连接成功
     std::mutex *mtx_           = nullptr;
+
+    struct event *timer_event_ = nullptr;
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
@@ -300,4 +308,29 @@ void XComTask::close()
     /// TODO 清理连接对象空间，如果断开重连，需要单独处理
     if (impl_->isAutoDelete)
         delete this;
+}
+
+void XComTask::setTimer(int ms)
+{
+    if (!base())
+    {
+        LOGERROR("SetTimer failed : base not set!");
+        return;
+    }
+
+    impl_->timer_event_ = event_new(base(), -1, EV_PERSIST, STimerCB, this);
+    if (!impl_->timer_event_)
+    {
+        LOGERROR("set timer failed :event_new faield!");
+        return;
+    }
+    int     sec = ms / 1000;          /// 秒
+    int     us  = (ms % 1000) * 1000; /// 微妙
+    timeval tv  = { sec, us };
+    event_add(impl_->timer_event_, &tv);
+}
+
+void XComTask::timerCB()
+{
+    std::cout << "XComTask::timerCB" << std::endl;
 }

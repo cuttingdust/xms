@@ -64,6 +64,7 @@ public:
     /// \param timeout_sec 最大等待时间
     bool waitConnected(int timeout_sec);
 
+
 public:
     virtual void eventCB(short events);
 
@@ -81,6 +82,10 @@ public:
     virtual void beginWriteCB();
 
     virtual void close();
+
+    virtual void setTimer(int ms);
+
+    virtual void timerCB();
 
 private:
     class PImpl;
