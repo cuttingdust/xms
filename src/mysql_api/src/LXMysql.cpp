@@ -1045,7 +1045,7 @@ auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &se
     auto [start, end] = limit;
     if (start >= 0 && end > 0)
     {
-        const auto str_start = std::to_string(start);
+        const auto str_start = std::to_string(start - 1);
         const auto str_end   = std::to_string(end);
 
         sql += std::format(" LIMIT {}, {};", str_start, str_end);

@@ -5,6 +5,10 @@ set(DPS_LIBRARYS
     ${QT6_MOUDLES}
 )
 
+set(DPS_TARGETS
+    xplatfrom
+)
+
 cpp_execute(${PROJECT_NAME})
 
 if(MSVC)

@@ -154,7 +154,8 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
     regMsgCallback();
     setServerIp(server_ip);
     setServerPort(server_port);
-    strncpy(impl_->local_ip_, local_ip, 16);
+    if (local_ip)
+        strncpy(impl_->local_ip_, local_ip, 16);
     impl_->local_port_ = local_port;
 
     setCurServiceMessage(conf_message);

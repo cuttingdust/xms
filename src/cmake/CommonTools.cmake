@@ -55,10 +55,13 @@ macro(get_src_include)
     aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/Source SOURCE)
 
     list(APPEND SRC ${SOURCE})
-
-    # message("SRC = ${SRC}")
-    FILE(GLOB H_FILE_I ${CMAKE_CURRENT_LIST_DIR}/include/*.h)
+	# message("SRC = ${SRC}")
+	
+	FILE(GLOB H_FILE_I ${CMAKE_CURRENT_LIST_DIR}/include/*.h)
+    
+	# 安装的时候 不暴露出去
     FILE(GLOB UI_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.ui)
+    FILE(GLOB QRC_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.qrc)
 	FILE(GLOB PROTO_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.proto)
 
     if(RC_FILE)
@@ -73,8 +76,9 @@ macro(get_src_include)
 
     if(QRC_SOURCE_FILES)
         qt6_add_resources(QRC_FILES ${QRC_SOURCE_FILES})
-        qt6_wrap_cpp()
+        # qt_wrap_cpp() moc 相关
         source_group("Resource Files" FILES ${QRC_SOURCE_FILES})
+		source_group("Generate Files" FILES ${QRC_FILES})
     endif()
 	
 	if(PROTO_FILES)
@@ -187,6 +191,10 @@ macro(set_cpp name)
     )
 
     if(MSVC)
+		 target_compile_definitions(${name} PUBLIC
+			-D_CRT_SECURE_NO_WARNINGS
+		)
+		
         set_target_properties(${name} PROPERTIES
             COMPILE_FLAGS "/Zc:wchar_t"	# 是
 			#COMPILE_FLAGS "/Zc:wchar_t-" #否
@@ -253,16 +261,17 @@ function(cpp_library name)
     get_src_include()
 
     add_library(${name} ${TYPE}
-        ${SRC}
-        ${H_FILE_I}
-
         ${UI_FILES}
         ${UIC_HEADER}
         ${QRC_FILES}
+		${QRC_SOURCE_FILES}
 		
 		${PROTO_FILES}
         ${PROTO_CC_FILE}
         ${PROTO_HREADER_FILE}
+		
+		${SRC}
+        ${H_FILE_I}
     )
 
 
@@ -326,17 +335,19 @@ function(cpp_execute name)
 	get_src_include()
 
     # 添加执行程序
-    add_executable(${name}
-        ${SRC}
-        ${H_FILE_I}
-		
+    add_executable(${name}	
+		${UI_FILES}
         ${UIC_HEADER}
-        ${QRC_SOURCE_FILES}
+		${QRC_FILES}
+		${QRC_SOURCE_FILES}
         ${RC_FILE}
 		
 		${PROTO_FILES}
         ${PROTO_CC_FILE}
         ${PROTO_HREADER_FILE}
+		
+		${SRC}
+        ${H_FILE_I}
     )
 
     # 设置配置信息

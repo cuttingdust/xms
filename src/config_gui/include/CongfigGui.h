@@ -12,7 +12,11 @@
 #define CONGFIGGUI_H
 
 #include <QtWidgets/QWidget>
-#include "ui_config_gui.h"
+
+namespace Ui
+{
+    class ConfigGuiClass;
+};
 
 class CongfigGui : public QWidget
 {
@@ -23,6 +27,13 @@ public:
 
 public:
     bool eventFilter(QObject *object, QEvent *event) override;
+
+    /// 显示在日志列表中
+    void addLog(const char *log);
+
+public Q_SLOTS:
+    /// 刷新显示配置
+    void slotRefresh();
 
 private:
     Ui::ConfigGuiClass *ui;
