@@ -78,6 +78,17 @@ public:
     /// \param message
     void setCurServiceMessage(google::protobuf::Message *message);
 
+    void loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg);
+
+    /// \brief 获取全部配置列表
+    /// 1 断开连接自动重连
+    /// 2 等待结果返回
+    /// \param page
+    /// \param page_count
+    /// \param timeout_sec
+    /// \return
+    xmsg::XConfigList getAllConfig(int page, int page_count, int timeout_sec);
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;

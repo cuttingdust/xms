@@ -211,6 +211,16 @@ bool XComTask::waitConnected(int timeout_sec)
     return isConnected();
 }
 
+bool XComTask::autoConnect(int timeout_sec)
+{
+    /// 如果正在连接，则等待，如果没有，则开始连接
+    if (isConnected())
+        return true;
+    if (!isConnecting())
+        connect();
+    return waitConnected(timeout_sec);
+}
+
 void XComTask::eventCB(short events)
 {
     if (events & BEV_EVENT_CONNECTED)

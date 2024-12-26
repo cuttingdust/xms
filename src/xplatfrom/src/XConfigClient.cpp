@@ -11,6 +11,10 @@ static std::mutex                           conf_map_mutex;
 static google::protobuf::Message *cur_service_conf = nullptr;
 static std::mutex                 cur_service_conf_mutex;
 
+/// 存储获取的配置列表
+static xmsg::XConfigList *all_config = nullptr;
+static std::mutex         all_config_mutex;
+
 class XConfigClient::PImpl
 {
 public:
@@ -136,6 +140,7 @@ void XConfigClient::regMsgCallback()
 {
     regCB(xmsg::MT_SAVE_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::sendConfigRes));
     regCB(xmsg::MT_LOAD_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadConfigRes));
+    regCB(xmsg::MT_LOAD_ALL_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadAllConfigRes));
 }
 
 void XConfigClient::wait()
@@ -203,4 +208,45 @@ void XConfigClient::setCurServiceMessage(google::protobuf::Message *message)
 {
     XMutex mux(&cur_service_conf_mutex);
     cur_service_conf = message;
+}
+
+void XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("响应获取配置列表 ");
+    XMutex mux(&all_config_mutex);
+    if (!all_config)
+        all_config = new xmsg::XConfigList();
+    all_config->ParseFromArray(msg->data, msg->size);
+}
+
+xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int timeout_sec)
+{
+    xmsg::XConfigList confs;
+    /// 1 断开连接自动重连
+    if (!autoConnect(timeout_sec))
+        return confs;
+
+    /// 2 发送获取配置列表的消息
+    xmsg::XLoadAllConfigReq req;
+    req.set_page(page);
+    req.set_page_count(page_count);
+    sendMsg(xmsg::MT_LOAD_ALL_CONFIG_REQ, &req);
+
+    /// 10毫秒监听一次
+    int count = timeout_sec * 100;
+    for (int i = 0; i < count; i++)
+    {
+        {
+            /// 会在return 之后调用释放
+            XMutex mux(&all_config_mutex);
+            if (all_config)
+            {
+                return *all_config;
+            }
+        }
+        /// 是否收到响应
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    return confs;
 }

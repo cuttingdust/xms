@@ -64,6 +64,10 @@ public:
     /// \param timeout_sec 最大等待时间
     bool waitConnected(int timeout_sec);
 
+    /// \brief 建立连接，如果断开，会再次重连，知道连接成功，或者超时
+    /// \param timeout_sec
+    /// \return
+    bool autoConnect(int timeout_sec);
 
 public:
     virtual void eventCB(short events);

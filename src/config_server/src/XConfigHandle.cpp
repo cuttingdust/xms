@@ -57,4 +57,19 @@ void XConfigHandle::regMsgCallback()
 {
     regCB(xmsg::MT_SAVE_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::saveConfig));
     regCB(xmsg::MT_LOAD_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::loadConfig));
+    regCB(xmsg::MT_LOAD_ALL_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::loadAllConfig));
+}
+
+void XConfigHandle::loadAllConfig(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("下载全部配置（有分页）");
+    xmsg::XLoadAllConfigReq req;
+    if (!req.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("LoadAllConfig ParseFromArray failed!");
+        return;
+    }
+    const auto config_list = ConfigDao::get()->loadAllConfig(req.page(), req.page_count());
+    /// 发送给客户端
+    sendMsg(xmsg::MT_LOAD_ALL_CONFIG_RES, &config_list);
 }

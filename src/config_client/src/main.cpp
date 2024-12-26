@@ -30,6 +30,9 @@ int main(int argc, char *argv[])
     XConfigClient::get()->getConfig("127.0.0.1", 20030, &tmp_conf);
     std::cout << "========tmp_conf =========== " << std::endl << tmp_conf.DebugString() << std::endl;
 
+    const auto configs = XConfigClient::get()->getAllConfig(1, 3, 10);
+    std::cout << configs.DebugString();
+
     XConfigClient::get()->wait();
     return 0;
 }

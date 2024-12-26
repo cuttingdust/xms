@@ -25,6 +25,8 @@ public:
     void loadConfig(xmsg::XMsgHead *head, XMsg *msg);
 
     static void regMsgCallback();
+
+    void loadAllConfig(xmsg::XMsgHead *head, XMsg *msg);
 };
 
 
