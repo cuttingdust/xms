@@ -52,6 +52,14 @@ public:
     /// \return
     bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf);
 
+    /// \brief 载入proto文件 线程不安全
+    /// \param file_name  文件路径
+    /// \param class_name  配置的类型
+    /// \param out_proto_code 读取到的代码，包含空间和版本
+    /// \return
+    google::protobuf::Message *loadProto(const std::string &file_name, const std::string &class_name,
+                                         std::string &out_proto_code);
+
     static void regMsgCallback();
 
     void wait();

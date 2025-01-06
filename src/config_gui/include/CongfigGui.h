@@ -34,9 +34,10 @@ public:
 public Q_SLOTS:
     /// À¢–¬œ‘ æ≈‰÷√
     void slotRefresh();
+    void slotAddConfig();
 
 private:
-    Ui::ConfigGuiClass *ui;
+    Ui::ConfigGuiClass *ui = nullptr;
 };
 
 

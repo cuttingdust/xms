@@ -1,4 +1,6 @@
 #include "CongfigGui.h"
+
+#include "ConfigEdit.h"
 #include "ui_config_gui.h"
 
 #include <XTools.h>
@@ -105,4 +107,14 @@ void CongfigGui::slotRefresh()
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(QString::number(config.service_port())));
     }
     addLog("Update configuration list completed");
+}
+
+void CongfigGui::slotAddConfig()
+{
+    /// 打开模态窗口，等待退出
+    ConfigEdit edit;
+    if (edit.exec() == QDialog::Accepted)
+    {
+        addLog("新增配置成功");
+    }
 }

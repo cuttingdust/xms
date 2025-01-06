@@ -2,6 +2,15 @@
 
 #include <XThreadPool.h>
 #include <XTools.h>
+#include <XMsgCom.pb.h>
+
+#include <google/protobuf/compiler/importer.h>
+#include <google/protobuf/dynamic_message.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/message.h>
+#include <google/protobuf/text_format.h>
+
+#define PB_ROOT "root/"
 
 /// key ip_port
 static std::map<std::string, xmsg::XConfig> conf_map;
@@ -22,14 +31,21 @@ public:
     ~PImpl() = default;
 
 public:
-    XConfigClient *owenr_ = nullptr;
-    /// 本地微服务的ip和端口
-    char local_ip_[16] = { 0 };
-    int  local_port_   = 0;
+    XConfigClient                              *owenr_        = nullptr;
+    char                                        local_ip_[16] = { 0 };   /// 本地微服务的ip
+    int                                         local_port_   = 0;       /// 本地微服务的端口
+    google::protobuf::compiler::Importer       *importer_     = nullptr; /// 动态解析proto文件
+    google::protobuf::compiler::DiskSourceTree *source_tree_  = nullptr; /// 解析文件的管理对象
+    google::protobuf::Message                  *message_      = nullptr; /// 根据proto文件动态创建的的message
 };
 
 XConfigClient::PImpl::PImpl(XConfigClient *owenr) : owenr_(owenr)
 {
+    /// 文件加载路径
+    source_tree_ = new google::protobuf::compiler::DiskSourceTree();
+    source_tree_->MapPath("", "");
+    /// 使用绝对路径时，不加root会失败
+    source_tree_->MapPath(PB_ROOT, "");
 }
 
 
@@ -135,6 +151,141 @@ bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
     return true;
 }
 
+/// 显示解析的语法错误
+class ConfError : public google::protobuf::compiler::MultiFileErrorCollector
+{
+public:
+    void RecordError(absl::string_view filename, int line, int column, absl::string_view message) override
+    {
+        std::stringstream ss;
+        ss << filename << "|" << line << "|" << column << "|" << message;
+        LOGDEBUG(ss.str().c_str());
+    }
+};
+
+static ConfError           config_error;
+google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name, const std::string &class_name,
+                                                    std::string &out_proto_code)
+{
+    if (impl_->importer_)
+    {
+        delete impl_->importer_;
+        impl_->importer_ = nullptr;
+    }
+
+    impl_->importer_ = new google::protobuf::compiler::Importer(impl_->source_tree_, &config_error);
+    if (!impl_->importer_)
+    {
+        return nullptr;
+    }
+    /// 1 加载proto文件
+    std::string path = PB_ROOT;
+    path += file_name;
+
+    /// 返回proto文件描述符
+    auto file_desc = impl_->importer_->Import(path);
+    if (!file_desc)
+    {
+        return nullptr;
+    }
+    LOGDEBUG(file_desc->DebugString());
+    std::stringstream ss;
+    ss << file_name << "proto 文件加载成功";
+    LOGDEBUG(ss.str().c_str());
+
+
+    /// 获取类型描述符
+    /// 如果class_name为空，则使用第一个类型
+    const google::protobuf::Descriptor *message_desc = nullptr;
+    if (class_name.empty())
+    {
+        if (file_desc->message_type_count() <= 0)
+        {
+            LOGDEBUG("proto文件中没有message");
+            return NULL;
+        }
+        /// 取第一个类型
+        message_desc = file_desc->message_type(0);
+    }
+    else
+    {
+        /// 包含命名空间的类名 xmsg.XDirConfig
+        std::string class_name_pack;
+        /// 查找类型 命名空间，是否要用户提供
+
+        ///用户没有提供命名空间
+        if (class_name.find('.') == std::string::npos)
+        {
+            if (file_desc->package().empty())
+            {
+                class_name_pack = class_name;
+            }
+            else
+            {
+                class_name_pack = file_desc->package();
+                class_name_pack += ".";
+                class_name_pack += class_name;
+            }
+        }
+        else
+        {
+            class_name_pack = class_name;
+        }
+        message_desc = impl_->importer_->pool()->FindMessageTypeByName(class_name_pack);
+        if (!message_desc)
+        {
+            std::string log = "proto文件中没有指定的message ";
+            log += class_name_pack;
+            LOGDEBUG(log.c_str());
+            return nullptr;
+        }
+    }
+
+    LOGDEBUG(message_desc->DebugString());
+
+    /// 反射生成message对象
+
+    if (impl_->message_)
+    {
+        delete impl_->message_;
+        impl_->message_ = nullptr;
+    }
+
+    /// 动态创建消息类型的工厂，不能销毁，销毁后由此创建的message也失效
+    static google::protobuf::DynamicMessageFactory factory;
+
+
+    /// 创建一个类型原型
+    auto message_proto = factory.GetPrototype(message_desc);
+    impl_->message_    = message_proto->New();
+    LOGDEBUG(impl_->message_->DebugString());
+
+    ////////////////////////////////////////
+    /// syntax="proto3";	//版本号
+    /// package xmsg;		//命名空间
+    /// message XDirConfig
+    /// {
+    ///     string root = 1;
+    /// }
+    /////////////////////////////////////////
+    // syntax="proto3";	//版本号
+
+    google::protobuf::FileDescriptorProto proto;
+    file_desc->CopyTo(&proto);
+    std::string syntax_version = proto.syntax();
+    out_proto_code             = "syntax=\"";
+    out_proto_code += syntax_version;
+    out_proto_code += "\";\n";
+    //package xmsg;		//命名空间
+    out_proto_code += "package ";
+    out_proto_code += file_desc->package();
+    out_proto_code += ";\n";
+    //message XDirConfig
+    out_proto_code += message_desc->DebugString();
+
+    return impl_->message_;
+}
+
 
 void XConfigClient::regMsgCallback()
 {
@@ -222,6 +373,13 @@ void XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 
 xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int timeout_sec)
 {
+    ///清理历史数据
+    {
+        XMutex mux(&all_config_mutex);
+        delete all_config;
+        all_config = nullptr;
+    }
+
     xmsg::XConfigList confs;
     /// 1 断开连接自动重连
     if (!autoConnect(timeout_sec))

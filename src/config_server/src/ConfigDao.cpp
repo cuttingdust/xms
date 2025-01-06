@@ -82,12 +82,16 @@ bool ConfigDao::install()
     std::string sql = "";
 
     XFIELDS fields = {
-        { col_id, LX_DATA_TYPE::LXD_TYPE_INT24, 0, true, true }, ///< id
-        { col_server_name, LX_DATA_TYPE::LXD_TYPE_STRING, 16 },  /// 服务器名称
-        { col_server_port, LX_DATA_TYPE::LXD_TYPE_INT24, 0 },    /// 服务器端口
-        { col_server_ip, LX_DATA_TYPE::LXD_TYPE_STRING, 16 },    /// 服务器IP
-        { col_private_pb, LX_DATA_TYPE::LXD_TYPE_STRING, 4096 }, /// 私有协议
-        { col_proto, LX_DATA_TYPE::LXD_TYPE_STRING, 4096 },      /// 公共协议
+        { .name              = col_id,
+          .type              = LX_DATA_TYPE::LXD_TYPE_INT24,
+          .length            = 0,
+          .is_key            = true,
+          .is_auto_increment = true },                                                     /// id
+        { .name = col_server_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },  /// 服务器名称
+        { .name = col_server_port, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },                 /// 服务器端口
+        { .name = col_server_ip, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },    /// 服务器IP
+        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 }, /// 私有协议
+        { .name = col_proto, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 },      /// 公共协议
     };
 
     if (!impl_->mysql_->createTable(table_name, fields, true))
@@ -208,7 +212,7 @@ xmsg::XConfigList ConfigDao::loadAllConfig(unsigned int page, int page_count)
     }
 
     std::vector<std::string> sel = { col_server_name, col_server_ip, col_server_port };
-    auto rows = impl_->mysql_->getRows(table_name, sel, std::make_pair("", ""), { page, page_count });
+    auto rows = impl_->mysql_->getRows(table_name, sel, std::make_pair("", ""), { page, page_count }, {col_id, LXD_DESC});
     for (auto row : rows)
     {
         /// 遍历结果集插入到proto类型中

@@ -56,6 +56,12 @@ enum LX_DATA_TYPE
     LXD_TYPE_GEOMETRY    = 255
 };
 
+enum LX_ORDER
+{
+    LXD_ADESC = 0, /// 升序
+    LXD_DESC  = 1, /// 降序
+};
+
 struct LXM_EXPORT LXField
 {
     std::string  name;
@@ -89,6 +95,7 @@ using XDATA    = std::map<std::string, LXData>;
 using XFIELDS  = std::vector<LXField>;
 using XROWS    = std::vector<std::vector<LXData>>;
 using XCOLUMNS = std::vector<std::string>;
+using XORDER   = std::pair<std::string, LX_ORDER>;
 
 class LXM_EXPORT LXMysql
 {
@@ -277,21 +284,23 @@ public:
     auto getColumns(const char *table_name) -> XCOLUMNS;
 
     /// \brief 获取条件数据
-    /// \param table_name
-    /// \param selectCol
-    /// \param limit
+    /// \param table_name   表名
+    /// \param selectCol    选择的列
+    /// \param wheres       查询条件
+    /// \param limit        分页限制
+    /// \param order        排序
     /// \return
     auto getRows(const char *table_name, const char *selectCol = "*",
                  const std::map<std::string, std::string> &wheres = { "", "" },
-                 const std::pair<int, int>                &limit  = { 0, 0 }) -> XROWS;
+                 const std::pair<int, int> &limit = { 0, 0 }, const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
     auto getRows(const char *table_name, const char *selectCol = "*",
-                 const std::pair<std::string, std::string> &where = { "", "" }, const std::pair<int, int> & = { 0, 0 })
-            -> XROWS;
+                 const std::pair<std::string, std::string> &where = { "", "" }, const std::pair<int, int> & = { 0, 0 },
+                 const XORDER                              &order = { "", LXD_ADESC }) -> XROWS;
 
     auto getRows(const char *table_name, const std::vector<std::string> &selectCols,
                  const std::pair<std::string, std::string> &where = { "", "" },
-                 const std::pair<int, int>                 &limit = { 0, 0 }) -> XROWS;
+                 const std::pair<int, int> &limit = { 0, 0 }, const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
     /// \brief 统计数据
     /// \param table_name

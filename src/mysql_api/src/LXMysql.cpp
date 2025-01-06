@@ -962,7 +962,7 @@ auto LXMysql::getColumns(const char *table_name) -> XCOLUMNS
 }
 
 auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::map<std::string, std::string> &wheres,
-                      const std::pair<int, int> &limit) -> XROWS
+                      const std::pair<int, int> &limit, const XORDER &order) -> XROWS
 {
     XROWS rows;
     if (!table_name || !selectCol)
@@ -982,6 +982,12 @@ auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::
         sql += join(temps, " AND ");
     }
 
+    auto [order_name, order_value] = order;
+    if (!order_name.empty())
+    {
+        std::string str_order = order_value == LXD_ADESC ? "ASC" : "DESC";
+        sql += std::format(" ORDER BY `{}` {}", order_name, str_order);
+    }
 
     auto [start, end] = limit;
     if (start >= 0 && end > 0)
@@ -996,7 +1002,7 @@ auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::
 }
 
 auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::pair<std::string, std::string> &where,
-                      const std::pair<int, int> &limit) -> XROWS
+                      const std::pair<int, int> &limit, const XORDER &order) -> XROWS
 {
     XROWS rows;
     if (!table_name || !selectCol)
@@ -1007,6 +1013,13 @@ auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::
     if (!key.empty() && !value.empty())
     {
         sql += std::format(" WHERE `{}`='{}'", key, value);
+    }
+
+    auto [order_name, order_value] = order;
+    if (!order_name.empty())
+    {
+        std::string str_order = order_value == LXD_ADESC ? "ASC" : "DESC";
+        sql += std::format(" ORDER BY `{}` {}", order_name, str_order);
     }
 
     auto [start, end] = limit;
@@ -1022,7 +1035,8 @@ auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::
 }
 
 auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &selectCols,
-                      const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit) -> XROWS
+                      const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit,
+                      const XORDER &order) -> XROWS
 {
     XROWS rows;
     if (!table_name)
@@ -1040,6 +1054,13 @@ auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &se
     if (!key.empty() && !value.empty())
     {
         sql += std::format(" WHERE `{}`='{}'", key, value);
+    }
+
+    auto [order_name, order_value] = order;
+    if (!order_name.empty())
+    {
+        std::string str_order = order_value == LXD_ADESC ? "ASC" : "DESC";
+        sql += std::format(" ORDER BY `{}` {}", order_name, str_order);
     }
 
     auto [start, end] = limit;
