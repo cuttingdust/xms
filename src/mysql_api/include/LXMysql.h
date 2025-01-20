@@ -291,8 +291,8 @@ public:
     /// \param order        排序
     /// \return
     auto getRows(const char *table_name, const char *selectCol = "*",
-                 const std::map<std::string, std::string> &wheres = { "", "" },
-                 const std::pair<int, int> &limit = { 0, 0 }, const XORDER &order = { "", LXD_ADESC }) -> XROWS;
+                 const std::map<std::string, std::string> &wheres = {}, const std::pair<int, int> &limit = { 0, 0 },
+                 const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
     auto getRows(const char *table_name, const char *selectCol = "*",
                  const std::pair<std::string, std::string> &where = { "", "" }, const std::pair<int, int> & = { 0, 0 },
@@ -305,7 +305,15 @@ public:
     /// \brief 统计数据
     /// \param table_name
     /// \return
-    auto getCount(const char *table_name, std::pair<std::string, std::string> where = { "", "" }) -> int;
+    auto getCount(const char *table_name, const std::pair<std::string, std::string> &where = { "", "" }) -> int;
+
+    auto getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres) -> std::string;
+
+    /// \brief 删除数据
+    /// \param table_name
+    /// \param wheres 删除条件
+    /// \return
+    auto remove(const char *table_name, const std::map<std::string, std::string> &wheres) -> bool;
 
 private:
     class PImpl;

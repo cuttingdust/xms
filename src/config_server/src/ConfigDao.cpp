@@ -131,9 +131,9 @@ bool ConfigDao::saveConfig(const xmsg::XConfig *conf)
     data[col_private_pb] = private_pb.c_str();
     data[col_proto]      = conf->proto().c_str();
 
-    const auto conf_ip   = conf->service_ip();
-    const auto conf_port = conf->service_port();
-    const auto str_port  = std::to_string(conf_port);
+    const auto &conf_ip   = conf->service_ip();
+    const auto  conf_port = conf->service_port();
+    const auto  str_port  = std::to_string(conf_port);
 
     auto row = impl_->mysql_->getRows(table_name, "*", { { col_server_ip, conf_ip }, { col_server_port, str_port } });
     if (!row.empty())
@@ -212,7 +212,8 @@ xmsg::XConfigList ConfigDao::loadAllConfig(unsigned int page, int page_count)
     }
 
     std::vector<std::string> sel = { col_server_name, col_server_ip, col_server_port };
-    auto rows = impl_->mysql_->getRows(table_name, sel, std::make_pair("", ""), { page, page_count }, {col_id, LXD_DESC});
+    auto                     rows =
+            impl_->mysql_->getRows(table_name, sel, std::make_pair("", ""), { page, page_count }, { col_id, LXD_DESC });
     for (auto row : rows)
     {
         /// 遍历结果集插入到proto类型中
@@ -222,4 +223,22 @@ xmsg::XConfigList ConfigDao::loadAllConfig(unsigned int page, int page_count)
         conf->set_service_port(atoi(row[2].data));
     }
     return confs;
+}
+
+bool ConfigDao::deleteConfig(const char *ip, int port)
+{
+    LOGDEBUG("DeleteConfig");
+    XMutex mux(&my_mutex);
+    if (!impl_->mysql_)
+    {
+        LOGERROR("mysql not init");
+        return false;
+    }
+    if (!ip || port <= 0 || port > 65535 || strlen(ip) == 0)
+    {
+        LOGERROR("DeleteConfig failed!ip or port error");
+        return false;
+    }
+
+    return impl_->mysql_->remove(table_name, { { col_server_ip, ip }, { col_server_port, std::to_string(port) } });
 }

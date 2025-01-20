@@ -1075,7 +1075,7 @@ auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &se
     return getResult(sql.c_str());
 }
 
-auto LXMysql::getCount(const char *table_name, std::pair<std::string, std::string> where) -> int
+auto LXMysql::getCount(const char *table_name, const std::pair<std::string, std::string> &where) -> int
 {
     if (!table_name)
         return -1;
@@ -1090,4 +1090,49 @@ auto LXMysql::getCount(const char *table_name, std::pair<std::string, std::strin
     if (rows.empty() || !rows[0][0].data)
         return -1;
     return atoi(rows[0][0].data);
+}
+
+auto LXMysql::getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres) -> std::string
+{
+    std::string sql;
+    if (!table_name)
+        return sql;
+
+    sql = std::format("DELETE FROM {}", table_name);
+
+    if (!wheres.empty())
+    {
+        sql += " WHERE ";
+        std::vector<std::string> temps;
+        temps.reserve(wheres.size());
+        for (const auto &[key, value] : wheres)
+        {
+            temps.emplace_back(std::format("`{}`='{}'", key, value));
+        }
+        sql += join(temps, " AND ");
+    }
+
+    return sql;
+}
+
+auto LXMysql::remove(const char *table_name, const std::map<std::string, std::string> &wheres) -> bool
+{
+    if (!impl_->mysql_)
+    {
+        std::cerr << "Mysql insert failed! msyql is not init!!!" << std::endl;
+        return false;
+    }
+
+    const std::string &sql = getRemoveSql(table_name, wheres);
+    if (sql.empty())
+    {
+        std::cerr << "Mysql insert failed! sql is empty!!!" << std::endl;
+        return false;
+    }
+    if (!query(sql.c_str()))
+        return false;
+    int num = mysql_affected_rows(impl_->mysql_);
+    if (num <= 0)
+        return false;
+    return true;
 }

@@ -24,6 +24,20 @@ static std::mutex                 cur_service_conf_mutex;
 static xmsg::XConfigList *all_config = nullptr;
 static std::mutex         all_config_mutex;
 
+/// 显示解析的语法错误
+class ConfError : public google::protobuf::compiler::MultiFileErrorCollector
+{
+public:
+    void RecordError(absl::string_view filename, int line, int column, absl::string_view message) override
+    {
+        std::stringstream ss;
+        ss << filename << "|" << line << "|" << column << "|" << message;
+        LOGDEBUG(ss.str().c_str());
+    }
+};
+
+static ConfError config_error;
+
 class XConfigClient::PImpl
 {
 public:
@@ -71,15 +85,21 @@ void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     if (!res.ParseFromArray(msg->data, msg->size))
     {
         LOGDEBUG("ParseFromArray failed!");
+        if (sendConfigResCB)
+            sendConfigResCB(false, "ParseFromArray failed!");
         return;
     }
     if (res.return_() == xmsg::XMessageRes::XR_OK)
     {
         LOGDEBUG("上传配置成功!");
+        if (sendConfigResCB)
+            sendConfigResCB(true, "上传配置成功!");
         return;
     }
     std::stringstream ss;
     ss << "上传配置失败:" << res.msg();
+    if (sendConfigResCB)
+        sendConfigResCB(false, ss.str().c_str());
     LOGDEBUG(ss.str().c_str());
 }
 
@@ -151,19 +171,6 @@ bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
     return true;
 }
 
-/// 显示解析的语法错误
-class ConfError : public google::protobuf::compiler::MultiFileErrorCollector
-{
-public:
-    void RecordError(absl::string_view filename, int line, int column, absl::string_view message) override
-    {
-        std::stringstream ss;
-        ss << filename << "|" << line << "|" << column << "|" << message;
-        LOGDEBUG(ss.str().c_str());
-    }
-};
-
-static ConfError           config_error;
 google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name, const std::string &class_name,
                                                     std::string &out_proto_code)
 {
@@ -244,12 +251,11 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     LOGDEBUG(message_desc->DebugString());
 
     /// 反射生成message对象
-
-    if (impl_->message_)
-    {
-        delete impl_->message_;
-        impl_->message_ = nullptr;
-    }
+    // if (impl_->message_)
+    // {
+    //     delete impl_->message_;
+    //     impl_->message_ = nullptr;
+    // }
 
     /// 动态创建消息类型的工厂，不能销毁，销毁后由此创建的message也失效
     static google::protobuf::DynamicMessageFactory factory;
@@ -280,6 +286,24 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     out_proto_code += "package ";
     out_proto_code += file_desc->package();
     out_proto_code += ";\n";
+
+    /// 存枚举定义 ，暂时不支持多proto import文件
+    /// 同一个类型只生成一次代码
+    std::map<std::string, const google::protobuf::EnumDescriptor *> enum_desc;
+    for (int i = 0; i < message_desc->field_count(); i++)
+    {
+        auto field = message_desc->field(i);
+        if (field->type() != google::protobuf::FieldDescriptor::TYPE_ENUM)
+        {
+            continue;
+        }
+        /// 如果是枚举类型
+        if (enum_desc.contains(field->enum_type()->name())) /// 已经添加过的类型
+            continue;
+        out_proto_code += field->enum_type()->DebugString() + "\n";
+        enum_desc[field->enum_type()->name()] = field->enum_type();
+    }
+
     //message XDirConfig
     out_proto_code += message_desc->DebugString();
 
@@ -292,6 +316,7 @@ void XConfigClient::regMsgCallback()
     regCB(xmsg::MT_SAVE_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::sendConfigRes));
     regCB(xmsg::MT_LOAD_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadConfigRes));
     regCB(xmsg::MT_LOAD_ALL_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadAllConfigRes));
+    regCB(xmsg::MT_DEL_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::deleteConfigRes));
 }
 
 void XConfigClient::wait()
@@ -408,4 +433,35 @@ xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int time
     }
 
     return confs;
+}
+
+void XConfigClient::deleteConfig(const char *ip, int port)
+{
+    if (!ip || strlen(ip) == 0 || port < 0 || port > 65535)
+    {
+        LOGDEBUG("DeleteConfig failed!port or ip error");
+        return;
+    }
+    xmsg::XLoadConfigReq req;
+    req.set_service_ip(ip);
+    req.set_service_port(port);
+    /// 发送消息到服务端
+    sendMsg(xmsg::MT_DEL_CONFIG_REQ, &req);
+}
+
+void XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("接收到删除配置的反馈");
+    xmsg::XMessageRes res;
+    if (!res.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("ParseFromArray failed!");
+        return;
+    }
+    if (res.return_() == xmsg::XMessageRes::XR_OK)
+    {
+        LOGDEBUG("删除配置成功!");
+        return;
+    }
+    LOGDEBUG("删除配置失败!");
 }

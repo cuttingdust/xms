@@ -58,6 +58,7 @@ void XConfigHandle::regMsgCallback()
     regCB(xmsg::MT_SAVE_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::saveConfig));
     regCB(xmsg::MT_LOAD_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::loadConfig));
     regCB(xmsg::MT_LOAD_ALL_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::loadAllConfig));
+    regCB(xmsg::MT_DEL_CONFIG_REQ, static_cast<MsgCBFunc>(&XConfigHandle::deleteConfig));
 }
 
 void XConfigHandle::loadAllConfig(xmsg::XMsgHead *head, XMsg *msg)
@@ -72,4 +73,26 @@ void XConfigHandle::loadAllConfig(xmsg::XMsgHead *head, XMsg *msg)
     const auto config_list = ConfigDao::get()->loadAllConfig(req.page(), req.page_count());
     /// 发送给客户端
     sendMsg(xmsg::MT_LOAD_ALL_CONFIG_RES, &config_list);
+}
+
+void XConfigHandle::deleteConfig(xmsg::XMsgHead *head, XMsg *msg)
+{
+    LOGDEBUG("接收到删除配置的消息");
+    xmsg::XMessageRes    res;
+    xmsg::XLoadConfigReq req;
+    if (!req.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("DeleteConfig ParseFromArray failed!");
+        return;
+    }
+    if (ConfigDao::get()->deleteConfig(req.service_ip().c_str(), req.service_port()))
+    {
+        res.set_return_(xmsg::XMessageRes::XR_OK);
+        res.set_msg("OK");
+        sendMsg(xmsg::MT_DEL_CONFIG_RES, &res);
+        return;
+    }
+    res.set_return_(xmsg::XMessageRes::XR_ERROR);
+    res.set_msg("delete db failed!");
+    sendMsg(xmsg::MT_DEL_CONFIG_RES, &res);
 }

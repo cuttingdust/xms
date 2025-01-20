@@ -27,6 +27,8 @@ public:
     static void regMsgCallback();
 
     void loadAllConfig(xmsg::XMsgHead *head, XMsg *msg);
+
+    void deleteConfig(xmsg::XMsgHead *head, XMsg *msg);
 };
 
 

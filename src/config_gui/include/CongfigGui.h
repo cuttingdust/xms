@@ -31,10 +31,20 @@ public:
     /// 显示在日志列表中
     void addLog(const char *log);
 
+    /// \brief 刷新配置
+    void updateUI();
 public Q_SLOTS:
     /// 刷新显示配置
     void slotRefresh();
+
+    /// \brief 新增配置
     void slotAddConfig();
+
+    /// \brief 删除配置
+    void slotDeleteConfig();
+
+    /// \brief 编辑配置
+    void slotEditConfig();
 
 private:
     Ui::ConfigGuiClass *ui = nullptr;

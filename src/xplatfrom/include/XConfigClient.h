@@ -14,6 +14,7 @@
 #include "XPlatfrom_Global.h"
 #include <XServiceClient.h>
 
+typedef void (*ConfigResCBFunc)(bool is_ok, const char *msg);
 
 class XPLATFROM_EXPORT XConfigClient : public XServiceClient
 {
@@ -96,6 +97,16 @@ public:
     /// \param timeout_sec
     /// \return
     xmsg::XConfigList getAllConfig(int page, int page_count, int timeout_sec);
+
+    /// \brief ∑¢≥ˆ…æ≥˝≈‰÷√«Î«Û
+    /// \param ip
+    /// \param port
+    void deleteConfig(const char *ip, int port);
+
+    void deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg);
+
+public:
+    ConfigResCBFunc sendConfigResCB = nullptr;
 
 private:
     class PImpl;

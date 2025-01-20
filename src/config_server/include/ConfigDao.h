@@ -60,6 +60,12 @@ public:
     /// \return
     xmsg::XConfigList loadAllConfig(unsigned int page, int page_count);
 
+    /// \brief É¾³ıÖ¸¶¨µÄÅäÖÃ
+    /// \param ip
+    /// \param port
+    /// \return
+    bool deleteConfig(const char *ip, int port);
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;
