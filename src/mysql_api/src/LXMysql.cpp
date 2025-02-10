@@ -365,9 +365,17 @@ auto LXMysql::createTable(const std::string &table_name, const XFIELDS &fileds, 
         fields.emplace_back(tmp);
     }
 
+    /// 根据操作系统设置字符集
+    std::string charset;
+#ifdef _WIN32
+    charset = "gbk";
+#else
+    charset = "utf8";
+#endif
+
     const std::string &field_str = join(fields, ",");
-    const std::string &sql =
-            std::format("CREATE TABLE IF NOT EXISTS `{0}` ({1},{2});", table_name, field_str, key_string);
+    const std::string &sql = std::format("CREATE TABLE IF NOT EXISTS `{0}` ({1},{2}) CHARACTER SET {3};", table_name,
+                                         field_str, key_string, charset);
 
     if (!query(sql.c_str()))
     {
@@ -660,6 +668,7 @@ auto LXMysql::insertBin(const XDATA &kv, const std::string &table_name) -> bool
     {
         mysql_stmt_close(stmt);
         std::cerr << "Mysql insertBin failed! mysql_stmt_execute failed!!!" << std::endl;
+        std::cerr << "Mysql insertBin failed: " << mysql_stmt_error(stmt) << std::endl;
         return false;
     }
 

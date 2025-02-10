@@ -86,12 +86,12 @@ bool ConfigDao::install()
           .type              = LX_DATA_TYPE::LXD_TYPE_INT24,
           .length            = 0,
           .is_key            = true,
-          .is_auto_increment = true },                                                     /// id
-        { .name = col_server_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },  /// 服务器名称
-        { .name = col_server_port, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },                 /// 服务器端口
-        { .name = col_server_ip, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },    /// 服务器IP
-        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 }, /// 私有协议
-        { .name = col_proto, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 },      /// 公共协议
+          .is_auto_increment = true },                                                    /// id
+        { .name = col_server_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 }, /// 服务器名称
+        { .name = col_server_port, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },                /// 服务器端口
+        { .name = col_server_ip, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },   /// 服务器IP
+        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_BLOB, .length = 4096 },  /// 私有协议
+        { .name = col_proto, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 },     /// 公共协议
     };
 
     if (!impl_->mysql_->createTable(table_name, fields, true))

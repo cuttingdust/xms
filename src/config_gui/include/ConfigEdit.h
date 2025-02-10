@@ -25,6 +25,8 @@ public:
     ~ConfigEdit() override;
 
 public:
+    void initGui();
+
     /// \brief 加载配置项，从配置中心获取，并解析生成界面
     /// \param ip
     /// \param port
@@ -35,6 +37,7 @@ signals:
     void signalAddLog(const char *log);
 
     void signalMessageCB(bool is_ok, const char *msg);
+
 protected slots:
     void slotSave();
 

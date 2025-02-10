@@ -5,6 +5,7 @@
 #include <XConfigServer.h>
 
 #include <iostream>
+#include <fstream>
 
 int main(int argc, char *argv[])
 {
@@ -32,12 +33,19 @@ int main(int argc, char *argv[])
     // /// 初始化数据库
     // if (ConfigDao::get()->init("localhost", "root", "System123@", "xms", 3306))
     // {
-    //     std::cout << "ConfigDao::Get()->Init Success!" << std::endl;
-    //     /// 测试安装
-    //     ConfigDao::get()->install();
+    // std::cout << "ConfigDao::Get()->Init Success!" << std::endl;
+    // /// 测试安装
+    // ConfigDao::get()->install();
+
+    // /// 测试配置保持
+    // xmsg::XConfig conf;
+    // std::string   filename = "tmp_test.proto";
+    // std::ifstream input_file(filename, std::ios::binary);
     //
-    //     /// 测试配置保持
-    //     xmsg::XConfig conf;
+    // if (!conf.ParseFromIstream(&input_file))
+    // {
+    //     std::cerr << "Failed to parse message from file: " << filename << std::endl;
+    // }
     //     conf.set_service_name("test");
     //     conf.set_service_ip("127.0.0.1");
     //     conf.set_service_port(20020);
@@ -45,7 +53,7 @@ int main(int argc, char *argv[])
     //     std::string pb = conf.SerializeAsString();
     //     conf.set_private_pb(pb);
     //
-    //     ConfigDao::get()->saveConfig(&conf);
+    // ConfigDao::get()->saveConfig(&conf);
     //     auto config = ConfigDao::get()->loadConfig("127.0.0.1", 20020);
     //     std::cout << "========================================" << std::endl;
     //     LOGDEBUG(config.DebugString());
