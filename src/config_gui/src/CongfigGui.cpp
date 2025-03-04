@@ -58,6 +58,12 @@ bool CongfigGui::eventFilter(QObject *object, QEvent *event)
     return QWidget::eventFilter(object, event);
 }
 
+void CongfigGui::showEvent(QShowEvent *event)
+{
+    Q_UNUSED(event)
+    updateUI();
+}
+
 void CongfigGui::addLog(const char *log)
 {
     /// 加入日期显示

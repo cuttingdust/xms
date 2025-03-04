@@ -33,9 +33,9 @@ int main(int argc, char *argv[])
     // /// 初始化数据库
     // if (ConfigDao::get()->init("localhost", "root", "System123@", "xms", 3306))
     // {
-    // std::cout << "ConfigDao::Get()->Init Success!" << std::endl;
-    // /// 测试安装
-    // ConfigDao::get()->install();
+    //     std::cout << "ConfigDao::Get()->Init Success!" << std::endl;
+    //     /// 测试安装
+    //     ConfigDao::get()->install();
 
     // /// 测试配置保持
     // xmsg::XConfig conf;

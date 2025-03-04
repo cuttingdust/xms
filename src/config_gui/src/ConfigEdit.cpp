@@ -123,12 +123,16 @@ void ConfigEdit::initGui()
             case google::protobuf::FieldDescriptor::TYPE_DOUBLE:
                 double_box = new QDoubleSpinBox();
                 double_box->setMaximum(DBL_MAX);
+                double_box->setMinimum(0.02);
+                double_box->setSingleStep(0.02);
                 double_box->setValue(ref->GetDouble(*impl_->message_, field));
                 ui->formLayout->addRow(field->name().c_str(), double_box);
                 break;
             case google::protobuf::FieldDescriptor::TYPE_FLOAT:
                 double_box = new QDoubleSpinBox();
+                double_box->setMinimum(0.02);
                 double_box->setMaximum(FLT_MAX);
+                double_box->setSingleStep(0.02);
                 double_box->setValue(ref->GetFloat(*impl_->message_, field));
                 ui->formLayout->addRow(field->name().c_str(), double_box);
                 break;
@@ -173,18 +177,7 @@ bool ConfigEdit::loadConfig(const char *ip, int port)
     if (!impl_->config_)
         impl_->config_ = new xmsg::XConfig();
 
-    bool is_get = false;
-    /// 等待一秒后超时
-    for (int i = 0; i < 100; i++)
-    {
-        if (XConfigClient::get()->getConfig(ip, port, impl_->config_))
-        {
-            is_get = true;
-            break;
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    }
-    if (!is_get)
+    if (!XConfigClient::get()->getConfig(ip, port, impl_->config_))
     {
         LOGDEBUG("获取配置数据失败！");
         return false;
@@ -304,17 +297,27 @@ void ConfigEdit::slotSave()
                 break;
                 /// 支持浮点数
             case google::protobuf::FieldDescriptor::TYPE_DOUBLE:
-                double_box = dynamic_cast<QDoubleSpinBox *>(field_edit);
-                if (!double_box)
-                    continue;
-                ref->SetDouble(impl_->message_, field_desc, double_box->value());
-                break;
+                {
+                    double_box = dynamic_cast<QDoubleSpinBox *>(field_edit);
+                    if (!double_box)
+                        continue;
+                    double val = double_box->value();
+                    // if (std::floor(val) == val)
+                    //     continue;
+                    ref->SetDouble(impl_->message_, field_desc, val);
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_FLOAT:
-                double_box = dynamic_cast<QDoubleSpinBox *>(field_edit);
-                if (!double_box)
-                    continue;
-                ref->SetFloat(impl_->message_, field_desc, double_box->value());
-                break;
+                {
+                    double_box = dynamic_cast<QDoubleSpinBox *>(field_edit);
+                    if (!double_box)
+                        continue;
+                    float val = double_box->value();
+                    // if (std::floor(val) == val)
+                    //     continue;
+                    ref->SetFloat(impl_->message_, field_desc, val);
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_BYTES:
             case google::protobuf::FieldDescriptor::TYPE_STRING:
                 str_edit = dynamic_cast<QLineEdit *>(field_edit);
@@ -339,6 +342,8 @@ void ConfigEdit::slotSave()
         }
     }
 
+    LOGDEBUG(impl_->message_->DebugString());
+
     /// 将界面输入 存储到message中
     /// 遍历界面 区分基础信息和配置信息
     xmsg::XConfig config;
@@ -350,25 +355,15 @@ void ConfigEdit::slotSave()
     /// 配置信息
     /// 序列化message
     std::string msg_pb = impl_->message_->SerializeAsString();
+    if (msg_pb.empty())
+    {
+        LOGDEBUG("message serialize failed!");
+        return;
+    }
     config.set_private_pb(msg_pb);
 
     LOGDEBUG(impl_->message_->DebugString());
     LOGDEBUG(config.DebugString());
-    /// 存储配置到配置中心
-    {
-        std::string   filename = "tmp_test.proto";
-        std::ofstream output_file(filename, std::ios::binary);
-        if (!output_file)
-        {
-            std::cerr << "Failed to open file for writing: " << filename << std::endl;
-            return;
-        }
-
-        if (!config.SerializeToOstream(&output_file))
-        {
-            std::cerr << "Failed to write message to file: " << filename << std::endl;
-        }
-    }
 
     XConfigClient::get()->sendConfig(&config);
 }

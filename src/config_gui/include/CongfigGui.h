@@ -28,6 +28,8 @@ public:
 public:
     bool eventFilter(QObject *object, QEvent *event) override;
 
+    void showEvent(QShowEvent *event) override;
+
     /// 显示在日志列表中
     void addLog(const char *log);
 

@@ -15,6 +15,8 @@
 /// key ip_port
 static std::map<std::string, xmsg::XConfig> conf_map;
 static std::mutex                           conf_map_mutex;
+static std::condition_variable              config_cv;
+static bool                                 config_received = false;
 
 /// 存储当前微服务配置
 static google::protobuf::Message *cur_service_conf = nullptr;
@@ -134,9 +136,8 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     std::stringstream key;
     key << conf.service_ip() << "_" << conf.service_port();
     /// 更新配置
-    conf_map_mutex.lock();
     conf_map[key.str()] = conf;
-    conf_map_mutex.unlock();
+    config_cv.notify_one();
 
     /// 存储本地配置
     if (impl_->local_port_ > 0 && cur_service_conf)
@@ -156,9 +157,11 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 
 bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
 {
+    std::unique_lock<std::mutex> lck(conf_map_mutex);
+    config_cv.wait(lck);
+
     std::stringstream key;
     key << ip << "_" << port;
-    XMutex mutex(&conf_map_mutex);
     /// s查找配置
     auto conf = conf_map.find(key.str());
     if (conf == conf_map.end())
@@ -166,6 +169,7 @@ bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
         LOGDEBUG("Can`t find conf");
         return false;
     }
+    LOGDEBUG(conf->second.DebugString());
     /// 复制配置
     out_conf->CopyFrom(conf->second);
     return true;
@@ -447,6 +451,7 @@ void XConfigClient::deleteConfig(const char *ip, int port)
     req.set_service_port(port);
     /// 发送消息到服务端
     sendMsg(xmsg::MT_DEL_CONFIG_REQ, &req);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg)
