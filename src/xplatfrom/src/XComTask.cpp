@@ -89,16 +89,22 @@ auto XComTask::PImpl::initBev(int com_sock) -> bool
     /// 用bufferevent建立连接
     if (ssl_ctx_)
     {
+        auto ssl = ssl_ctx_->createXSSL(com_sock);
         if (com_sock < 0)
         {
-            auto ssl = ssl_ctx_->createXSSL(com_sock);
             bev_ = bufferevent_openssl_socket_new(owenr_->base(), com_sock, ssl->get_ssl(), BUFFEREVENT_SSL_CONNECTING,
                                                   BEV_OPT_CLOSE_ON_FREE);
-            if (!bev_)
-            {
-                LOGERROR("bufferevent_openssl_socket_new failed");
-                return false;
-            }
+        }
+        else
+        {
+            bev_ = bufferevent_openssl_socket_new(owenr_->base(), com_sock, ssl->get_ssl(), BUFFEREVENT_SSL_ACCEPTING,
+                                                  BEV_OPT_CLOSE_ON_FREE);
+        }
+
+        if (!bev_)
+        {
+            LOGERROR("bufferevent_openssl_socket_new failed");
+            return false;
         }
     }
     else

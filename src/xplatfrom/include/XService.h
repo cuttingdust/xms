@@ -38,6 +38,9 @@ public:
     /// \return
     bool start();
 
+    void      set_ssl_ctx(XSSL_CTX *ctx);
+    XSSL_CTX *get_ssl_ctx() const;
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;

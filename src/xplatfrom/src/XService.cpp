@@ -29,6 +29,7 @@ public:
     XThreadPool *thread_client_pool_ = nullptr; /// < 处理用户的数据的连接池
     int          server_port_        = 0;       /// < 服务器监听端口
     int          thread_count_       = 10;      /// < 客户数据处理的线程数量
+    XSSL_CTX    *ssl_ctx_            = nullptr; /// < ssl上下文
 };
 
 XService::PImpl::PImpl(XService *owenr) : owenr_(owenr)
@@ -100,6 +101,7 @@ void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
     /// 创建客户端处理对象
     auto handle = createHandle();
     handle->set_sock(client_socket);
+    handle->set_ssl_ctx(this->get_ssl_ctx());
 
     std::stringstream ss;
     char              ip[16] = { 0 };
@@ -120,4 +122,14 @@ bool XService::start()
     impl_->thread_client_pool_->init(impl_->thread_count_);
     impl_->thread_listen_pool_->dispatch(this);
     return true;
+}
+
+void XService::set_ssl_ctx(XSSL_CTX *ctx)
+{
+    impl_->ssl_ctx_ = ctx;
+}
+
+XSSL_CTX *XService::get_ssl_ctx() const
+{
+    return impl_->ssl_ctx_;
 }

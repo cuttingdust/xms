@@ -17,11 +17,10 @@ class XMySSLClient : public XServiceClient
 {
 public:
     XMySSLClient();
-    virtual ~XMySSLClient();
+    ~XMySSLClient() override;
 
 public:
     void connectCB() override;
 };
-
 
 #endif // XMYSSLCLIENT_H
