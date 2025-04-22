@@ -2,9 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 project(xplatfrom)
 
 set(DPS_LIBRARYS 
-    protobuf::libprotoc
-    protobuf::libprotobuf
-    protobuf::libprotobuf-lite
+    ${SSL_MOUDLES}
+    ${Protobuf_MOUDLES}
 )
 
 set(${PROJECT_NAME}_SHARED ON CACHE BOOL "" FORCE)

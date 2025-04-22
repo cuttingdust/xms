@@ -32,6 +32,11 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt6 6.7.2 REQUIRED Core Gui Widgets)
 message("Found Qt6 FOUND: ${Qt6_FOUND}")
 
+# OpenSSL
+find_package(OpenSSL REQUIRED)
+message("OpenSSL_FOUND = ${OpenSSL_FOUND}")
+
+#libevent
 find_package(Libevent CONFIG REQUIRED)
 message("Found Libevent FOUND: ${Libevent_FOUND}")
 message("Found Libevent VERSION: ${Libevent_VERSION}")
@@ -88,4 +93,8 @@ add_subdirectory(register_server)
 add_subdirectory(config_server)
 add_subdirectory(config_client)
 add_subdirectory(config_gui)
+add_subdirectory(xtest_xplatform_ssl)
 
+# 拷贝assert目录到输出目录
+set(ASSERT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assert)
+file(COPY ${ASSERT_PATH} DESTINATION ${OUT_RUN_PATH})

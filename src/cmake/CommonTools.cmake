@@ -44,9 +44,24 @@ set(QT6_MOUDLES
     Qt6::Gui
 )
 
+# libevent
 set(Libevent_MOUDLES
 	libevent::core
 	libevent::extra
+	libevent::openssl
+)
+
+# openssl 
+set(SSL_MOUDLES 
+	OpenSSL::SSL 
+	OpenSSL::Crypto
+)
+
+# protobuf
+set(Protobuf_MOUDLES
+	protobuf::libprotoc
+	protobuf::libprotobuf
+	protobuf::libprotobuf-lite
 )
 
 # 获取当前目录下源码和头文件

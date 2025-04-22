@@ -18,6 +18,8 @@
 #include <memory>
 #include <string>
 
+class XSSL_CTX;
+
 class XPLATFROM_EXPORT XComTask : public XTask
 {
 public:
@@ -68,6 +70,9 @@ public:
     /// \param timeout_sec
     /// \return
     bool autoConnect(int timeout_sec);
+
+    void      set_ssl_ctx(XSSL_CTX* ctx);
+    XSSL_CTX* get_ssl_ctx() const;
 
 public:
     virtual void eventCB(short events);

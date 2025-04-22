@@ -1,8 +1,10 @@
 #include "XComTask.h"
 #include "XMsg.h"
 #include "XTools.h"
+#include "XSSL_CTX.h"
 #include "XMsgCom.pb.h"
 
+#include <event2/bufferevent_ssl.h>
 #include <event2/bufferevent.h>
 #include <event2/event.h>
 
@@ -39,6 +41,9 @@ public:
     ~PImpl();
 
 public:
+    /// \brief 初始化 bev
+    /// \param com_sock -1 自动创建socket
+    /// \return true 成功，false 失败
     auto initBev(int com_sock) -> bool;
 
 public:
@@ -57,11 +62,12 @@ public:
     /// 2 连接中 => 等待连接成功
     /// 3 已连接 => 做业务操作
     /// 4 连接后失败 => 根据连接间隔时间，开始连接
-    bool        is_connecting_ = true;  ///< 连接中
-    bool        is_connected_  = false; ///< 连接成功
-    std::mutex *mtx_           = nullptr;
+    bool        is_connecting_ = true;    ///< 连接中
+    bool        is_connected_  = false;   ///< 连接成功
+    std::mutex *mtx_           = nullptr; ///< 互斥锁
 
-    struct event *timer_event_ = nullptr;
+    struct event *timer_event_ = nullptr; ///< 定时器事件
+    XSSL_CTX     *ssl_ctx_     = nullptr; ///< ssl上下文
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
@@ -81,11 +87,28 @@ XComTask::PImpl::~PImpl()
 auto XComTask::PImpl::initBev(int com_sock) -> bool
 {
     /// 用bufferevent建立连接
-    bev_ = bufferevent_socket_new(owenr_->base(), com_sock, BEV_OPT_CLOSE_ON_FREE);
-    if (!bev_)
+    if (ssl_ctx_)
     {
-        LOGERROR("bufferevent_socket_new failed");
-        return false;
+        if (com_sock < 0)
+        {
+            auto ssl = ssl_ctx_->createXSSL(com_sock);
+            bev_ = bufferevent_openssl_socket_new(owenr_->base(), com_sock, ssl->get_ssl(), BUFFEREVENT_SSL_CONNECTING,
+                                                  BEV_OPT_CLOSE_ON_FREE);
+            if (!bev_)
+            {
+                LOGERROR("bufferevent_openssl_socket_new failed");
+                return false;
+            }
+        }
+    }
+    else
+    {
+        bev_ = bufferevent_socket_new(owenr_->base(), com_sock, BEV_OPT_CLOSE_ON_FREE);
+        if (!bev_)
+        {
+            LOGERROR("bufferevent_socket_new failed");
+            return false;
+        }
     }
 
     bufferevent_setcb(bev_, SReadCb, SWriteCb, SEventCb, owenr_);
@@ -221,6 +244,16 @@ bool XComTask::autoConnect(int timeout_sec)
     return waitConnected(timeout_sec);
 }
 
+void XComTask::set_ssl_ctx(XSSL_CTX *ctx)
+{
+    impl_->ssl_ctx_ = ctx;
+}
+
+XSSL_CTX *XComTask::get_ssl_ctx() const
+{
+    return impl_->ssl_ctx_;
+}
+
 void XComTask::eventCB(short events)
 {
     if (events & BEV_EVENT_CONNECTED)
@@ -233,6 +266,15 @@ void XComTask::eventCB(short events)
         /// 连接成功后发送消息
         impl_->is_connected_  = true;
         impl_->is_connecting_ = false;
+
+        if (auto ssl = bufferevent_openssl_get_ssl(impl_->bev_))
+        {
+            XSSL xssl;
+            xssl.set_ssl(ssl);
+            xssl.printCipher();
+            xssl.printCert();
+        }
+
         connectCB();
     }
 
