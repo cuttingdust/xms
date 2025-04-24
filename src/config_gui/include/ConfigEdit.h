@@ -25,7 +25,7 @@ public:
     ~ConfigEdit() override;
 
 public:
-    void initGui();
+    void initGUI();
 
     /// \brief 加载配置项，从配置中心获取，并解析生成界面
     /// \param ip

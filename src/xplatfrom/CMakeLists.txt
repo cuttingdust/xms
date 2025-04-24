@@ -26,6 +26,7 @@ set(PROTOC_EXPORT_CLASS
     XLoadAllConfigReq
     XConfigList
     XLoginReq
+    XGatewayConfig
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

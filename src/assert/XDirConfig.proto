@@ -1,0 +1,6 @@
+syntax="proto3";	/// 版本号
+package xmsg;		/// 命名空间
+message XDirConfig
+{
+	double num = 1;
+}

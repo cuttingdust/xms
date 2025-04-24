@@ -3,10 +3,10 @@
 
 #ifdef _WIN32
 
-#ifdef mysql_api_STATIC
+#ifdef xmysql_STATIC
 #define LXM_EXPORT
 #else
-#ifdef mysql_api_EXPORTS
+#ifdef xmysql_EXPORTS
 #define LXM_EXPORT __declspec(dllexport)
 #else
 #define LXM_EXPORT __declspec(dllimport)

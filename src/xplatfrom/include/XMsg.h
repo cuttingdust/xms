@@ -13,12 +13,13 @@
 #include "XMsgType.pb.h"
 
 #include <cstring>
-#define MAX_MSG_SIZE     8192     /// 头部消息的最大字节数
-#define API_GATEWAY_NAME "gw"     /// API网关名称
-#define API_GATEWAY_PORT 20010    /// API网关端口
-#define REGISTER_PORT    20018    /// 注册中心端口
-#define CONFIG_NAME      "config" /// 配置中心名称
-#define CONFIG_PORT      20019    /// 配置中心端口
+#define MAX_MSG_SIZE         8192     /// 头部消息的最大字节数
+#define API_GATEWAY_NAME     "gw"     /// API网关名称
+#define API_GATEWAY_PORT     20010    /// API网关端口
+#define API_GATEWAY_SSL_PORT 20011    /// API_SSL网关端口
+#define REGISTER_PORT        20018    /// 注册中心端口
+#define CONFIG_NAME          "config" /// 配置中心名称
+#define CONFIG_PORT          20019    /// 配置中心端口
 
 /// 所有的函数做内联
 class XMsg

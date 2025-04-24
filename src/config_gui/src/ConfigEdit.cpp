@@ -57,7 +57,7 @@ ConfigEdit::~ConfigEdit()
     impl_->config_ = nullptr;
 }
 
-void ConfigEdit::initGui()
+void ConfigEdit::initGUI()
 {
     /// 清理之前的配置项目
     while (ui->formLayout->rowCount() != impl_->config_row_count_)
@@ -217,7 +217,7 @@ bool ConfigEdit::loadConfig(const char *ip, int port)
 
     /// 根据message 生成界面
     /// 根据message内容，写入到界面
-    initGui();
+    initGUI();
 
     return true;
 }
@@ -393,7 +393,7 @@ void ConfigEdit::slotLoadProto()
         return;
     }
     impl_->config_->set_proto(proto_code);
-    initGui();
+    initGUI();
 
     // ui->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
     // ui->proto_textEdit->setText(proto_code.c_str());

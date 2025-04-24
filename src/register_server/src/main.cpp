@@ -1,4 +1,3 @@
-
 #include "XRegisterServer.h"
 
 #include <iostream>

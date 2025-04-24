@@ -83,7 +83,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 include(CommonTools)
 
 
-add_subdirectory(mysql_api)
+add_subdirectory(xmysql)
 add_subdirectory(xplatfrom)
 add_subdirectory(xtest_service_client)
 add_subdirectory(xtest_pb_service)

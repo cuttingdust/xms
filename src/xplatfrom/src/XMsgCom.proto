@@ -144,3 +144,13 @@ message XConfigList
 {
 	repeated XConfig config = 1;
 }
+
+/// 网关配置
+message XGatewayConfig
+{
+	bool   is_ssl 		= 1;	///< 是否开启SSL通信
+	string crt_path		= 2;	///< 证书路径
+	string key_path 	= 3;	///< 私钥路径
+	string ca_path  	= 4;	///< 证书签名验证路径
+	// int32  server_port	= 5;	///< 服务器端口号 非SSL 默认 API_GATEWAY_PORT， 默认SSL API_GATEWAY_SSL_PORT
+}

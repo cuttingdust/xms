@@ -6,6 +6,7 @@
 #include <XTools.h>
 
 #include <iostream>
+#include <fstream>
 #include <format>
 
 constexpr auto table_name      = "xms_service_config";
@@ -79,7 +80,7 @@ bool ConfigDao::install()
     }
 
 
-    std::string sql = "";
+    std::string sql;
 
     XFIELDS fields = {
         { .name              = col_id,
@@ -90,7 +91,7 @@ bool ConfigDao::install()
         { .name = col_server_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },  /// 服务器名称
         { .name = col_server_port, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },                 /// 服务器端口
         { .name = col_server_ip, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },    /// 服务器IP
-        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 }, /// 私有协议
+        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_BLOB, .length = 4096 },  /// 私有协议
         { .name = col_proto, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 },      /// 公共协议
     };
 
@@ -129,7 +130,17 @@ bool ConfigDao::saveConfig(const xmsg::XConfig *conf)
     /// 再序列化一次，把整个XConfig 存入到private_pb
     std::string private_pb;
     conf->SerializeToString(&private_pb);
-    data[col_private_pb] = private_pb.c_str();
+
+    ///  序列化到文件
+     std::ofstream output("test.bin", std::ios::binary);
+     if (!conf->SerializeToOstream(&output))
+     {
+         std::cerr << "Failed to write person." << std::endl;
+     }
+     output.close();
+
+
+    data[col_private_pb] = private_pb.data();
     data[col_proto]      = conf->proto().c_str();
 
     const auto &conf_ip   = conf->service_ip();

@@ -57,6 +57,8 @@ public:
 
 XConfigClient::PImpl::PImpl(XConfigClient *owenr) : owenr_(owenr)
 {
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+
     /// 文件加载路径
     source_tree_ = new google::protobuf::compiler::DiskSourceTree();
     source_tree_->MapPath("", "");
