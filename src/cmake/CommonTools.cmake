@@ -64,6 +64,11 @@ set(Protobuf_MOUDLES
 	protobuf::libprotobuf-lite
 )
 
+#spdlog
+set(LOG_MOUDLES
+	spdlog::spdlog_header_only
+)
+
 # 获取当前目录下源码和头文件
 macro(get_src_include)
     aux_source_directory(${CMAKE_CURRENT_LIST_DIR}/src SRC)

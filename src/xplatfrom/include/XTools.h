@@ -16,7 +16,7 @@
 #include <iostream>
 #include <mutex>
 
-#define LOG(level, msg) (std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl)
+#define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
 #define LOGDEBUG(msg)   LOG("DEBUG", msg)
 #define LOGINFO(msg)    LOG("INFO", msg)
 #define LOGERROR(msg)   LOG("ERROR", msg)

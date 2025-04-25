@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 project(xplatfrom)
 
 set(DPS_LIBRARYS 
+    ${LOG_MOUDLES}
     ${SSL_MOUDLES}
     ${Protobuf_MOUDLES}
 )

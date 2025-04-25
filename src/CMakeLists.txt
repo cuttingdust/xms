@@ -28,6 +28,10 @@ set(CMAKE_AUTORCC ON)
 # set(AUTOMOC_EXECUTABLE "$ENV{QTDIR}/bin/moc.exe")
 # set(AUTORCC_EXECUTABLE "$ENV{QTDIR}/bin/rcc.exe")
 
+# spdlog
+find_package(spdlog REQUIRED)
+message("spdlog_FOUND = ${spdlog_FOUND}")
+
 # 查找 vcpkg 安装的库
 find_package(Qt6 6.7.2 REQUIRED Core Gui Widgets)
 message("Found Qt6 FOUND: ${Qt6_FOUND}")

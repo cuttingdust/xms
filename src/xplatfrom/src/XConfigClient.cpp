@@ -345,7 +345,7 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
     startConnect();
     if (!waitConnected(timeout_sec))
     {
-        std::cout << "连接配置中心失败" << std::endl;
+        std::cout << "connting config center failed..." << std::endl;
         return false;
     }
     /// 设定获取配置的定时时间（毫秒）
@@ -395,7 +395,7 @@ void XConfigClient::setCurServiceMessage(google::protobuf::Message *message)
 
 void XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("响应获取配置列表 ");
+    LOGDEBUG("Response to get config list.");
     XMutex mux(&all_config_mutex);
     if (!all_config)
         all_config = new xmsg::XConfigList();
