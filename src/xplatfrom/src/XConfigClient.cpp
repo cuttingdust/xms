@@ -10,6 +10,8 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 
+#include <thread>
+
 #define PB_ROOT "root/"
 
 /// key ip_port
