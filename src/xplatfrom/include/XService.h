@@ -38,8 +38,9 @@ public:
     /// \return
     bool start();
 
-    void      set_ssl_ctx(XSSL_CTX *ctx);
-    XSSL_CTX *get_ssl_ctx() const;
+    void setSSLContent(XSSL_CTX *ctx);
+
+    XSSL_CTX *getSSLContent() const;
 
 private:
     class PImpl;

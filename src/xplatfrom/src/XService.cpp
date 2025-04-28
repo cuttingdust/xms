@@ -101,18 +101,19 @@ void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
     /// 创建客户端处理对象
     auto handle = createHandle();
     handle->set_sock(client_socket);
-    handle->set_ssl_ctx(this->get_ssl_ctx());
+    handle->setSSLContent(this->getSSLContent());
 
     std::stringstream ss;
     char              ip[16] = { 0 };
-    auto              addr_  = reinterpret_cast<sockaddr_in *>(addr);
-    evutil_inet_ntop(AF_INET, &addr_->sin_addr.s_addr, ip, sizeof(ip));
-    ss << "client ip: " << ip << " port: " << addr_->sin_port << std::endl;
+    const auto        adder  = reinterpret_cast<sockaddr_in *>(addr);
+    evutil_inet_ntop(AF_INET, &adder->sin_addr.s_addr, ip, sizeof(ip));
+    int client_port = ntohs(adder->sin_port);
+    ss << "accept client ip :" << ip << " port:" << client_port << std::endl;
     LOGINFO(ss.str().c_str());
 
     /// 任务加入到线程池
     handle->setClientIP(ip);
-    handle->setClientPort(addr_->sin_port);
+    handle->setClientPort(client_port);
     impl_->thread_client_pool_->dispatch(handle);
 }
 
@@ -124,12 +125,12 @@ bool XService::start()
     return true;
 }
 
-void XService::set_ssl_ctx(XSSL_CTX *ctx)
+void XService::setSSLContent(XSSL_CTX *ctx)
 {
     impl_->ssl_ctx_ = ctx;
 }
 
-XSSL_CTX *XService::get_ssl_ctx() const
+XSSL_CTX *XService::getSSLContent() const
 {
     return impl_->ssl_ctx_;
 }

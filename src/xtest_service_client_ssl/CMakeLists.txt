@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(xtest_pb_service)
+project(xtest_service_client_ssl)
 
 set(DPS_TARGETS
     xplatfrom

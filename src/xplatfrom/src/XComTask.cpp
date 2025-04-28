@@ -250,12 +250,12 @@ bool XComTask::autoConnect(int timeout_sec)
     return waitConnected(timeout_sec);
 }
 
-void XComTask::set_ssl_ctx(XSSL_CTX *ctx)
+void XComTask::setSSLContent(XSSL_CTX *ctx)
 {
     impl_->ssl_ctx_ = ctx;
 }
 
-XSSL_CTX *XComTask::get_ssl_ctx() const
+XSSL_CTX *XComTask::getSSLContent() const
 {
     return impl_->ssl_ctx_;
 }

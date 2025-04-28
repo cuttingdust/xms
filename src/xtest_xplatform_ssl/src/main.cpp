@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     XMySSLServiceHandle::regMsgCallback();
     XMySSLService service;
     service.setServerPort(PORT);
-    service.set_ssl_ctx(&server_ctx);
+    service.setSSLContent(&server_ctx);
     service.start();
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     client.setServerPort(PORT);
     XSSL_CTX ctx;
     ctx.initClient();
-    client.set_ssl_ctx(&ctx);
+    client.setSSLContent(&ctx);
     client.startConnect();
 
     XThreadPool::wait();

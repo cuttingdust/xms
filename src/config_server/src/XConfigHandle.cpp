@@ -39,15 +39,22 @@ void XConfigHandle::saveConfig(xmsg::XMsgHead *head, XMsg *msg)
 
 void XConfigHandle::loadConfig(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("接收到下载配置的消息");
+    LOGDEBUG("Received message to download configuration...");
     xmsg::XLoadConfigReq req;
     if (!req.ParseFromArray(msg->data, msg->size))
     {
         LOGDEBUG("LoadConfig ParseFromArray failed!");
         return;
     }
+
+    std::string ip = req.service_ip();
+    if (ip.empty())
+    {
+        ip = clientIP();
+    }
+
     /// 根据IP和端口获取配置项
-    xmsg::XConfig conf = ConfigDao::get()->loadConfig(req.service_ip().c_str(), req.service_port());
+    xmsg::XConfig conf = ConfigDao::get()->loadConfig(ip.c_str(), req.service_port());
 
     /// 发送给客户端
     sendMsg(xmsg::MT_LOAD_CONFIG_RES, &conf);

@@ -80,6 +80,7 @@ public:
     /// \return
     std::string getString(const char *key);
     int         getInt(const char *key);
+    bool        getBool(const char *key);
 
     void timerCB() override;
 

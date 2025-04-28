@@ -12,9 +12,9 @@ int main(int argc, char *argv[])
     XConfigClient::get()->startConnect();
     if (!XConfigClient::get()->waitConnected(10))
     {
-        std::cout << "连接配置中心失败" << std::endl;
+        std::cout << "link config center failed!" << std::endl;
     }
-    std::cout << "连接配置中心成功" << std::endl;
+    std::cout << "link config center success." << std::endl;
     xmsg::XConfig conf;
     conf.set_service_name("test_client_name");
     conf.set_service_ip("127.0.0.1");

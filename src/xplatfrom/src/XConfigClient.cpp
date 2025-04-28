@@ -145,7 +145,12 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     if (impl_->local_port_ > 0 && cur_service_conf)
     {
         std::stringstream local_key;
-        local_key << impl_->local_ip_ << "_" << impl_->local_port_;
+        std::string       ip = impl_->local_ip_;
+        if (ip.empty())
+        {
+            ip = conf.service_ip();
+        }
+        local_key << ip << "_" << impl_->local_port_;
         if (key.str() == local_key.str())
         {
             std::cout << "%" << std::flush;
@@ -378,6 +383,20 @@ int XConfigClient::getInt(const char *key)
         return 0;
     }
     return cur_service_conf->GetReflection()->GetInt32(*cur_service_conf, field);
+}
+
+bool XConfigClient::getBool(const char *key)
+{
+    XMutex mux(&cur_service_conf_mutex);
+    if (!cur_service_conf)
+        return false;
+    /// »ñÈ¡×Ö¶Î
+    auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
+    if (!field)
+    {
+        return false;
+    }
+    return cur_service_conf->GetReflection()->GetBool(*cur_service_conf, field);
 }
 
 void XConfigClient::timerCB()

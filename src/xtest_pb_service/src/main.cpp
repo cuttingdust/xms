@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     std::cout << conf_s.DebugString() << std::endl;
     if (conf_s.services_size() <= 0)
     {
-        std::cout << "find config service failed!" << std::endl;
+        std::cout << "find config service failed!!!" << std::endl;
     }
     else
     {
@@ -65,18 +65,18 @@ int main(int argc, char *argv[])
 
 
         /// 写入测试的配置
-        xmsg::XConfig up_conf;
-        up_conf.set_service_name("dir");
-        up_conf.set_service_ip("127.0.0.1");
-        up_conf.set_service_port(server_port);
-
-        /// 类型描述
-        xmsg::XDirConfig dir_conf;
-        dir_conf.set_root("./");
-        up_conf.set_proto(dir_conf.GetDescriptor()->DebugString());
-        std::string dir_conf_pb = dir_conf.SerializeAsString();
-        up_conf.set_private_pb(dir_conf_pb);
-        XConfigClient::get()->sendConfig(&up_conf);
+        // xmsg::XConfig up_conf;
+        // up_conf.set_service_name("dir");
+        // up_conf.set_service_ip("127.0.0.1");
+        // up_conf.set_service_port(server_port);
+        //
+        // /// 类型描述
+        // xmsg::XDirConfig dir_conf;
+        // dir_conf.set_root("./");
+        // up_conf.set_proto(dir_conf.GetDescriptor()->DebugString());
+        // std::string dir_conf_pb = dir_conf.SerializeAsString();
+        // up_conf.set_private_pb(dir_conf_pb);
+        // XConfigClient::get()->sendConfig(&up_conf);
 
 
         XConfigClient::get()->loadConfig("127.0.0.1", server_port);

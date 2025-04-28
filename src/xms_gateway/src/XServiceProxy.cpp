@@ -19,7 +19,7 @@ public:
 
 public:
     XServiceProxy                                            *owenr_ = nullptr;
-    std::map<std::string, std::vector<XServiceProxyClient *>> client_map_; ///< 存放与各个微服务的连接对象
+    std::map<std::string, std::vector<XServiceProxyClient *>> client_map_;            ///< 存放与各个微服务的连接对象
     std::map<std::string, int>                                client_map_last_index_; ///< 记录上次轮询的索引
     std::mutex                                                client_map_mutex_;
     bool                                                      is_exit_ = false; ///< 是否退出
@@ -71,7 +71,7 @@ void XServiceProxy::PImpl::threadFunc()
                 /// 此微服务是否已经连接
                 XMutex mux(&client_map_mutex_);
                 /// 第一个微服务，创建对象，开启连接
-                if (client_map_.find(service_name) == client_map_.end())
+                if (!client_map_.contains(service_name))
                 {
                     client_map_[service_name] = std::vector<XServiceProxyClient *>(); ///< 创建对象
                 }
@@ -181,6 +181,7 @@ void XServiceProxy::delEvent(XMsgEvent *ev)
     if (call == impl_->callbacks_.end())
     {
         LOGDEBUG("callbacks_ not find!");
+        return;
     }
     call->second->delEvent(ev);
 }
