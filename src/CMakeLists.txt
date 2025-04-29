@@ -99,6 +99,7 @@ add_subdirectory(config_client)
 add_subdirectory(config_gui)
 add_subdirectory(xtest_xplatform_ssl)
 add_subdirectory(xtest_service_client_ssl)
+add_subdirectory(watchdog)
 
 # 拷贝assert目录到输出目录
 set(ASSERT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assert)

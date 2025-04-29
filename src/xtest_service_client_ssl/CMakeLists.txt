@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
-project(xtest_service_client_ssl)
+get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+project(${CURRENT_DIR})
 
 set(DPS_TARGETS
     xplatfrom
