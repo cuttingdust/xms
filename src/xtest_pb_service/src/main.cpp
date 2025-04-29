@@ -7,6 +7,7 @@
 #include <XThreadPool.h>
 #include <XTools.h>
 
+#include <thread>
 
 class XTestService : public XService
 {

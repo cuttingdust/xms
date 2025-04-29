@@ -9,6 +9,7 @@
 #include <event2/event.h>
 
 #include <iostream>
+#include <thread>
 
 static void SReadCb(struct bufferevent *bev, void *ctx)
 {

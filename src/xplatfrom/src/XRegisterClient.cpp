@@ -2,6 +2,8 @@
 
 #include <XTools.h>
 
+#include <thread>
+
 ///注册服务列表的缓存
 static xmsg::XServiceMap *service_map = nullptr;
 static xmsg::XServiceMap *client_map  = nullptr;

@@ -9,6 +9,7 @@
 #include <QtWidgets/QMessageBox>
 
 #include <fstream>
+#include <cfloat>
 
 static ConfigEdit *cur_edit = nullptr;
 
