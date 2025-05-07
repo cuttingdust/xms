@@ -1,27 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <sstream>
 #include <cstring>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
-
-auto join(const std::vector<std::string>& strings, const std::string& delimiter) -> std::string
-{
-    std::ostringstream oss;
-
-    for (size_t i = 0; i < strings.size(); ++i)
-    {
-        oss << strings[i];
-        if (i < strings.size() - 1)
-        { /// 在元素之间添加分隔符
-            oss << delimiter;
-        }
-    }
-
-    return oss.str(); /// 返回连接后的字符串
-}
+#include <sys/stat.h>
 
 
 void startProcess(const std::vector<std::string>& command)
@@ -33,7 +16,6 @@ void startProcess(const std::vector<std::string>& command)
         std::vector<char*> args;
         for (const auto& arg : command)
         {
-            std::cout << arg;
             args.push_back(const_cast<char*>(arg.c_str()));
         }
         args.push_back(nullptr); // execvp 需要以 nullptr 结束参数列表
@@ -68,16 +50,15 @@ int main(int argc, char* argv[])
     setsid();
     umask(0);
 
-    std::cout << join(command, " ") << std::endl;
-    //    while (true)
-    //    {
-    //        startProcess(command);
-    //
-    //        // 等待子进程结束
-    //        int status;
-    //        wait(&status);   // 阻塞直到子进程退出
-    //        sleep(interval); // 等待指定的时间
-    //    }
+    while (true)
+    {
+        startProcess(command);
+
+        // 等待子进程结束
+        int status;
+        wait(&status);   // 阻塞直到子进程退出
+        sleep(interval); // 等待指定的时间
+    }
 
     return 0;
 }
