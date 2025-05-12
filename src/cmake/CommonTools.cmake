@@ -478,7 +478,11 @@ function(watchdog name timeout)
         file(WRITE ${script_file} "#!/bin/bash\n")
         # file(APPEND ${script_file} "export LD_LIBRARY_PATH=${OUT_LIB_PATH}\n")
         file(APPLEND ${script_file} "${WATCHDOG_PROGRESS} ${timeout} ${WATCHDOG_EXECUTABLE}")
-        file(CHMOD ${script_file} +x)
+		
+		 # 设置文件权限
+		# execute_process(COMMAND chmod +x ${script_file} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+		
+        file(CHMOD ${script_file} OWNER_EXECUTE)
 	endif()
     message(STATUS "===================================================")
 
