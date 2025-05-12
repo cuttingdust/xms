@@ -448,4 +448,40 @@ function(replace_class_names header_file class_names macro_name)
         replace_class_name_in_header(${header_file} ${class_name} ${macro_name})
     endforeach()
 endfunction()
+
+
+function(watchdog name timeout)
+    message(STATUS "================ ${name} watchdog =================")
+    # 设置被守护的程序
+    set(WATCHDOG_EXECUTABLE "${name}")
+
+    # 设置守护程序的路径
+    set(WATCHDOG_PROGRESS "watchdog")
+
+    if(WIN32)
+        # 设置脚本文件路径
+        set(script_file ${OUT_RUN_PATH}/${WATCHDOG_PROGRESS}_${WATCHDOG_EXECUTABLE}.bat)
+        message(STATUS "script_file = ${script_file}")
+		message(STATUS "timeout = ${timeout}")
+
+        # 设置脚本内容
+        file(WRITE ${script_file} "@echo off\n")
+        file(APPEND ${script_file} "setlocal\n")
+        file(APPEND ${script_file} "${WATCHDOG_PROGRESS}.exe ${timeout} ${WATCHDOG_EXECUTABLE}.exe\n")
+	else()
+		# 设置脚本文件路径
+        set(script_file ${OUT_RUN_PATH}/${WATCHDOG_PROGRESS}_${WATCHDOG_EXECUTABLE}.sh)
+		message(STATUS "script_file = ${script_file}")
+		message(STATUS "timeout = ${timeout}")
+		 
+		# 设置脚本内容
+        file(WRITE ${script_file} "#!/bin/bash\n")
+        # file(APPEND ${script_file} "export LD_LIBRARY_PATH=${OUT_LIB_PATH}\n")
+        file(APPLEND ${script_file} "${WATCHDOG_PROGRESS} ${timeout} ${WATCHDOG_EXECUTABLE}")
+        file(CHMOD ${script_file} +x)
+	endif()
+    message(STATUS "===================================================")
+
+endfunction()
+
 ########################################################################################
