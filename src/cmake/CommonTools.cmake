@@ -484,7 +484,7 @@ function(watchdog name timeout)
 		 # 设置文件权限
 		# execute_process(COMMAND chmod +x ${script_file} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 		
-        file(CHMOD ${script_file} FILE_PERMISSIONS OWNER_EXECUTE)
+        file(CHMOD ${script_file} FILE_PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
 		message("+++++++++++++++++++++++++++++++++++++++++++++++++")
 		# ////////////////////////////stop//////////////////////////////
 		
