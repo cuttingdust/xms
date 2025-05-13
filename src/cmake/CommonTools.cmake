@@ -468,7 +468,7 @@ function(watchdog name timeout)
         file(WRITE ${script_file} "@echo off\n")
         file(APPEND ${script_file} "setlocal\n")
         file(APPEND ${script_file} "${WATCHDOG_PROGRESS}.exe ${timeout} ${WATCHDOG_EXECUTABLE}.exe\n")
-	elif(APPLE | UNIX)
+	elseif(APPLE OR UNIX)
 		# ///////////////////////////start//////////////////////////////
 		message("+++++++++++++++++++++++start++++++++++++++++++++")
 		# 设置脚本文件路径
@@ -479,7 +479,7 @@ function(watchdog name timeout)
 		# 设置脚本内容
         file(WRITE ${script_file} "#!/bin/bash\n")
         # file(APPEND ${script_file} "export LD_LIBRARY_PATH=${OUT_LIB_PATH}\n")
-        file(APPLEND ${script_file} "${WATCHDOG_PROGRESS} ${timeout} ${WATCHDOG_EXECUTABLE}")
+        file(APPEND ${script_file} "${WATCHDOG_PROGRESS} ${timeout} ${WATCHDOG_EXECUTABLE}")
 		
 		 # 设置文件权限
 		# execute_process(COMMAND chmod +x ${script_file} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
