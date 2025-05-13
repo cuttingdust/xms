@@ -498,12 +498,14 @@ function(watchdog name timeout)
 		# # 设置脚本内容
         # file(WRITE ${script_file} "#!/bin/bash\n")
         # # file(APPEND ${script_file} "export LD_LIBRARY_PATH=${OUT_LIB_PATH}\n")
-        # file(APPLEND ${script_file} "${WATCHDOG_PROGRESS} ${timeout} ${WATCHDOG_EXECUTABLE}")
+        # file(APPLEND ${script_file} "pkill ${WATCHDOG_PROGRESS}\n")
 		
 		 # # 设置文件权限
 		# # execute_process(COMMAND chmod +x ${script_file} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 		
-        # file(CHMOD ${script_file} FILE_PERMISSIONS OWNER_EXECUTE)
+        # file(CHMOD ${script_file} FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
+												   # GROUP_READ GROUP_WRITE GROUP_EXECUTE
+												   # WORLD_READ WORLD_WRITE WORLD_EXECUTE)
 		# message("+++++++++++++++++++++++++++++++++++++++++++++++++")
 	endif()
     message(STATUS "===================================================")
