@@ -468,7 +468,9 @@ function(watchdog name timeout)
         file(WRITE ${script_file} "@echo off\n")
         file(APPEND ${script_file} "setlocal\n")
         file(APPEND ${script_file} "${WATCHDOG_PROGRESS}.exe ${timeout} ${WATCHDOG_EXECUTABLE}.exe\n")
-	else()
+	elif(APPLE | UNIX)
+		# ///////////////////////////start//////////////////////////////
+		message("+++++++++++++++++++++++start++++++++++++++++++++")
 		# 设置脚本文件路径
         set(script_file ${OUT_RUN_PATH}/${WATCHDOG_PROGRESS}_${WATCHDOG_EXECUTABLE}.sh)
 		message(STATUS "script_file = ${script_file}")
@@ -483,6 +485,24 @@ function(watchdog name timeout)
 		# execute_process(COMMAND chmod +x ${script_file} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 		
         file(CHMOD ${script_file} FILE_PERMISSIONS OWNER_EXECUTE)
+		message("+++++++++++++++++++++++++++++++++++++++++++++++++")
+		# ////////////////////////////stop//////////////////////////////
+		
+		# message("+++++++++++++++++++++++stop++++++++++++++++++++")
+		# # 设置脚本文件路径
+        # set(script_file ${OUT_RUN_PATH}/${WATCHDOG_PROGRESS}_${WATCHDOG_EXECUTABLE}_kill.sh)
+		# message(STATUS "script_file = ${script_file}")
+		 
+		# # 设置脚本内容
+        # file(WRITE ${script_file} "#!/bin/bash\n")
+        # # file(APPEND ${script_file} "export LD_LIBRARY_PATH=${OUT_LIB_PATH}\n")
+        # file(APPLEND ${script_file} "${WATCHDOG_PROGRESS} ${timeout} ${WATCHDOG_EXECUTABLE}")
+		
+		 # # 设置文件权限
+		# # execute_process(COMMAND chmod +x ${script_file} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+		
+        # file(CHMOD ${script_file} FILE_PERMISSIONS OWNER_EXECUTE)
+		# message("+++++++++++++++++++++++++++++++++++++++++++++++++")
 	endif()
     message(STATUS "===================================================")
 
