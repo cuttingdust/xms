@@ -35,6 +35,12 @@ void STimerCB(evutil_socket_t s, short w, void *ctx)
     task->timerCB();
 }
 
+void SAutoConnectTimerCB(evutil_socket_t s, short w, void *ctx)
+{
+    auto task = static_cast<XComTask *>(ctx);
+    task->AutoConnectTimerCB();
+}
+
 class XComTask::PImpl
 {
 public:
@@ -55,8 +61,9 @@ public:
     int                 serverPort_   = -1;
     char                buffer_[1024] = { 0 };
     XMsg                msg_;
-    bool                isRecvMsg    = true; ///< 是否接受消息
-    bool                isAutoDelete = true; ///< 是否自动删除
+    bool                isRecvMsg     = true;  ///< 是否接受消息
+    bool                isAutoDelete  = true;  ///< 是否自动删除
+    bool                isAutoConnect = false; ///< 是否自动连接
 
     /// 客户单的连接状态
     /// 1 未处理  => 开始连接 （加入到线程池处理）
@@ -67,8 +74,9 @@ public:
     bool        is_connected_  = false;   ///< 连接成功
     std::mutex *mtx_           = nullptr; ///< 互斥锁
 
-    struct event *timer_event_ = nullptr; ///< 定时器事件
-    XSSL_CTX     *ssl_ctx_     = nullptr; ///< ssl上下文
+    struct event *timer_event_              = nullptr; ///< 定时器事件
+    struct event *auto_connect_timer_event_ = nullptr; ///< 自动连接定时器事件 close时不清理
+    XSSL_CTX     *ssl_ctx_                  = nullptr; ///< ssl上下文
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
@@ -190,6 +198,8 @@ auto XComTask::init() -> bool
         return true;
     }
 
+    setAutoConnectTimer(3000); /// 3秒自动连接一次
+
     return connect();
 }
 
@@ -226,6 +236,15 @@ void XComTask::setIsRecvMsg(bool isRecvMsg)
 void XComTask::setAutoDelete(bool bAuto)
 {
     impl_->isAutoDelete = bAuto;
+}
+
+void XComTask::setAutoConnect(bool bAuto)
+{
+    impl_->isAutoConnect = bAuto;
+    if (bAuto)
+    {
+        impl_->isAutoDelete = false;
+    }
 }
 
 bool XComTask::waitConnected(int timeout_sec)
@@ -366,7 +385,21 @@ void XComTask::close()
 
     /// TODO 清理连接对象空间，如果断开重连，需要单独处理
     if (impl_->isAutoDelete)
+    {
+        clearTimer();
         delete this;
+    }
+}
+
+void XComTask::clearTimer()
+{
+    if (impl_->auto_connect_timer_event_)
+        event_free(impl_->auto_connect_timer_event_);
+    impl_->auto_connect_timer_event_ = nullptr;
+
+    if (impl_->timer_event_)
+        event_free(impl_->timer_event_);
+    impl_->timer_event_ = nullptr;
 }
 
 void XComTask::setTimer(int ms)
@@ -392,4 +425,40 @@ void XComTask::setTimer(int ms)
 void XComTask::timerCB()
 {
     std::cout << "XComTask::timerCB" << std::endl;
+}
+
+void XComTask::setAutoConnectTimer(int ms)
+{
+    if (!base())
+    {
+        LOGERROR("setAutoConnectTimer failed : base not set!");
+        return;
+    }
+
+    if (impl_->auto_connect_timer_event_)
+    {
+        event_free(impl_->auto_connect_timer_event_);
+        impl_->auto_connect_timer_event_ = nullptr;
+    }
+
+    impl_->auto_connect_timer_event_ = event_new(base(), -1, EV_PERSIST, SAutoConnectTimerCB, this);
+    if (!impl_->auto_connect_timer_event_)
+    {
+        LOGERROR("set autoConnectTimer failed :event_new faield!");
+        return;
+    }
+    int     sec = ms / 1000;          /// 秒
+    int     us  = (ms % 1000) * 1000; /// 微妙
+    timeval tv  = { sec, us };
+    event_add(impl_->auto_connect_timer_event_, &tv);
+}
+
+void XComTask::AutoConnectTimerCB()
+{
+    std::cout << "." << std::flush;
+    /// 如果正在连接，则等待，如果没有，则开始连接
+    if (isConnected())
+        return;
+    if (!isConnecting())
+        connect();
 }

@@ -62,6 +62,11 @@ public:
 
     void setAutoDelete(bool bAuto);
 
+    /// \brief 是否自动重连 默认不自动 要在添加线程池之前设置
+    /// 设置自动自动重连， 对象就不会自动删除
+    /// \param bAuto
+    void setAutoConnect(bool bAuto);
+
     /// \brief 等待连接成功
     /// \param timeout_sec 最大等待时间
     bool waitConnected(int timeout_sec);
@@ -92,9 +97,17 @@ public:
 
     virtual void close();
 
+    virtual void clearTimer();
+
     virtual void setTimer(int ms);
 
     virtual void timerCB();
+
+    /// \brief 设置自动连接定时器
+    /// \param ms
+    virtual void setAutoConnectTimer(int ms);
+
+    virtual void AutoConnectTimerCB();
 
 private:
     class PImpl;

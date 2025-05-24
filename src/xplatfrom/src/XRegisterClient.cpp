@@ -59,6 +59,9 @@ void XRegisterClient::registerServer(const char *service_name, int port, const c
         strcpy(impl_->service_ip_, ip);
     impl_->service_port_ = port;
 
+    /// 设置自动重连
+    setAutoConnect(true);
+
     /// 把任务加入到线程池中
     startConnect();
 }
