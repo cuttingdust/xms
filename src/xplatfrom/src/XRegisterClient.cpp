@@ -87,7 +87,7 @@ void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
 
 void XRegisterClient::getServiceReq(const char *service_name)
 {
-    LOGDEBUG("发出有获取微服务列表的请求");
+    LOGDEBUG("getServiceReq");
     xmsg::XGetServiceReq req;
     if (service_name)
     {
@@ -104,7 +104,7 @@ void XRegisterClient::getServiceReq(const char *service_name)
 
 void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("获取服务列表的响应");
+    LOGDEBUG("getServiceRes");
     XMutex mutex(&service_map_mutex);
     if (!service_map)
     {

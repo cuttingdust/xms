@@ -113,7 +113,7 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
 void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
 {
     /// 暂时只发送全部
-    LOGDEBUG("接收服务的发现请求");
+    LOGDEBUG("XRegisterHandle::getServiceReq");
     xmsg::XGetServiceReq req;
 
     /// 错误处理
