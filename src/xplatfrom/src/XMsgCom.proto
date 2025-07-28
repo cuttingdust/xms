@@ -58,6 +58,12 @@ message XDirRes
 	repeated XDir dirs = 2;	///< 目录文件列表
 }
 
+enum XServiceType
+{
+	XT_ONE = 0;	///<<< 只取一类服务	
+	XT_ALL = 1;	///<<< 取全部服务
+}
+
 message XServiceMap
 {
 	message XService
@@ -73,6 +79,7 @@ message XServiceMap
 	}
 	map<string,XServiceList> serviceMap = 1;
 	XMessageRes				 res		= 2;
+	XServiceType			 type		= 3;	///< 服务类型，XT_ONE 只取一类服务，XT_ALL 取全部服务
 }
 
 message XRegisterReq
@@ -97,13 +104,8 @@ message XMessageRes
 /// MT_GET_SERVICE_REQ = 7;	/// 发现服务请求
 message XGetServiceReq
 {
-	string name = 1; ///<	服务名称，如果未空，则获取所有服务
-	enum XType
-	{
-		XT_ONE = 0;	///<<< 只取一类服务	
-		XT_ALL = 1;	///<<< 取全部服务
-	}
-	XType type = 2;
+	string			name = 1; ///< 服务名称，如果未空，则获取所有服务
+	XServiceType	type = 2; ///< 服务类型，XT_ONE 只取一类服务，XT_ALL 取全部服务
 }
 
 /// 存储配置内容

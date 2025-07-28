@@ -3,6 +3,7 @@
 #include <XTools.h>
 
 #include <thread>
+#include <fstream>
 
 ///注册服务列表的缓存
 static xmsg::XServiceMap *service_map = nullptr;
@@ -38,7 +39,7 @@ XRegisterClient::~XRegisterClient() = default;
 void XRegisterClient::connectCB()
 {
     /// 发送注册消息
-    LOGDEBUG("注册中心客户连接成功，开始发送注册请求！");
+    LOGDEBUG("XRegisterClient::connectCB: connected start send MT_REGISTER_REQ ");
     xmsg::XRegisterReq req;
     req.set_name(impl_->service_name_);
     req.set_ip(impl_->service_ip_);
@@ -68,7 +69,7 @@ void XRegisterClient::registerServer(const char *service_name, int port, const c
 
 void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("接收到注册服务的响应");
+    LOGDEBUG("XRegisterClient::registerRes");
     xmsg::XMessageRes res;
     if (!res.ParseFromArray(msg->data, msg->size))
     {
@@ -77,26 +78,26 @@ void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
     }
     if (res.return_() == xmsg::XMessageRes::XR_OK)
     {
-        LOGDEBUG("注册微服务成功");
+        LOGDEBUG("XRegisterClient::registerRes success");
         return;
     }
     std::stringstream ss;
-    ss << "注册微服务失败 " << res.msg();
+    ss << "XRegisterClient::registerRes failed!!! " << res.msg();
     LOGDEBUG(ss.str().c_str());
 }
 
 void XRegisterClient::getServiceReq(const char *service_name)
 {
-    LOGDEBUG("getServiceReq");
+    LOGDEBUG("XRegisterClient::getServiceReq");
     xmsg::XGetServiceReq req;
     if (service_name)
     {
-        req.set_type(xmsg::XGetServiceReq::XT_ONE);
+        req.set_type(xmsg::XT_ONE);
         req.set_name(service_name);
     }
     else
     {
-        req.set_type(xmsg::XGetServiceReq::XT_ALL);
+        req.set_type(xmsg::XT_ALL);
     }
 
     sendMsg(xmsg::MT_GET_SERVICE_REQ, &req);
@@ -104,24 +105,89 @@ void XRegisterClient::getServiceReq(const char *service_name)
 
 void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("getServiceRes");
+    LOGDEBUG("XRegisterClient::getServiceRes");
     XMutex mutex(&service_map_mutex);
+    /// 是否替换全部缓存
+    bool               is_all = false;
+    xmsg::XServiceMap *cache_map;
+    xmsg::XServiceMap  tmp;
+    cache_map = &tmp;
     if (!service_map)
     {
-        service_map = new xmsg::XServiceMap;
+        service_map = new xmsg::XServiceMap();
+        cache_map   = service_map;
+        is_all      = true;
     }
 
-    if (!service_map->ParseFromArray(msg->data, msg->size))
+    if (!cache_map->ParseFromArray(msg->data, msg->size))
     {
         LOGDEBUG("service_map.ParseFromArray failed!");
         return;
     }
-    LOGDEBUG(service_map->DebugString());
+    LOGDEBUG(cache_map->DebugString());
+
+    if (cache_map->type() == xmsg::XT_ALL)
+    {
+        is_all = true;
+    }
+
+    ///////////////////////////////////////////////////////////
+    /// 内存缓存刷新
+    if (cache_map == service_map)
+    {
+        /// 存储缓存已经刷新
+    }
+    else
+    {
+        if (is_all)
+        {
+            service_map->CopyFrom(*cache_map);
+        }
+        else
+        {
+            /// 将刚读取的cmap数据存入  service_map 内存缓冲
+            auto cmap = cache_map->mutable_servicemap();
+
+            /// 取第一个
+            if (!cmap || cmap->empty())
+                return;
+            auto one = cmap->begin();
+
+            auto smap = service_map->mutable_servicemap();
+            /// 修改缓存
+            (*smap)[one->first] = one->second;
+        }
+    }
+
+
+    ///////////////////////////////////////////////////////////
+    /// 磁盘缓存刷新 后期要考虑刷新频率
+    std::stringstream ss;
+    ss << "register_" << impl_->service_name_ << impl_->service_ip_ << impl_->service_port_ << ".cache";
+    LOGDEBUG("Save local file!");
+    if (!service_map)
+        return;
+    std::ofstream ofs;
+    ofs.open(ss.str(), std::ios::binary);
+    if (!ofs.is_open())
+    {
+        LOGDEBUG("save local file failed!");
+        return;
+    }
+    service_map->SerializePartialToOstream(&ofs);
+    ofs.close();
+
+    /// LOGDEBUG(service_map->DebugString());
+    /// 区分是获取一种还是全部 刷新缓存
+    /// 一种 只刷新此种微服务列表缓存数据
+
+    /// 全部 刷新所有缓存数据
 }
 
-xmsg::XServiceMap *XRegisterClient::getAllService() const
+xmsg::XServiceMap *XRegisterClient::getAllService()
 {
     XMutex mutex(&service_map_mutex);
+    localLocalCache();
     if (!service_map)
     {
         return nullptr;
@@ -154,6 +220,12 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
     if (!isConnected())
     {
         LOGDEBUG("连接等待超时");
+        XMutex mutex(&service_map_mutex);
+        /// 只有第一次读取缓存
+        if (!service_map)
+        {
+            localLocalCache();
+        }
         return result;
     }
 
@@ -201,4 +273,28 @@ void XRegisterClient::regMsgCallback()
 {
     regCB(xmsg::MT_REGISTER_RES, static_cast<MsgCBFunc>(&XRegisterClient::registerRes));
     regCB(xmsg::MT_GET_SERVICE_RES, static_cast<MsgCBFunc>(&XRegisterClient::getServiceRes));
+}
+
+auto XRegisterClient::localLocalCache() -> bool
+{
+    if (!service_map)
+    {
+        service_map = new xmsg::XServiceMap();
+    }
+    LOGDEBUG("Load local register data");
+    std::stringstream ss;
+    ss << "register_" << impl_->service_name_ << impl_->service_ip_ << impl_->service_port_ << ".cache";
+    std::ifstream ifs;
+    ifs.open(ss.str(), std::ios::binary);
+    if (!ifs.is_open())
+    {
+        std::stringstream log;
+        log << "Load local register data failed!";
+        log << ss.str();
+        LOGDEBUG(log.str().c_str());
+        return false;
+    }
+    service_map->ParseFromIstream(&ifs);
+    ifs.close();
+    return true;
 }

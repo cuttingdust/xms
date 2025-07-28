@@ -128,13 +128,22 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
         sendMsg(xmsg::MT_GET_SERVICE_RES, &res);
         return;
     }
+
+
     std::string       service_name = req.name();
     std::stringstream ss;
     ss << "GetServiceReq : service name " << service_name;
     LOGDEBUG(ss.str().c_str());
 
-    /// 发送全部微服务数据
+    ///发送全部微服务数据
     service_map_mutex.lock();
+    if (service_map)
+    {
+        service_map = new xmsg::XServiceMap();
+    }
+
+    /// 返回单种还是全部
+    service_map->set_type(req.type());
     service_map->mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_OK);
     sendMsg(xmsg::MT_GET_SERVICE_RES, service_map);
     service_map_mutex.unlock();

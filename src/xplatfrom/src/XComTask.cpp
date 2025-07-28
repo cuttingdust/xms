@@ -418,7 +418,7 @@ void XComTask::setTimer(int ms)
     }
     int     sec = ms / 1000;          /// Ãë
     int     us  = (ms % 1000) * 1000; /// Î¢Ãî
-    timeval tv  = { sec, us };
+    timeval tv  = { .tv_sec = sec, .tv_usec = us };
     event_add(impl_->timer_event_, &tv);
 }
 
