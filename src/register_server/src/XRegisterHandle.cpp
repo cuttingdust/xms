@@ -137,7 +137,7 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
 
     ///发送全部微服务数据
     service_map_mutex.lock();
-    if (service_map)
+    if (!service_map)
     {
         service_map = new xmsg::XServiceMap();
     }
