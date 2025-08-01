@@ -47,6 +47,16 @@ void XRegisterClient::connectCB()
     sendMsg(xmsg::MT_REGISTER_REQ, &req);
 }
 
+void XRegisterClient::timerCB()
+{
+    /// 定时器，用于发送心跳
+    static long long count = 0;
+    count++;
+    xmsg::XMsgHeart req;
+    req.set_count(count);
+    sendMsg(xmsg::MT_HEART_REQ, &req);
+}
+
 void XRegisterClient::registerServer(const char *service_name, int port, const char *ip)
 {
     /// 注册消息回调函数
@@ -62,6 +72,9 @@ void XRegisterClient::registerServer(const char *service_name, int port, const c
 
     /// 设置自动重连
     setAutoConnect(true);
+
+    /// 设定心跳定时器
+    setTime(3000);
 
     /// 把任务加入到线程池中
     startConnect();

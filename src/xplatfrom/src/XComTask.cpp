@@ -77,6 +77,9 @@ public:
     struct event *timer_event_              = nullptr; ///< 定时器事件
     struct event *auto_connect_timer_event_ = nullptr; ///< 自动连接定时器事件 close时不清理
     XSSL_CTX     *ssl_ctx_                  = nullptr; ///< ssl上下文
+
+    int read_timeout_ms_ = 0; ///< 读超时时间，毫秒
+    int timer_ms_        = 0; ///< TimerCB 定时调用时间
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
@@ -126,6 +129,20 @@ auto XComTask::PImpl::initBev(int com_sock) -> bool
         }
     }
 
+    /// 设定读超时时间
+    if (read_timeout_ms_ > 0)
+    {
+        ///秒，微妙
+        timeval read_tv = { read_timeout_ms_ / 1000, (read_timeout_ms_ % 1000) * 1000 };
+        bufferevent_set_timeouts(bev_, &read_tv, 0);
+    }
+
+    /// 定时器设定
+    if (timer_ms_ > 0)
+    {
+        owenr_->setTimer(timer_ms_);
+    }
+
     bufferevent_setcb(bev_, SReadCb, SWriteCb, SEventCb, owenr_);
     bufferevent_enable(bev_, EV_READ | EV_WRITE);
     return true;
@@ -133,7 +150,7 @@ auto XComTask::PImpl::initBev(int com_sock) -> bool
 
 XComTask::XComTask()
 {
-    impl_ = std::make_shared<PImpl>(this);
+    impl_ = std::make_unique<PImpl>(this);
 }
 
 XComTask::~XComTask() = default;
@@ -278,6 +295,16 @@ void XComTask::setSSLContent(XSSL_CTX *ctx)
 XSSL_CTX *XComTask::getSSLContent() const
 {
     return impl_->ssl_ctx_;
+}
+
+void XComTask::setReadTime(int ms)
+{
+    impl_->read_timeout_ms_ = ms;
+}
+
+void XComTask::setTime(int ms)
+{
+    impl_->timer_ms_ = ms;
 }
 
 void XComTask::eventCB(short events)

@@ -12,6 +12,12 @@ message XMsgHead
 	int64		msgID		= 5;	
 }
 
+/// 心跳
+message XMsgHeart
+{
+	int64 count = 1;
+}
+
 /// 用户登陆请求 MSG_LOGIN_REQ
 message XLoginReq 
 {

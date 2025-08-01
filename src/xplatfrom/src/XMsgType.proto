@@ -19,5 +19,6 @@ enum MsgType {						///<<< Ã¶¾ÙÀàÐÍ
 	MT_LOAD_ALL_CONFIG_RES  = 14;	///<<< XConfigList
 	MT_DEL_CONFIG_REQ		= 15;	///<<< XLoadConfigReq
 	MT_DEL_CONFIG_RES		= 16;	///<<< XMessageRes
+	MT_HEART_REQ			= 65534;///<<< heartRes
 	MT_MAX_TYPE				= 65535;
 }

@@ -22,5 +22,8 @@ void XRegisterServer::wait()
 
 XServiceHandle *XRegisterServer::createHandle()
 {
-    return new XRegisterHandle();
+    auto handle = new XRegisterHandle();
+    handle->setReadTime(5000);
+
+    return handle;
 }

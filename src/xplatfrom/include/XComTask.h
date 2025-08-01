@@ -79,6 +79,14 @@ public:
     void      setSSLContent(XSSL_CTX* ctx);
     XSSL_CTX* getSSLContent() const;
 
+    /// \brief 设定要在加入线程池之前
+    /// \param ms
+    void setReadTime(int ms);
+
+    /// \brief 设定要在加入线程池之前 virtual void TimerCB() {}
+    /// \param ms
+    void setTime(int ms);
+
 public:
     virtual void eventCB(short events);
 
@@ -111,7 +119,7 @@ public:
 
 private:
     class PImpl;
-    std::shared_ptr<PImpl> impl_;
+    std::unique_ptr<PImpl> impl_;
 };
 
 #endif // XCOMTASK_H

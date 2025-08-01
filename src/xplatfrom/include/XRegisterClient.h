@@ -38,6 +38,8 @@ private:
 public:
     void connectCB() override;
 
+    void timerCB() override;
+
 public:
     /// \brief 向注册中心注册服务 此函数，需要第一个调用，建立连接
     /// \param service_name  微服务名称

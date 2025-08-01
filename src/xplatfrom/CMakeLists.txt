@@ -30,6 +30,7 @@ set(PROTOC_EXPORT_CLASS
     XConfigList
     XLoginReq
     XGatewayConfig
+    XMsgHeart
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

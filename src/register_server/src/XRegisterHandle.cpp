@@ -149,8 +149,14 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
     service_map_mutex.unlock();
 }
 
+void XRegisterHandle::heartRes(xmsg::XMsgHead *head, XMsg *msg)
+{
+    std::printf(__func__);
+}
+
 void XRegisterHandle::regMsgCallback()
 {
+    regCB(xmsg::MT_HEART_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::heartRes));
     regCB(xmsg::MT_REGISTER_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::registerReq));
     regCB(xmsg::MT_GET_SERVICE_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::getServiceReq));
 }

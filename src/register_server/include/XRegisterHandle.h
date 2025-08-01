@@ -26,6 +26,8 @@ public:
     /// \param msg
     void getServiceReq(xmsg::XMsgHead *head, XMsg *msg);
 
+    void heartRes(xmsg::XMsgHead *head, XMsg *msg);
+
     static void regMsgCallback();
 };
 

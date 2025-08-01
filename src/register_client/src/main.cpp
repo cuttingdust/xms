@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
         XRegisterClient::get()->getServiceReq(nullptr);
         if (const auto services = XRegisterClient::get()->getAllService())
             LOGDEBUG(services->DebugString());
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 
 
