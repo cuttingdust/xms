@@ -196,7 +196,7 @@ macro(set_cpp name)
     set(DPS_LIBRARYS "")
 
     target_compile_features(${name} PRIVATE
-        cxx_std_20
+        cxx_std_23
     )
 
     target_link_options(${name} PRIVATE

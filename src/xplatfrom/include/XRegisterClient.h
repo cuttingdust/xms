@@ -14,6 +14,8 @@
 #include "XPlatfrom_Global.h"
 #include "XServiceClient.h"
 
+#define RegisterClient XRegisterClient::get()
+
 class XPLATFROM_EXPORT XRegisterClient : public XServiceClient
 {
 public:

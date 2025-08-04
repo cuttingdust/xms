@@ -2,6 +2,8 @@
 
 #include <XTools.h>
 
+#include <print>
+
 /// 注册服务列表的缓存
 static xmsg::XServiceMap *service_map = nullptr; // NOLINT(misc-use-anonymous-namespace)
 
@@ -134,6 +136,7 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
     std::stringstream ss;
     ss << "GetServiceReq : service name " << service_name;
     LOGDEBUG(ss.str().c_str());
+    xmsg::XServiceMap *send_map = &res;
 
     ///发送全部微服务数据
     service_map_mutex.lock();
@@ -142,16 +145,31 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
         service_map = new xmsg::XServiceMap();
     }
 
+    ///返回全部
+    if (req.type() == xmsg::XServiceType::XT_ALL)
+    {
+        send_map = service_map;
+    }
+    else ///返回单种
+    {
+        auto smap = service_map->mutable_servicemap();
+        if (smap && smap->find(service_name) != smap->end())
+        {
+            (*send_map->mutable_servicemap())[service_name] = (*smap)[service_name];
+        }
+    }
+    service_map_mutex.unlock();
+
+
     /// 返回单种还是全部
     service_map->set_type(req.type());
     service_map->mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_OK);
     sendMsg(xmsg::MT_GET_SERVICE_RES, service_map);
-    service_map_mutex.unlock();
 }
 
 void XRegisterHandle::heartRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    std::printf(__func__);
+    std::print("{}", __func__);
 }
 
 void XRegisterHandle::regMsgCallback()
