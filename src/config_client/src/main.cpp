@@ -20,6 +20,71 @@ int main(int argc, char *argv[])
 
     auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
     std::print("{}", confs.DebugString());
+
+    if (confs.services_size() <= 0)
+        return -1;
+
+    auto conf = confs.services()[0];
+    if (conf.ip().empty() || conf.port() <= 0)
+        return -1;
+
+    xmsg::XDirConfig tmp_conf;
+    ConfigClient->startGetConf(conf.ip().c_str(), conf.port(), 0, client_port, &tmp_conf);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+    {
+        ///////////////////////////////////////////////////////////////////
+        /// 存储配置项
+        std::string proto;
+        auto        message = ConfigClient->loadProto("XDirConfig.proto", "XDirConfig", proto);
+        /// 通过反射设置值
+        auto ref   = message->GetReflection();
+        auto field = message->GetDescriptor()->FindFieldByName("root");
+        ref->SetString(message, field, "/test_new_root/");
+        std::print("{}", message->DebugString());
+
+        /// 存储配置
+        xmsg::XConfig save_conf;
+        save_conf.set_service_name("test_config");
+        save_conf.set_service_port(client_port);
+        save_conf.set_proto(proto);
+        save_conf.set_private_pb(message->SerializeAsString());
+        ConfigClient->sendConfig(&save_conf);
+    }
+
+    {
+        /////////////////////////////////////////////////////////////////
+        ///读取配置项
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        std::cout << "root = " << ConfigClient->GetString("root") << std::endl;
+    }
+
+    {
+        /// 读取配置列表 （管理工具）
+        for (;;)
+        {
+            /// 获取配置列表
+            auto configs = ConfigClient->getAllConfig(1, 1000, 10);
+            std::cout << configs.DebugString();
+            if (configs.config_size() <= 0)
+            {
+                std::this_thread::sleep_for(std::chrono::seconds(2));
+                continue;
+            }
+
+            /// 取得单个配置信息(第一个配置项)
+            std::string ip   = configs.config()[1].service_ip();
+            int         port = configs.config()[1].service_port();
+            ConfigClient->loadConfig(ip.c_str(), port);
+            xmsg::XConfig conf;
+            ConfigClient->getConfig(ip.c_str(), port, &conf);
+            std::cout << "===========================================" << std::endl;
+            std::cout << conf.DebugString() << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+    }
+
     //////////////////////////////////////////////////////////////////
 
     // XConfigClient::get()->regMsgCallback();

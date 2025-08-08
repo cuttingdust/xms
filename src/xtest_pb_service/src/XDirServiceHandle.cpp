@@ -26,7 +26,7 @@ void XDirServiceHandle::dirReq(xmsg::XMsgHead *head, XMsg *msg)
 
     /// 响应客户端 头部信息保留，用于路由
     xmsg::XDirRes res;
-    std::string   root = XConfigClient::get()->getString("root");
+    std::string   root = XConfigClient::get()->GetString("root");
     //////////测试代码/////////////
     for (int i = 0; i < 10; ++i)
     {

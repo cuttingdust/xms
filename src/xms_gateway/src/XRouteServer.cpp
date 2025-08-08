@@ -12,7 +12,7 @@ XRouteServer::~XRouteServer() = default;
 XServiceHandle* XRouteServer::createHandle()
 {
     auto router = new XRouteHandle();
-    bool is_ssl = XConfigClient::get()->getBool("is_ssl");
+    bool is_ssl = XConfigClient::get()->GetBool("is_ssl");
     std::cout << "is_ssl = " << is_ssl << std::endl;
     if (!is_ssl)
         return router;
@@ -23,9 +23,9 @@ XServiceHandle* XRouteServer::createHandle()
         return router;
     }
     auto               ctx      = new XSSL_CTX();
-    const std::string& crt_path = XConfigClient::get()->getString("crt_path");
-    const std::string& key_path = XConfigClient::get()->getString("key_path");
-    const std::string& ca_path  = XConfigClient::get()->getString("ca_path");
+    const std::string& crt_path = XConfigClient::get()->GetString("crt_path");
+    const std::string& key_path = XConfigClient::get()->GetString("key_path");
+    const std::string& ca_path  = XConfigClient::get()->GetString("ca_path");
 
     std::cout << "crt_path = " << crt_path << std::endl;
     std::cout << "key_path = " << key_path << std::endl;

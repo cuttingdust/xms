@@ -25,6 +25,14 @@ void XConfigHandle::saveConfig(xmsg::XMsgHead *head, XMsg *msg)
         sendMsg(xmsg::MT_SAVE_CONFIG_RES, &res);
         return;
     }
+
+    if (conf.service_ip().empty())
+    {
+        std::string ip = clientIP();
+        conf.set_service_ip(ip);
+    }
+
+
     if (ConfigDao::get()->saveConfig(&conf))
     {
         res.set_return_(xmsg::XMessageRes::XR_OK);

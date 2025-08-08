@@ -16,6 +16,7 @@
 
 typedef void (*ConfigResCBFunc)(bool is_ok, const char *msg);
 
+#define ConfigClient XConfigClient::get()
 class XPLATFROM_EXPORT XConfigClient : public XServiceClient
 {
 public:
@@ -50,6 +51,7 @@ public:
     /// \param ip
     /// \param port
     /// \param out_conf
+    /// \param timeout_ms
     /// \return
     bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf);
 
@@ -78,9 +80,9 @@ public:
 
     /// \brief 获取下载的本地参数
     /// \return
-    std::string getString(const char *key);
-    int         getInt(const char *key);
-    bool        getBool(const char *key);
+    std::string GetString(const char *key);
+    int         GetInt(const char *key);
+    bool        GetBool(const char *key);
 
     void timerCB() override;
 

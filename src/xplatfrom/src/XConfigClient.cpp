@@ -12,7 +12,8 @@
 
 #include <thread>
 
-#define PB_ROOT "root/"
+#define PB_ROOT   "root/"
+#define PB_ASSERT "assert/"
 
 /// key ip_port
 static std::map<std::string, xmsg::XConfig> conf_map;
@@ -164,8 +165,35 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     }
 }
 
+// ///获取配置列表（已缓存）中的配置，会复制一份到out_conf
+// bool XConfigClient::GetConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms)
+// {
+//     //十毫秒判断一次
+//     int          count = timeout_ms / 10;
+//     stringstream key;
+//     key << ip << "_" << port;
+//
+//     for (int i = 0; i < count; i++)
+//     {
+//         XMutex mutex(&conf_map_mutex);
+//         //查找配置
+//         auto conf = conf_map.find(key.str());
+//         if (conf == conf_map.end())
+//         {
+//             this_thread::sleep_for(10ms);
+//             continue;
+//         }
+//         //复制配置
+//         out_conf->CopyFrom(conf->second);
+//         return true;
+//     }
+//     LOGDEBUG("Can`t find conf");
+//     return false;
+// }
+
 bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
 {
+    /// 条件变量 或者 超时时间
     std::unique_lock<std::mutex> lck(conf_map_mutex);
     config_cv.wait(lck);
 
@@ -199,7 +227,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         return nullptr;
     }
     /// 1 加载proto文件
-    std::string path = PB_ROOT;
+    std::string path = PB_ASSERT;
     path += file_name;
 
     /// 返回proto文件描述符
@@ -360,7 +388,7 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
     return true;
 }
 
-std::string XConfigClient::getString(const char *key)
+std::string XConfigClient::GetString(const char *key)
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
@@ -374,7 +402,7 @@ std::string XConfigClient::getString(const char *key)
     return cur_service_conf->GetReflection()->GetString(*cur_service_conf, field);
 }
 
-int XConfigClient::getInt(const char *key)
+int XConfigClient::GetInt(const char *key)
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
@@ -387,7 +415,7 @@ int XConfigClient::getInt(const char *key)
     return cur_service_conf->GetReflection()->GetInt32(*cur_service_conf, field);
 }
 
-bool XConfigClient::getBool(const char *key)
+bool XConfigClient::GetBool(const char *key)
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
