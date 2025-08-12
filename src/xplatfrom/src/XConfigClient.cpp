@@ -50,12 +50,13 @@ public:
     ~PImpl() = default;
 
 public:
-    XConfigClient                              *owenr_        = nullptr;
-    char                                        local_ip_[16] = { 0 };   /// 本地微服务的ip
-    int                                         local_port_   = 0;       /// 本地微服务的端口
-    google::protobuf::compiler::Importer       *importer_     = nullptr; /// 动态解析proto文件
-    google::protobuf::compiler::DiskSourceTree *source_tree_  = nullptr; /// 解析文件的管理对象
-    google::protobuf::Message                  *message_      = nullptr; /// 根据proto文件动态创建的的message
+    XConfigClient                              *owenr_         = nullptr;
+    char                                        local_ip_[16]  = { 0 };   /// 本地微服务的ip
+    int                                         local_port_    = 0;       /// 本地微服务的端口
+    google::protobuf::compiler::Importer       *importer_      = nullptr; /// 动态解析proto文件
+    google::protobuf::compiler::DiskSourceTree *source_tree_   = nullptr; /// 解析文件的管理对象
+    google::protobuf::Message                  *message_       = nullptr; /// 根据proto文件动态创建的的message
+    ConfigTimerCBFunc                           configTimerCB_ = nullptr;
 };
 
 XConfigClient::PImpl::PImpl(XConfigClient *owenr) : owenr_(owenr)
@@ -77,6 +78,15 @@ XConfigClient::XConfigClient()
 
 XConfigClient::~XConfigClient()
 {
+}
+
+auto XConfigClient::init() -> bool
+{
+    XServiceClient::init();
+
+    /// 先调用一次定时器，确保消息及时获取
+    timerCB();
+    return true;
 }
 
 void XConfigClient::sendConfig(xmsg::XConfig *conf)
@@ -388,6 +398,46 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
     return true;
 }
 
+bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::protobuf::Message *conf_message,
+                                 ConfigTimerCBFunc func)
+{
+    /// 注册消息回调函数
+    regMsgCallback();
+
+    /// _CRT_SECURE_NO_WARNINGS
+    if (local_ip)
+        strncpy(impl_->local_ip_, local_ip, 16);
+    impl_->local_port_ = local_port;
+
+    /// 设置当前配置类型
+    setCurServiceMessage(conf_message);
+
+    impl_->configTimerCB_ = func;
+
+    setTime(3000);
+    //
+    // //读取本地缓存
+    // std::stringstream ss;
+    // ss << impl_->local_port_ << "_conf.cache";
+    // std::ifstream ifs;
+    // ifs.open(ss.str(), ios::binary);
+    // if (!ifs.is_open())
+    // {
+    //     LOGDEBUG("load local config failed!");
+    // }
+    // else
+    // {
+    //     if (conf_message)
+    //         cur_service_conf->ParseFromIstream(&ifs);
+    //     ifs.close();
+    // }
+
+
+    /// 连接配置中心任务加入到线程池
+    startConnect();
+    return true;
+}
+
 std::string XConfigClient::GetString(const char *key)
 {
     XMutex mux(&cur_service_conf_mutex);
@@ -429,11 +479,18 @@ bool XConfigClient::GetBool(const char *key)
     return cur_service_conf->GetReflection()->GetBool(*cur_service_conf, field);
 }
 
-void XConfigClient::timerCB()
+void XConfigClient::timerCB() // NOLINT(clang-diagnostic-invalid-utf8)
 {
+    if (impl_->configTimerCB_)
+    {
+        impl_->configTimerCB_();
+    }
+
     /// 发出获取配置的请求
     if (impl_->local_port_ > 0)
+    {
         loadConfig(impl_->local_ip_, impl_->local_port_);
+    }
 }
 
 void XConfigClient::setCurServiceMessage(google::protobuf::Message *message)

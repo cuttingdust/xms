@@ -5,6 +5,33 @@
 
 #include <thread>
 
+void ConfigTimer()
+{
+    static std::string conf_ip   = "";
+    static int         conf_port = 0;
+    /////////////////////////////////////////////////////////////////
+    /// 读取配置项
+    std::cout << "config root = " << ConfigClient->GetString("root") << std::endl;
+
+    if (conf_port <= 0)
+    {
+        /// 从注册中心获取配置中心的IP
+        auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
+        std::cout << confs.DebugString();
+        if (confs.services_size() <= 0)
+            return;
+        auto conf = confs.services()[0];
+
+        if (conf.ip().empty() || conf.port() <= 0)
+            return;
+        conf_ip   = conf.ip();
+        conf_port = conf.port();
+        ConfigClient->setServerIp(conf_ip.c_str());
+        ConfigClient->setServerPort(conf_port);
+        ConfigClient->connect();
+    }
+}
+
 int main(int argc, char *argv[])
 {
     //////////////////////////////////////////////////////////////////
@@ -14,24 +41,29 @@ int main(int argc, char *argv[])
     RegisterClient->setServerIp("127.0.0.1");
     RegisterClient->setServerPort(REGISTER_PORT);
     RegisterClient->registerServer("test_config", client_port, 0);
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    /// 从注册中心获取配置中心列表
+    // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    // /// 从注册中心获取配置中心列表
 
-
-    auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
-    std::print("{}", confs.DebugString());
-
-    if (confs.services_size() <= 0)
-        return -1;
-
-    auto conf = confs.services()[0];
-    if (conf.ip().empty() || conf.port() <= 0)
-        return -1;
-
+    /// 初始化配置中心
     xmsg::XDirConfig tmp_conf;
-    ConfigClient->startGetConf(conf.ip().c_str(), conf.port(), 0, client_port, &tmp_conf);
-
+    ConfigClient->startGetConf(0, client_port, &tmp_conf, ConfigTimer);
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+
+    // auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
+    // std::print("{}", confs.DebugString());
+    //
+    // if (confs.services_size() <= 0)
+    //     return -1;
+    //
+    // auto conf = confs.services()[0];
+    // if (conf.ip().empty() || conf.port() <= 0)
+    //     return -1;
+    //
+    // xmsg::XDirConfig tmp_conf;
+    // ConfigClient->startGetConf(conf.ip().c_str(), conf.port(), 0, client_port, &tmp_conf);
+    //
+    // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     {
         ///////////////////////////////////////////////////////////////////
@@ -53,12 +85,12 @@ int main(int argc, char *argv[])
         ConfigClient->sendConfig(&save_conf);
     }
 
-    {
-        /////////////////////////////////////////////////////////////////
-        ///读取配置项
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        std::cout << "root = " << ConfigClient->GetString("root") << std::endl;
-    }
+    // {
+    //     /////////////////////////////////////////////////////////////////
+    //     ///读取配置项
+    //     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    //     std::cout << "root = " << ConfigClient->GetString("root") << std::endl;
+    // }
 
     {
         /// 读取配置列表 （管理工具）

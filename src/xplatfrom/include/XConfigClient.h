@@ -15,6 +15,7 @@
 #include <XServiceClient.h>
 
 typedef void (*ConfigResCBFunc)(bool is_ok, const char *msg);
+typedef void (*ConfigTimerCBFunc)();
 
 #define ConfigClient XConfigClient::get()
 class XPLATFROM_EXPORT XConfigClient : public XServiceClient
@@ -31,6 +32,8 @@ private:
     ~XConfigClient() override;
 
 public:
+    auto init() -> bool override;
+
     /// \brief 发送配置
     /// \param conf
     void sendConfig(xmsg::XConfig *conf);
@@ -77,6 +80,10 @@ public:
     /// \return
     bool startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
                       google::protobuf::Message *conf_message, int timeout_sec = 10);
+
+    bool startGetConf(const char *local_ip, int local_port, google::protobuf::Message *conf_message,
+                      ConfigTimerCBFunc func);
+
 
     /// \brief 获取下载的本地参数
     /// \return
