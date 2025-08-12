@@ -11,6 +11,7 @@
 #include <google/protobuf/text_format.h>
 
 #include <thread>
+#include <fstream>
 
 #define PB_ROOT   "root/"
 #define PB_ASSERT "assert/"
@@ -150,29 +151,47 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     /// key ip_port
     std::stringstream key;
     key << conf.service_ip() << "_" << conf.service_port();
+
     /// 更新配置
     conf_map[key.str()] = conf;
     config_cv.notify_one();
 
-    /// 存储本地配置
-    if (impl_->local_port_ > 0 && cur_service_conf)
+    /// 没有本地配置
+    if (impl_->local_port_ <= 0 || !cur_service_conf)
+        return;
+
+    std::stringstream local_key;
+    std::string       ip = impl_->local_ip_;
+    if (ip.empty())
     {
-        std::stringstream local_key;
-        std::string       ip = impl_->local_ip_;
-        if (ip.empty())
-        {
-            ip = conf.service_ip();
-        }
-        local_key << ip << "_" << impl_->local_port_;
-        if (key.str() == local_key.str())
-        {
-            std::cout << "%" << std::flush;
-            //cout << "%"<< conf.DebugString() << flush;
-            XMutex mux(&cur_service_conf_mutex);
-            if (cur_service_conf)
-                cur_service_conf->ParseFromString(conf.private_pb());
-        }
+        ip = conf.service_ip();
     }
+    local_key << ip << "_" << impl_->local_port_;
+
+    if (key.str() != local_key.str())
+    {
+        return;
+    }
+    XMutex mux(&cur_service_conf_mutex);
+    if (!cur_service_conf->ParseFromString(conf.private_pb()))
+    {
+        return;
+    }
+
+
+    /// 存储到本地文件
+    /// 文件名 [port]_conf.cache  20030_conf.cache
+    std::stringstream ss;
+    ss << impl_->local_port_ << "_conf.cache";
+    std::ofstream ofs;
+    ofs.open(ss.str(), std::ios::binary);
+    if (!ofs.is_open())
+    {
+        LOGDEBUG("save local config failed!");
+        return;
+    }
+    cur_service_conf->SerializePartialToOstream(&ofs);
+    ofs.close();
 }
 
 // ///获取配置列表（已缓存）中的配置，会复制一份到out_conf
