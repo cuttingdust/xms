@@ -434,22 +434,22 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
     impl_->configTimerCB_ = func;
 
     setTime(3000);
-    //
-    // //读取本地缓存
-    // std::stringstream ss;
-    // ss << impl_->local_port_ << "_conf.cache";
-    // std::ifstream ifs;
-    // ifs.open(ss.str(), ios::binary);
-    // if (!ifs.is_open())
-    // {
-    //     LOGDEBUG("load local config failed!");
-    // }
-    // else
-    // {
-    //     if (conf_message)
-    //         cur_service_conf->ParseFromIstream(&ifs);
-    //     ifs.close();
-    // }
+
+    /// 读取本地缓存
+    std::stringstream ss;
+    ss << impl_->local_port_ << "_conf.cache";
+    std::ifstream ifs;
+    ifs.open(ss.str(), std::ios::binary);
+    if (!ifs.is_open())
+    {
+        LOGDEBUG("load local config failed!");
+    }
+    else
+    {
+        if (conf_message)
+            cur_service_conf->ParseFromIstream(&ifs);
+        ifs.close();
+    }
 
 
     /// 连接配置中心任务加入到线程池
