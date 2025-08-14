@@ -22,7 +22,10 @@ int main(int argc, char *argv[])
     }
 
     auto re = ConfigDao::get()->loadAllConfig(1, 10000);
-    std::cout << re.DebugString();
+    if (re.config_size() != 0)
+    {
+        std::cout << re.DebugString();
+    }
 
     XConfigServer config;
     config.main(argc, argv);
