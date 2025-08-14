@@ -1,9 +1,8 @@
-#include <print>
-
-#include "XRegisterClient.h"
-#include "XConfigClient.h"
+#include <XRegisterClient.h>
+#include <XConfigClient.h>
 
 #include <thread>
+#include <print>
 
 void ConfigTimer()
 {

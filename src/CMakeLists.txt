@@ -102,6 +102,7 @@ add_subdirectory(xtest_service_client_ssl)
 add_subdirectory(watchdog)
 
 watchdog(register_server 3)
+watchdog(config_server 3)
 
 # 拷贝assert目录到输出目录
 set(ASSERT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/assert)
