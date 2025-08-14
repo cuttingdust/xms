@@ -1,4 +1,4 @@
-#include "CongfigGui.h"
+ï»¿#include "CongfigGui.h"
 
 #include "ConfigEdit.h"
 #include "ui_config_gui.h"
@@ -66,7 +66,7 @@ void CongfigGui::showEvent(QShowEvent *event)
 
 void CongfigGui::addLog(const char *log)
 {
-    /// ¼ÓÈëÈÕÆÚÏÔÊ¾
+    /// åŠ å…¥æ—¥æœŸæ˜¾ç¤º
     auto t = QTime::currentTime().toString("HH:mm:ss") + " " + QString::fromLocal8Bit(log);
     LOGDEBUG(log);
     ui->log_list_Widget->insertItem(0, new QListWidgetItem(t));
@@ -74,36 +74,36 @@ void CongfigGui::addLog(const char *log)
 
 void CongfigGui::updateUI()
 {
-    addLog("======¿ªÊ¼Ë¢ÐÂ========");
+    addLog("======å¼€å§‹åˆ·æ–°========");
 
-    /// Çå¿Õ±í¸ñ
+    /// æ¸…ç©ºè¡¨æ ¼
     while (ui->tableWidget->rowCount() > 0)
         ui->tableWidget->removeRow(0);
 
-    /// ¶Ï¿ªÖØÁ¬£¬Èç¹ûÐÞ¸ÄÅäÖÃÖÐÐÄµÄIP»òÕß¶Ë¿Ú
+    /// æ–­å¼€é‡è¿žï¼Œå¦‚æžœä¿®æ”¹é…ç½®ä¸­å¿ƒçš„IPæˆ–è€…ç«¯å£
     std::string       server_ip   = ui->server_ip_edit->text().toStdString();
     int               server_port = ui->server_port_box->value();
     std::stringstream ss;
     ss << server_ip << ":" << server_port;
     LOGDEBUG(ss.str().c_str());
 
-    /// ¹Ø±ÕÖ®Ç°µÄÁ¬½Ó£¬ÖØÐÂ½¨Á¢Á¬½Ó
+    /// å…³é—­ä¹‹å‰çš„è¿žæŽ¥ï¼Œé‡æ–°å»ºç«‹è¿žæŽ¥
     XConfigClient::get()->setServerIp(server_ip.c_str());
     XConfigClient::get()->setServerPort(server_port);
     XConfigClient::get()->setAutoDelete(false);
     XConfigClient::get()->close();
     if (!XConfigClient::get()->autoConnect(3))
     {
-        addLog("ÎÞ·¨Á¬½Óµ½ÅäÖÃÖÐÐÄ");
+        addLog("æ— æ³•è¿žæŽ¥åˆ°é…ç½®ä¸­å¿ƒ");
         return;
     }
-    addLog("ÒÑ³É¹¦Á¬½Óµ½ÅäÖÃÖÐÐÄ");
+    addLog("å·²æˆåŠŸè¿žæŽ¥åˆ°é…ç½®ä¸­å¿ƒ");
 
-    /// ´ÓÅäÖÃÖÐÐÄ»ñÈ¡ÅäÖÃÁÐ±í
+    /// ä»Žé…ç½®ä¸­å¿ƒèŽ·å–é…ç½®åˆ—è¡¨
     const auto &config_list = XConfigClient::get()->getAllConfig(1, 10000, 10);
     LOGDEBUG(config_list.DebugString());
 
-    /// ²åÈë»ñÈ¡µÄÁÐ±í
+    /// æ’å…¥èŽ·å–çš„åˆ—è¡¨
 
     ui->tableWidget->setRowCount(config_list.config_size());
     for (int i = 0; i < config_list.config_size(); i++)
@@ -113,7 +113,7 @@ void CongfigGui::updateUI()
         ui->tableWidget->setItem(i, 1, new QTableWidgetItem(config.service_ip().c_str()));
         ui->tableWidget->setItem(i, 2, new QTableWidgetItem(QString::number(config.service_port())));
     }
-    addLog("======Ë¢ÐÂÍê³É========");
+    addLog("======åˆ·æ–°å®Œæˆ========");
 }
 
 void CongfigGui::slotRefresh()
@@ -123,11 +123,11 @@ void CongfigGui::slotRefresh()
 
 void CongfigGui::slotAddConfig()
 {
-    /// ´ò¿ªÄ£Ì¬´°¿Ú£¬µÈ´ýÍË³ö
+    /// æ‰“å¼€æ¨¡æ€çª—å£ï¼Œç­‰å¾…é€€å‡º
     ConfigEdit edit;
     if (edit.exec() == QDialog::Accepted)
     {
-        addLog("ÐÂÔöÅäÖÃ³É¹¦");
+        addLog("æ–°å¢žé…ç½®æˆåŠŸ");
     }
 
     this->updateUI();
@@ -149,7 +149,7 @@ void CongfigGui::slotDeleteConfig()
     int         port      = atoi(item_port->text().toStdString().c_str());
 
     std::stringstream ss;
-    ss << "ÄúÈ·ÈÏÉ¾³ý" << name << "|" << ip << ":" << port << " Î¢·þÎñÅäÖÃÂð£¿";
+    ss << "æ‚¨ç¡®è®¤åˆ é™¤" << name << "|" << ip << ":" << port << " å¾®æœåŠ¡é…ç½®å—ï¼Ÿ";
     if (QMessageBox::information(nullptr, "", QString::fromLocal8Bit(ss.str().c_str()),
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     {
@@ -157,10 +157,10 @@ void CongfigGui::slotDeleteConfig()
     }
     XConfigClient::get()->deleteConfig(ip.c_str(), port);
     ss.clear();
-    ss << "É¾³ýÅäÖÃ" << name << "|" << ip << ":" << port;
+    ss << "åˆ é™¤é…ç½®" << name << "|" << ip << ":" << port;
     addLog(ss.str().c_str());
 
-    /// »ñÈ¡Ñ¡ÖÐµÄÅäÖÃname IP port
+    /// èŽ·å–é€‰ä¸­çš„é…ç½®name IP port
     this->updateUI();
 }
 
@@ -169,7 +169,7 @@ void CongfigGui::slotEditConfig()
     if (ui->tableWidget->rowCount() == 0)
         return;
 
-    /// »ñÈ¡ÐèÒª±à¼­µÄÅäÖÃipºÍ¶Ë¿Ú
+    /// èŽ·å–éœ€è¦ç¼–è¾‘çš„é…ç½®ipå’Œç«¯å£
     int row = ui->tableWidget->currentRow();
     if (row < 0)
         return;
@@ -178,16 +178,16 @@ void CongfigGui::slotEditConfig()
     std::string ip        = item_ip->text().toStdString();
     int         port      = atoi(item_port->text().toStdString().c_str());
 
-    /// ´ò¿ªÅäÖÃ½çÃæ
+    /// æ‰“å¼€é…ç½®ç•Œé¢
     ConfigEdit edit;
     if (!edit.loadConfig(ip.c_str(), port))
     {
-        addLog("¶ÁÈ¡ÅäÖÃÊ§°Ü!");
+        addLog("è¯»å–é…ç½®å¤±è´¥!");
         return;
     }
     if (edit.exec() == QDialog::Accepted)
     {
-        addLog("ÐÞ¸ÄÅäÖÃ³É¹¦");
+        addLog("ä¿®æ”¹é…ç½®æˆåŠŸ");
     }
 
     this->updateUI();

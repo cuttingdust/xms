@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XComTask.h
  * @brief  
  *
@@ -27,31 +27,31 @@ public:
     virtual ~XComTask();
 
 public:
-    /// \brief ³õÊ¼»¯bufferevent£¬¿Í»§¶Ë½¨Á¢Á¬½Ó
+    /// \brief åˆå§‹åŒ–buffereventï¼Œå®¢æˆ·ç«¯å»ºç«‹è¿æ¥
     /// \return
     auto init() -> bool override;
 
-    /// \brief ¿ªÊ¼Á¬½Ó·şÎñÆ÷£¬µ÷ÓÃ³ÉÔ± server_ip_ server_port_
-    /// ¿¼ÂÇ×Ô¶¯ÖØÁ¬
+    /// \brief å¼€å§‹è¿æ¥æœåŠ¡å™¨ï¼Œè°ƒç”¨æˆå‘˜ server_ip_ server_port_
+    /// è€ƒè™‘è‡ªåŠ¨é‡è¿
     /// \return
     auto connect() const -> bool;
 
     // protected:
-    /// \brief ÊÇ·ñÒÑÁ¬½Ó
+    /// \brief æ˜¯å¦å·²è¿æ¥
     /// \return
     auto isConnected() const -> bool;
 
-    /// \brief ÊÇ·ñÕıÔÚÁ¬½Ó
+    /// \brief æ˜¯å¦æ­£åœ¨è¿æ¥
     /// \return
     auto isConnecting() const -> bool;
 
 public:
-    /// \brief ÉèÖÃ·şÎñÆ÷ip
+    /// \brief è®¾ç½®æœåŠ¡å™¨ip
     /// \param ip
     void        setServerIp(const char* ip);
     const char* getServerIp() const;
 
-    /// \brief ÉèÖÃ·şÎñÆ÷¶Ë¿Ú
+    /// \brief è®¾ç½®æœåŠ¡å™¨ç«¯å£
     /// \param port
     void setServerPort(int port);
     int  getServerPort() const;
@@ -62,16 +62,16 @@ public:
 
     void setAutoDelete(bool bAuto);
 
-    /// \brief ÊÇ·ñ×Ô¶¯ÖØÁ¬ Ä¬ÈÏ²»×Ô¶¯ ÒªÔÚÌí¼ÓÏß³Ì³ØÖ®Ç°ÉèÖÃ
-    /// ÉèÖÃ×Ô¶¯×Ô¶¯ÖØÁ¬£¬ ¶ÔÏó¾Í²»»á×Ô¶¯É¾³ı
+    /// \brief æ˜¯å¦è‡ªåŠ¨é‡è¿ é»˜è®¤ä¸è‡ªåŠ¨ è¦åœ¨æ·»åŠ çº¿ç¨‹æ± ä¹‹å‰è®¾ç½®
+    /// è®¾ç½®è‡ªåŠ¨è‡ªåŠ¨é‡è¿ï¼Œ å¯¹è±¡å°±ä¸ä¼šè‡ªåŠ¨åˆ é™¤
     /// \param bAuto
     void setAutoConnect(bool bAuto);
 
-    /// \brief µÈ´ıÁ¬½Ó³É¹¦
-    /// \param timeout_sec ×î´óµÈ´ıÊ±¼ä
+    /// \brief ç­‰å¾…è¿æ¥æˆåŠŸ
+    /// \param timeout_sec æœ€å¤§ç­‰å¾…æ—¶é—´
     bool waitConnected(int timeout_sec);
 
-    /// \brief ½¨Á¢Á¬½Ó£¬Èç¹û¶Ï¿ª£¬»áÔÙ´ÎÖØÁ¬£¬ÖªµÀÁ¬½Ó³É¹¦£¬»òÕß³¬Ê±
+    /// \brief å»ºç«‹è¿æ¥ï¼Œå¦‚æœæ–­å¼€ï¼Œä¼šå†æ¬¡é‡è¿ï¼ŒçŸ¥é“è¿æ¥æˆåŠŸï¼Œæˆ–è€…è¶…æ—¶
     /// \param timeout_sec
     /// \return
     bool autoConnect(int timeout_sec);
@@ -79,11 +79,11 @@ public:
     void      setSSLContent(XSSL_CTX* ctx);
     XSSL_CTX* getSSLContent() const;
 
-    /// \brief Éè¶¨ÒªÔÚ¼ÓÈëÏß³Ì³ØÖ®Ç°
+    /// \brief è®¾å®šè¦åœ¨åŠ å…¥çº¿ç¨‹æ± ä¹‹å‰
     /// \param ms
     void setReadTime(int ms);
 
-    /// \brief Éè¶¨ÒªÔÚ¼ÓÈëÏß³Ì³ØÖ®Ç° virtual void TimerCB() {}
+    /// \brief è®¾å®šè¦åœ¨åŠ å…¥çº¿ç¨‹æ± ä¹‹å‰ virtual void TimerCB() {}
     /// \param ms
     void setTime(int ms);
 
@@ -100,7 +100,7 @@ public:
 
     virtual bool write(const void* data, int size);
 
-    /// \brief ¼¤»îĞ´Èë»Øµ÷
+    /// \brief æ¿€æ´»å†™å…¥å›è°ƒ
     virtual void beginWriteCB();
 
     virtual void close();
@@ -111,7 +111,7 @@ public:
 
     virtual void timerCB();
 
-    /// \brief ÉèÖÃ×Ô¶¯Á¬½Ó¶¨Ê±Æ÷
+    /// \brief è®¾ç½®è‡ªåŠ¨è¿æ¥å®šæ—¶å™¨
     /// \param ms
     virtual void setAutoConnectTimer(int ms);
 

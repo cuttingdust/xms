@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XSSL.h
  * @brief  
  *
@@ -30,7 +30,7 @@ public:
     auto get_ssl() const -> SSL *;
 
 public:
-    /// \brief ¿Í»§¶Ë´¦ÀísslÎÕÊÖ
+    /// \brief å®¢æˆ·ç«¯å¤„ç†sslæ¡æ‰‹
     /// \return
     auto connect() -> bool;
 
@@ -38,29 +38,29 @@ public:
     /// \return
     auto isEmpty() const -> bool;
 
-    /// \brief ·þÎñ¶Ë½ÓÊÕsslÁ¬½Ó
+    /// \brief æœåŠ¡ç«¯æŽ¥æ”¶sslè¿žæŽ¥
     /// \return
     auto accept() const -> bool;
 
-    /// \brief ´òÓ¡Í¨ÐÅÊ¹ÓÃµÄËã·¨
+    /// \brief æ‰“å°é€šä¿¡ä½¿ç”¨çš„ç®—æ³•
     auto printCipher() const -> void;
 
-    /// \brief ´òÓ¡¶Ô·½Ö¤ÊéÐÅÏ¢
+    /// \brief æ‰“å°å¯¹æ–¹è¯ä¹¦ä¿¡æ¯
     auto printCert() const -> void;
 
-    /// \brief ·¢ËÍÊý¾Ý
+    /// \brief å‘é€æ•°æ®
     /// \param data
     /// \param data_size
     /// \return
     auto write(const void *data, int data_size) -> int;
 
-    /// \brief ½ÓÊÕÐÅÏ¢
+    /// \brief æŽ¥æ”¶ä¿¡æ¯
     /// \param buf
     /// \param buf_size
     /// \return
     auto read(void *buf, int buf_size) -> int;
 
-    /// \brief  ÊÍ·Å×ÊÔ´
+    /// \brief  é‡Šæ”¾èµ„æº
     auto close() -> void;
 
 private:

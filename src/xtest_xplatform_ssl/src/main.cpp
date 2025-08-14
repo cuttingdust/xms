@@ -1,4 +1,4 @@
-#include "XMySSLClient.h"
+ï»¿#include "XMySSLClient.h"
 #include "XMySSLServiceHandle.h"
 #include "XMySSLService.h"
 
@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     XSSL_CTX server_ctx;
     server_ctx.initServer("assert/server.crt", "assert/server.key");
 
-    /// ²âÊÔSSL·şÎñ¶Ë
+    /// æµ‹è¯•SSLæœåŠ¡ç«¯
     XMySSLServiceHandle::regMsgCallback();
     XMySSLService service;
     service.setServerPort(PORT);
@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 
-    /// ²âÊÔSSL¿Í»§¶Ë
+    /// æµ‹è¯•SSLå®¢æˆ·ç«¯
     XMySSLClient client;
     client.setServerIp(IP);
     client.setServerPort(PORT);

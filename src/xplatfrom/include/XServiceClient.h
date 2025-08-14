@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XServiceClient.h
  * @brief  
  *
@@ -21,7 +21,7 @@ public:
     ~XServiceClient() override;
 
 public:
-    /// \brief ½«ÈÎÎñ¼ÓÈëµ½Ïß³Ì³ØÖĞ£¬½øĞĞÁ¬½Ó
+    /// \brief å°†ä»»åŠ¡åŠ å…¥åˆ°çº¿ç¨‹æ± ä¸­ï¼Œè¿›è¡Œè¿æ¥
     virtual void startConnect();
 
 private:

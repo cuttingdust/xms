@@ -1,4 +1,4 @@
-#include "XService.h"
+ï»¿#include "XService.h"
 
 #include "XThreadPool.h"
 #include "XTools.h"
@@ -25,11 +25,11 @@ public:
 
 public:
     XService    *owenr_              = nullptr;
-    XThreadPool *thread_listen_pool_ = nullptr; /// < ½ÓÊÕÓÃ»§Á¬½ÓµÄÏß³Ì³Ø
-    XThreadPool *thread_client_pool_ = nullptr; /// < ´¦ÀíÓÃ»§µÄÊý¾ÝµÄÁ¬½Ó³Ø
-    int          server_port_        = 0;       /// < ·þÎñÆ÷¼àÌý¶Ë¿Ú
-    int          thread_count_       = 10;      /// < ¿Í»§Êý¾Ý´¦ÀíµÄÏß³ÌÊýÁ¿
-    XSSL_CTX    *ssl_ctx_            = nullptr; /// < sslÉÏÏÂÎÄ
+    XThreadPool *thread_listen_pool_ = nullptr; /// < æŽ¥æ”¶ç”¨æˆ·è¿žæŽ¥çš„çº¿ç¨‹æ± 
+    XThreadPool *thread_client_pool_ = nullptr; /// < å¤„ç†ç”¨æˆ·çš„æ•°æ®çš„è¿žæŽ¥æ± 
+    int          server_port_        = 0;       /// < æœåŠ¡å™¨ç›‘å¬ç«¯å£
+    int          thread_count_       = 10;      /// < å®¢æˆ·æ•°æ®å¤„ç†çš„çº¿ç¨‹æ•°é‡
+    XSSL_CTX    *ssl_ctx_            = nullptr; /// < sslä¸Šä¸‹æ–‡
 };
 
 XService::PImpl::PImpl(XService *owenr) : owenr_(owenr)
@@ -73,7 +73,7 @@ auto XService::init() -> bool
         return false;
     }
 
-    /// °ó¶¨¶Ë¿Ú
+    /// ç»‘å®šç«¯å£
     sockaddr_in sin;
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
@@ -98,7 +98,7 @@ auto XService::init() -> bool
 
 void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
 {
-    /// ´´½¨¿Í»§¶Ë´¦Àí¶ÔÏó
+    /// åˆ›å»ºå®¢æˆ·ç«¯å¤„ç†å¯¹è±¡
     auto handle = createHandle();
     handle->set_sock(client_socket);
     handle->setSSLContent(this->getSSLContent());
@@ -111,7 +111,7 @@ void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
     ss << "accept client ip :" << ip << " port:" << client_port << std::endl;
     LOGINFO(ss.str().c_str());
 
-    /// ÈÎÎñ¼ÓÈëµ½Ïß³Ì³Ø
+    /// ä»»åŠ¡åŠ å…¥åˆ°çº¿ç¨‹æ± 
     handle->setClientIP(ip);
     handle->setClientPort(client_port);
     impl_->thread_client_pool_->dispatch(handle);

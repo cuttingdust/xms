@@ -1,15 +1,15 @@
-#include "XRegisterClient.h"
+ï»¿#include "XRegisterClient.h"
 
 #include <XTools.h>
 
 #include <thread>
 #include <fstream>
 
-///×¢²á·şÎñÁĞ±íµÄ»º´æ
+///æ³¨å†ŒæœåŠ¡åˆ—è¡¨çš„ç¼“å­˜
 static xmsg::XServiceMap *service_map = nullptr;
 static xmsg::XServiceMap *client_map  = nullptr;
 
-/// ¶àÏß³Ì·ÃÎÊµÄËø
+/// å¤šçº¿ç¨‹è®¿é—®çš„é”
 static std::mutex service_map_mutex;
 
 class XRegisterClient::PImpl
@@ -38,7 +38,7 @@ XRegisterClient::~XRegisterClient() = default;
 
 void XRegisterClient::connectCB()
 {
-    /// ·¢ËÍ×¢²áÏûÏ¢
+    /// å‘é€æ³¨å†Œæ¶ˆæ¯
     LOGDEBUG("XRegisterClient::connectCB: connected start send MT_REGISTER_REQ ");
     xmsg::XRegisterReq req;
     req.set_name(impl_->service_name_);
@@ -49,7 +49,7 @@ void XRegisterClient::connectCB()
 
 void XRegisterClient::timerCB()
 {
-    /// ¶¨Ê±Æ÷£¬ÓÃÓÚ·¢ËÍĞÄÌø
+    /// å®šæ—¶å™¨ï¼Œç”¨äºå‘é€å¿ƒè·³
     static long long count = 0;
     count++;
     xmsg::XMsgHeart req;
@@ -59,24 +59,24 @@ void XRegisterClient::timerCB()
 
 void XRegisterClient::registerServer(const char *service_name, int port, const char *ip)
 {
-    /// ×¢²áÏûÏ¢»Øµ÷º¯Êı
+    /// æ³¨å†Œæ¶ˆæ¯å›è°ƒå‡½æ•°
     regMsgCallback();
-    /// ·¢ËÍÏûÏ¢µ½·şÎñÆ÷
-    /// ·şÎñÆ÷Á¬½ÓÊÇ·ñ³É¹¦£¿
-    /// ×¢²áÖĞĞÄµÄIP£¬×¢²áÖĞĞÄµÄ¶Ë¿Ú
+    /// å‘é€æ¶ˆæ¯åˆ°æœåŠ¡å™¨
+    /// æœåŠ¡å™¨è¿æ¥æ˜¯å¦æˆåŠŸï¼Ÿ
+    /// æ³¨å†Œä¸­å¿ƒçš„IPï¼Œæ³¨å†Œä¸­å¿ƒçš„ç«¯å£
     if (service_name)
         strcpy(impl_->service_name_, service_name);
     if (ip)
         strcpy(impl_->service_ip_, ip);
     impl_->service_port_ = port;
 
-    /// ÉèÖÃ×Ô¶¯ÖØÁ¬
+    /// è®¾ç½®è‡ªåŠ¨é‡è¿
     setAutoConnect(true);
 
-    /// Éè¶¨ĞÄÌø¶¨Ê±Æ÷
+    /// è®¾å®šå¿ƒè·³å®šæ—¶å™¨
     setTime(3000);
 
-    /// °ÑÈÎÎñ¼ÓÈëµ½Ïß³Ì³ØÖĞ
+    /// æŠŠä»»åŠ¡åŠ å…¥åˆ°çº¿ç¨‹æ± ä¸­
     startConnect();
 }
 
@@ -120,7 +120,7 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
 {
     LOGDEBUG("XRegisterClient::getServiceRes");
     XMutex mutex(&service_map_mutex);
-    /// ÊÇ·ñÌæ»»È«²¿»º´æ
+    /// æ˜¯å¦æ›¿æ¢å…¨éƒ¨ç¼“å­˜
     bool               is_all = false;
     xmsg::XServiceMap *cache_map;
     xmsg::XServiceMap  tmp;
@@ -145,10 +145,10 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
     }
 
     ///////////////////////////////////////////////////////////
-    /// ÄÚ´æ»º´æË¢ĞÂ
+    /// å†…å­˜ç¼“å­˜åˆ·æ–°
     if (cache_map == service_map)
     {
-        /// ´æ´¢»º´æÒÑ¾­Ë¢ĞÂ
+        /// å­˜å‚¨ç¼“å­˜å·²ç»åˆ·æ–°
     }
     else
     {
@@ -158,23 +158,23 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
         }
         else
         {
-            /// ½«¸Õ¶ÁÈ¡µÄcmapÊı¾İ´æÈë  service_map ÄÚ´æ»º³å
+            /// å°†åˆšè¯»å–çš„cmapæ•°æ®å­˜å…¥  service_map å†…å­˜ç¼“å†²
             auto cmap = cache_map->mutable_servicemap();
 
-            /// È¡µÚÒ»¸ö
+            /// å–ç¬¬ä¸€ä¸ª
             if (!cmap || cmap->empty())
                 return;
             auto one = cmap->begin();
 
             auto smap = service_map->mutable_servicemap();
-            /// ĞŞ¸Ä»º´æ
+            /// ä¿®æ”¹ç¼“å­˜
             (*smap)[one->first] = one->second;
         }
     }
 
 
     ///////////////////////////////////////////////////////////
-    /// ´ÅÅÌ»º´æË¢ĞÂ ºóÆÚÒª¿¼ÂÇË¢ĞÂÆµÂÊ
+    /// ç£ç›˜ç¼“å­˜åˆ·æ–° åæœŸè¦è€ƒè™‘åˆ·æ–°é¢‘ç‡
     std::stringstream ss;
     ss << "register_" << impl_->service_name_ << impl_->service_ip_ << impl_->service_port_ << ".cache";
     LOGDEBUG("Save local file!");
@@ -191,10 +191,10 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
     ofs.close();
 
     /// LOGDEBUG(service_map->DebugString());
-    /// Çø·ÖÊÇ»ñÈ¡Ò»ÖÖ»¹ÊÇÈ«²¿ Ë¢ĞÂ»º´æ
-    /// Ò»ÖÖ Ö»Ë¢ĞÂ´ËÖÖÎ¢·şÎñÁĞ±í»º´æÊı¾İ
+    /// åŒºåˆ†æ˜¯è·å–ä¸€ç§è¿˜æ˜¯å…¨éƒ¨ åˆ·æ–°ç¼“å­˜
+    /// ä¸€ç§ åªåˆ·æ–°æ­¤ç§å¾®æœåŠ¡åˆ—è¡¨ç¼“å­˜æ•°æ®
 
-    /// È«²¿ Ë¢ĞÂËùÓĞ»º´æÊı¾İ
+    /// å…¨éƒ¨ åˆ·æ–°æ‰€æœ‰ç¼“å­˜æ•°æ®
 }
 
 xmsg::XServiceMap *XRegisterClient::getAllService()
@@ -216,11 +216,11 @@ xmsg::XServiceMap *XRegisterClient::getAllService()
 auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList
 {
     xmsg::XServiceMap::XServiceList result;
-    /// 10msÅĞ¶ÏÒ»´Î
+    /// 10msåˆ¤æ–­ä¸€æ¬¡
     int totoal_count = timeout_sec * 100;
     int count        = 0;
 
-    /// 1 µÈ´ıÁ¬½Ó³É¹¦
+    /// 1 ç­‰å¾…è¿æ¥æˆåŠŸ
     while (count < totoal_count)
     {
         //cout << "@" << flush;
@@ -232,9 +232,9 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
 
     if (!isConnected())
     {
-        LOGDEBUG("Á¬½ÓµÈ´ı³¬Ê±");
+        LOGDEBUG("è¿æ¥ç­‰å¾…è¶…æ—¶");
         XMutex mutex(&service_map_mutex);
-        /// Ö»ÓĞµÚÒ»´Î¶ÁÈ¡»º´æ
+        /// åªæœ‰ç¬¬ä¸€æ¬¡è¯»å–ç¼“å­˜
         if (!service_map)
         {
             localLocalCache();
@@ -242,10 +242,10 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
         return result;
     }
 
-    /// 2 ·¢ËÍ»ñÈ¡Î¢·şÎñµÄÏûÏ¢
+    /// 2 å‘é€è·å–å¾®æœåŠ¡çš„æ¶ˆæ¯
     getServiceReq(service_name);
 
-    /// 3 µÈ´ıÎ¢·şÎñÁĞ±íÏûÏ¢·´À¡£¨ÓĞ¿ÉÄÜÄÃµ½ÉÏÒ»´ÎµÄÅäÖÃ£©
+    /// 3 ç­‰å¾…å¾®æœåŠ¡åˆ—è¡¨æ¶ˆæ¯åé¦ˆï¼ˆæœ‰å¯èƒ½æ‹¿åˆ°ä¸Šä¸€æ¬¡çš„é…ç½®ï¼‰
     while (count < totoal_count)
     {
         std::cout << "." << std::flush;
@@ -260,7 +260,7 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
         if (!m)
         {
             //cout << "#" << flush;
-            /// Ã»ÓĞÕÒµ½Ö¸¶¨µÄÎ¢·şÎñ
+            /// æ²¡æœ‰æ‰¾åˆ°æŒ‡å®šçš„å¾®æœåŠ¡
             getServiceReq(service_name);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             count += 10;
@@ -270,7 +270,7 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
         if (s == m->end())
         {
             // cout << "+" << flush;
-            /// Ã»ÓĞÕÒµ½Ö¸¶¨µÄÎ¢·şÎñ
+            /// æ²¡æœ‰æ‰¾åˆ°æŒ‡å®šçš„å¾®æœåŠ¡
             getServiceReq(service_name);
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             count += 10;

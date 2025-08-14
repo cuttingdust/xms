@@ -1,23 +1,23 @@
-#include "XRegisterHandle.h"
+ï»¿#include "XRegisterHandle.h"
 
 #include <XTools.h>
 
 #include <print>
 
-/// ×¢²á·şÎñÁĞ±íµÄ»º´æ
+/// æ³¨å†ŒæœåŠ¡åˆ—è¡¨çš„ç¼“å­˜
 static xmsg::XServiceMap *service_map = nullptr; // NOLINT(misc-use-anonymous-namespace)
 
-/// ¶àÏß³Ì·ÃÎÊµÄËø
+/// å¤šçº¿ç¨‹è®¿é—®çš„é”
 static std::mutex service_map_mutex; // NOLINT(misc-use-anonymous-namespace)
 
 void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("·şÎñ¶Ë½ÓÊÕµ½ÓÃ»§µÄ×¢²áÇëÇó");
+    LOGDEBUG("æœåŠ¡ç«¯æ¥æ”¶åˆ°ç”¨æˆ·çš„æ³¨å†Œè¯·æ±‚");
 
-    /// »ØÓ¦µÄÏûÏ¢
+    /// å›åº”çš„æ¶ˆæ¯
     xmsg::XMessageRes res;
 
-    ///½âÎöÇëÇó
+    ///è§£æè¯·æ±‚
     xmsg::XRegisterReq req;
     if (!req.ParseFromArray(msg->data, msg->size))
     {
@@ -29,7 +29,7 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
     }
 
 
-    /// ½ÓÊÕµ½ÓÃ»§µÄ·şÎñÃû³Æ¡¢·şÎñIP¡¢·şÎñ¶Ë¿Ú
+    /// æ¥æ”¶åˆ°ç”¨æˆ·çš„æœåŠ¡åç§°ã€æœåŠ¡IPã€æœåŠ¡ç«¯å£
     std::string service_name = req.name();
     if (service_name.empty())
     {
@@ -60,36 +60,36 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
         return;
     }
 
-    /// ½ÓÊÕÓÃ»§×¢²áĞÅÏ¢Õı³£
+    /// æ¥æ”¶ç”¨æˆ·æ³¨å†Œä¿¡æ¯æ­£å¸¸
     std::stringstream ss;
-    ss << "½ÓÊÕµ½ÓÃ»§×¢²áĞÅÏ¢:" << service_name << "|" << service_ip << ":" << service_port;
+    ss << "æ¥æ”¶åˆ°ç”¨æˆ·æ³¨å†Œä¿¡æ¯:" << service_name << "|" << service_ip << ":" << service_port;
     LOGINFO(ss.str().c_str());
 
 
-    /// ´æ´¢ÓÃ»§×¢²áĞÅÏ¢£¬Èç¹ûÒÑ¾­×¢²áĞèÒª¸üĞÂ
+    /// å­˜å‚¨ç”¨æˆ·æ³¨å†Œä¿¡æ¯ï¼Œå¦‚æœå·²ç»æ³¨å†Œéœ€è¦æ›´æ–°
     {
         XMutex mutex(&service_map_mutex);
         if (!service_map)
             service_map = new xmsg::XServiceMap();
         auto smap = service_map->mutable_servicemap();
 
-        /// ÊÇ·ñÓÉÍ¬ÀàĞÍÒÑ¾­×¢²á
-        /// ¼¯ÈºÎ¢·şÎñ
+        /// æ˜¯å¦ç”±åŒç±»å‹å·²ç»æ³¨å†Œ
+        /// é›†ç¾¤å¾®æœåŠ¡
         auto service_list = smap->find(service_name);
         if (service_list == smap->end())
         {
-            /// Ã»ÓĞ×¢²á¹ı
+            /// æ²¡æœ‰æ³¨å†Œè¿‡
             (*smap)[service_name] = xmsg::XServiceMap::XServiceList();
             service_list          = smap->find(service_name);
         }
         auto services = service_list->second.mutable_services();
-        /// ²éÕÒÊÇ·ñÓÃÍ¬ipºÍ¶Ë¿ÚµÄ
+        /// æŸ¥æ‰¾æ˜¯å¦ç”¨åŒipå’Œç«¯å£çš„
         for (const auto &service : (*services))
         {
             if (service.ip() == service_ip && service.port() == service_port)
             {
                 std::stringstream ss;
-                ss << service_name << "|" << service_ip << ":" << service_port << "Î¢·şÎñÒÑ¾­×¢²á¹ı";
+                ss << service_name << "|" << service_ip << ":" << service_port << "å¾®æœåŠ¡å·²ç»æ³¨å†Œè¿‡";
                 LOGDEBUG(ss.str().c_str());
                 res.set_return_(xmsg::XMessageRes::XR_ERROR);
                 res.set_msg(ss.str());
@@ -97,13 +97,13 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
                 return;
             }
         }
-        /// Ìí¼ÓĞÂµÄÎ¢·şÎñ
+        /// æ·»åŠ æ–°çš„å¾®æœåŠ¡
         auto ser = service_list->second.add_services();
         ser->set_ip(service_ip);
         ser->set_port(service_port);
         ser->set_name(service_name);
         std::stringstream ss;
-        ss << service_name << "|" << service_ip << ":" << service_port << "ĞÂµÄÎ¢·şÎñ×¢²á³É¹¦£¡";
+        ss << service_name << "|" << service_ip << ":" << service_port << "æ–°çš„å¾®æœåŠ¡æ³¨å†ŒæˆåŠŸï¼";
         LOGDEBUG(ss.str().c_str());
     }
 
@@ -114,11 +114,11 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
 
 void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
 {
-    /// ÔİÊ±Ö»·¢ËÍÈ«²¿
+    /// æš‚æ—¶åªå‘é€å…¨éƒ¨
     LOGDEBUG("XRegisterHandle::getServiceReq");
     xmsg::XGetServiceReq req;
 
-    /// ´íÎó´¦Àí
+    /// é”™è¯¯å¤„ç†
     xmsg::XServiceMap res;
     res.mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_ERROR);
     if (!req.ParseFromArray(msg->data, msg->size))
@@ -138,19 +138,19 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
     LOGDEBUG(ss.str().c_str());
     xmsg::XServiceMap *send_map = &res;
 
-    ///·¢ËÍÈ«²¿Î¢·şÎñÊı¾İ
+    ///å‘é€å…¨éƒ¨å¾®æœåŠ¡æ•°æ®
     service_map_mutex.lock();
     if (!service_map)
     {
         service_map = new xmsg::XServiceMap();
     }
 
-    ///·µ»ØÈ«²¿
+    ///è¿”å›å…¨éƒ¨
     if (req.type() == xmsg::XServiceType::XT_ALL)
     {
         send_map = service_map;
     }
-    else ///·µ»Øµ¥ÖÖ
+    else ///è¿”å›å•ç§
     {
         auto smap = service_map->mutable_servicemap();
         if (smap && smap->find(service_name) != smap->end())
@@ -161,7 +161,7 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
     service_map_mutex.unlock();
 
 
-    /// ·µ»Øµ¥ÖÖ»¹ÊÇÈ«²¿
+    /// è¿”å›å•ç§è¿˜æ˜¯å…¨éƒ¨
     service_map->set_type(req.type());
     service_map->mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_OK);
     sendMsg(xmsg::MT_GET_SERVICE_RES, service_map);

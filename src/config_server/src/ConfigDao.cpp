@@ -1,4 +1,4 @@
-#include "ConfigDao.h"
+ï»¿#include "ConfigDao.h"
 
 #include "LXMysql.h"
 
@@ -88,11 +88,11 @@ bool ConfigDao::install()
           .length            = 0,
           .is_key            = true,
           .is_auto_increment = true },                                                    /// id
-        { .name = col_server_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 }, /// ·þÎñÆ÷Ãû³Æ
-        { .name = col_server_port, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },                /// ·þÎñÆ÷¶Ë¿Ú
-        { .name = col_server_ip, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },   /// ·þÎñÆ÷IP
-        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_BLOB, .length = 4096 },  /// Ë½ÓÐÐ­Òé
-        { .name = col_proto, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 },     /// ¹«¹²Ð­Òé
+        { .name = col_server_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 }, /// æœåŠ¡å™¨åç§°
+        { .name = col_server_port, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },                /// æœåŠ¡å™¨ç«¯å£
+        { .name = col_server_ip, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 16 },   /// æœåŠ¡å™¨IP
+        { .name = col_private_pb, .type = LX_DATA_TYPE::LXD_TYPE_BLOB, .length = 4096 },  /// ç§æœ‰åè®®
+        { .name = col_proto, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 4096 },     /// å…¬å…±åè®®
     };
 
     if (!impl_->mysql_->createTable(table_name, fields, true))
@@ -127,11 +127,11 @@ bool ConfigDao::saveConfig(const xmsg::XConfig *conf)
     data[col_server_port] = &port;
     data[col_server_ip]   = conf->service_ip().c_str();
 
-    /// ÔÙÐòÁÐ»¯Ò»´Î£¬°ÑÕû¸öXConfig ´æÈëµ½private_pb
+    /// å†åºåˆ—åŒ–ä¸€æ¬¡ï¼ŒæŠŠæ•´ä¸ªXConfig å­˜å…¥åˆ°private_pb
     std::string private_pb;
     conf->SerializeToString(&private_pb);
 
-    ///  ÐòÁÐ»¯µ½ÎÄ¼þ
+    ///  åºåˆ—åŒ–åˆ°æ–‡ä»¶
     std::ofstream output("test.bin", std::ios::binary);
     if (!conf->SerializeToOstream(&output))
     {
@@ -154,20 +154,20 @@ bool ConfigDao::saveConfig(const xmsg::XConfig *conf)
                                              { { col_server_ip, conf_ip }, { col_server_port, str_port } });
         if (count >= 0)
         {
-            LOGDEBUG("ÅäÖÃ¸üÐÂ³É¹¦£¡");
+            LOGDEBUG("é…ç½®æ›´æ–°æˆåŠŸï¼");
             return true;
         }
-        LOGDEBUG("ÅäÖÃ¸üÐÂÊ§°Ü£¡");
+        LOGDEBUG("é…ç½®æ›´æ–°å¤±è´¥ï¼");
         return false;
     }
     bool re = impl_->mysql_->insertBin(data, table_name);
     if (re)
     {
-        LOGDEBUG("ÅäÖÃ²åÈë³É¹¦£¡");
+        LOGDEBUG("é…ç½®æ’å…¥æˆåŠŸï¼");
     }
     else
     {
-        LOGDEBUG("ÅäÖÃ²åÈëÊ§°Ü£¡");
+        LOGDEBUG("é…ç½®æ’å…¥å¤±è´¥ï¼");
     }
     return re;
 }
@@ -201,7 +201,7 @@ xmsg::XConfig ConfigDao::loadConfig(const char *ip, int port)
         LOGDEBUG("download config failed!");
         return conf;
     }
-    /// Ö»È¡µÚÒ»Ìõ
+    /// åªå–ç¬¬ä¸€æ¡
     auto row = rows[0];
     if (!conf.ParseFromArray(row[0].data, row[0].size))
     {
@@ -234,7 +234,7 @@ xmsg::XConfigList ConfigDao::loadAllConfig(unsigned int page, int page_count)
             impl_->mysql_->getRows(table_name, sel, std::make_pair("", ""), { page, page_count }, { col_id, LXD_DESC });
     for (auto row : rows)
     {
-        /// ±éÀú½á¹û¼¯²åÈëµ½protoÀàÐÍÖÐ
+        /// éåŽ†ç»“æžœé›†æ’å…¥åˆ°protoç±»åž‹ä¸­
         auto conf = confs.add_config();
         conf->set_service_name(row[0].data);
         conf->set_service_ip(row[1].data);

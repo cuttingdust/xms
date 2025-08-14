@@ -1,4 +1,4 @@
-#include "XRegisterServer.h"
+ï»¿#include "XRegisterServer.h"
 #include "XRegisterHandle.h"
 
 #include <XThreadPool.h>
@@ -11,7 +11,7 @@ void XRegisterServer::main(int argc, char *argv[])
     if (argc > 1)
         port = atoi(argv[1]);
 
-    /// ÉèÖÃ·þÎñÆ÷¼àÌý¶Ë¿Ú
+    /// è®¾ç½®æœåŠ¡å™¨ç›‘å¬ç«¯å£
     this->setServerPort(port);
 }
 

@@ -1,4 +1,4 @@
-#include "LXMysql.h"
+ï»¿#include "LXMysql.h"
 
 #include <format>
 #include <mysql.h>
@@ -11,7 +11,7 @@
 #include <iconv.h>
 #endif
 
-//////////////////////////////////¹¤¾ßº¯Êı///////////////////////////////////
+//////////////////////////////////å·¥å…·å‡½æ•°///////////////////////////////////
 auto join(const std::vector<std::string> &strings, const std::string &delimiter) -> std::string
 {
     std::ostringstream oss;
@@ -20,18 +20,18 @@ auto join(const std::vector<std::string> &strings, const std::string &delimiter)
     {
         oss << strings[i];
         if (i < strings.size() - 1)
-        { /// ÔÚÔªËØÖ®¼äÌí¼Ó·Ö¸ô·û
+        { /// åœ¨å…ƒç´ ä¹‹é—´æ·»åŠ åˆ†éš”ç¬¦
             oss << delimiter;
         }
     }
 
-    return oss.str(); /// ·µ»ØÁ¬½ÓºóµÄ×Ö·û´®
+    return oss.str(); /// è¿”å›è¿æ¥åçš„å­—ç¬¦ä¸²
 }
 
 #ifndef _WIN32
 static size_t convert(char *from_cha, char *to_cha, char *in, size_t inlen, char *out, size_t outlen)
 {
-    /// ×ª»»ÉÏÏÂÎÄ
+    /// è½¬æ¢ä¸Šä¸‹æ–‡
     iconv_t cd;
     cd = iconv_open(to_cha, from_cha);
     if (cd == 0)
@@ -42,7 +42,7 @@ static size_t convert(char *from_cha, char *to_cha, char *in, size_t inlen, char
     // std::cout << "in = " << in << std::endl;
     // std::cout << "inlen = " << inlen << std::endl;
     // std::cout << "outlen = " << outlen << std::endl;
-    //·µ»Ø×ª»»×Ö½ÚÊıµÄÊıÁ¿£¬µ«ÊÇ×ªGBKÊ±¾­³£²»ÕıÈ· >=0¾Í³É¹¦
+    //è¿”å›è½¬æ¢å­—èŠ‚æ•°çš„æ•°é‡ï¼Œä½†æ˜¯è½¬GBKæ—¶ç»å¸¸ä¸æ­£ç¡® >=0å°±æˆåŠŸ
     size_t re = iconv(cd, pin, &inlen, pout, &outlen);
     iconv_close(cd);
     // std::cout << "result = " << (int)result << std::endl;
@@ -108,7 +108,7 @@ auto LXData::loadFile(const char *fileName) -> bool
         std::cerr << "LoadFile " << fileName << " failed!" << std::endl;
         return false;
     }
-    /// ÎÄ¼ş´óĞ¡
+    /// æ–‡ä»¶å¤§å°
     in.seekg(0, std::ios::end);
     size = in.tellg();
     in.seekg(0, std::ios::beg);
@@ -153,15 +153,15 @@ auto LXData::gbkToUtf8() const -> std::string
 {
     std::string result = "";
 #ifdef _WIN32
-    /// GBK×ªunicode
+    /// GBKè½¬unicode
 
-    /// 1.1 Í³¼Æ×ª»»ºó×Ö½ÚÊı
-    int len = MultiByteToWideChar(CP_ACP, /// ×ª»»µÄ¸ñÊ½
-                                  0,      /// Ä¬ÈÏµÄ×ª»»·½Ê½
-                                  data,   /// ÊäÈëµÄ×Ö½Ú
-                                  -1,     /// ÊäÈëµÄ×Ö·û´®´óĞ¡ -1 ÕÒ\0
-                                  0,      /// Êä³ö
-                                  0       /// Êä³öµÄ¿Õ¼ä´óĞ¡
+    /// 1.1 ç»Ÿè®¡è½¬æ¢åå­—èŠ‚æ•°
+    int len = MultiByteToWideChar(CP_ACP, /// è½¬æ¢çš„æ ¼å¼
+                                  0,      /// é»˜è®¤çš„è½¬æ¢æ–¹å¼
+                                  data,   /// è¾“å…¥çš„å­—èŠ‚
+                                  -1,     /// è¾“å…¥çš„å­—ç¬¦ä¸²å¤§å° -1 æ‰¾\0
+                                  0,      /// è¾“å‡º
+                                  0       /// è¾“å‡ºçš„ç©ºé—´å¤§å°
     );
     if (len <= 0)
         return result;
@@ -169,10 +169,10 @@ auto LXData::gbkToUtf8() const -> std::string
     udata.resize(len);
     MultiByteToWideChar(CP_ACP, 0, data, -1, (wchar_t *)udata.data(), len);
 
-    /// 2 unicode ×ªutf-8
+    /// 2 unicode è½¬utf-8
     len = WideCharToMultiByte(CP_UTF8, 0, (wchar_t *)udata.data(), -1, 0, 0,
-                              0, /// Ê§°ÜÄ¬ÈÏÌæ´ú×Ö·û
-                              0  /// sÊÇ·ñÊ¹ÓÃÄ¬ÈÏÌæ´ú
+                              0, /// å¤±è´¥é»˜è®¤æ›¿ä»£å­—ç¬¦
+                              0  /// sæ˜¯å¦ä½¿ç”¨é»˜è®¤æ›¿ä»£
     );
     if (len <= 0)
         return result;
@@ -193,15 +193,15 @@ auto LXData::utf8ToGbk() const -> std::string
 {
     std::string result = "";
 #ifdef _WIN32
-    /// 1 UFT8 ×ªÎªunicode win utf16
+    /// 1 UFT8 è½¬ä¸ºunicode win utf16
 
-    /// 1.1 Í³¼Æ×ª»»ºó×Ö½ÚÊı
-    int len = MultiByteToWideChar(CP_UTF8, /// ×ª»»µÄ¸ñÊ½
-                                  0,       /// Ä¬ÈÏµÄ×ª»»·½Ê½
-                                  data,    /// ÊäÈëµÄ×Ö½Ú
-                                  -1,      /// ÊäÈëµÄ×Ö·û´®´óĞ¡ -1 ÕÒ\0
-                                  0,       /// Êä³ö
-                                  0        /// Êä³öµÄ¿Õ¼ä´óĞ¡
+    /// 1.1 ç»Ÿè®¡è½¬æ¢åå­—èŠ‚æ•°
+    int len = MultiByteToWideChar(CP_UTF8, /// è½¬æ¢çš„æ ¼å¼
+                                  0,       /// é»˜è®¤çš„è½¬æ¢æ–¹å¼
+                                  data,    /// è¾“å…¥çš„å­—èŠ‚
+                                  -1,      /// è¾“å…¥çš„å­—ç¬¦ä¸²å¤§å° -1 æ‰¾\0
+                                  0,       /// è¾“å‡º
+                                  0        /// è¾“å‡ºçš„ç©ºé—´å¤§å°
     );
     if (len <= 0)
         return result;
@@ -209,10 +209,10 @@ auto LXData::utf8ToGbk() const -> std::string
     udata.resize(len);
     MultiByteToWideChar(CP_UTF8, 0, data, -1, (wchar_t *)udata.data(), len);
 
-    /// 2 unicode ×ªGBK
+    /// 2 unicode è½¬GBK
     len = WideCharToMultiByte(CP_ACP, 0, (wchar_t *)udata.data(), -1, 0, 0,
-                              0, /// Ê§°ÜÄ¬ÈÏÌæ´ú×Ö·û
-                              0  /// sÊÇ·ñÊ¹ÓÃÄ¬ÈÏÌæ´ú
+                              0, /// å¤±è´¥é»˜è®¤æ›¿ä»£å­—ç¬¦
+                              0  /// sæ˜¯å¦ä½¿ç”¨é»˜è®¤æ›¿ä»£
     );
     if (len <= 0)
         return result;
@@ -251,7 +251,7 @@ auto LXMysql::init() -> bool
 {
     close();
     std::cout << "LXMysql::init()" << std::endl;
-    /// ĞÂ´´½¨Ò»¸öMYSQL ¶ÔÏó
+    /// æ–°åˆ›å»ºä¸€ä¸ªMYSQL å¯¹è±¡
     impl_->mysql_ = mysql_init(nullptr);
     if (!impl_->mysql_)
     {
@@ -365,7 +365,7 @@ auto LXMysql::createTable(const std::string &table_name, const XFIELDS &fileds, 
         fields.emplace_back(tmp);
     }
 
-    /// ¸ù¾İ²Ù×÷ÏµÍ³ÉèÖÃ×Ö·û¼¯
+    /// æ ¹æ®æ“ä½œç³»ç»Ÿè®¾ç½®å­—ç¬¦é›†
     std::string charset;
 #ifdef _WIN32
     charset = "gbk";
@@ -642,7 +642,7 @@ auto LXMysql::insertBin(const XDATA &kv, const std::string &table_name) -> bool
     const std::string &val_str = join(values, ",");
     const std::string &sql     = std::format("INSERT INTO `{0}` ({1}) VALUES ({2});", table_name, key_str, val_str);
 
-    /// Ô¤´¦ÀíSQLÓï¾ä
+    /// é¢„å¤„ç†SQLè¯­å¥
     MYSQL_STMT *stmt = mysql_stmt_init(impl_->mysql_);
     if (!stmt)
     {
@@ -747,7 +747,7 @@ auto LXMysql::updateBin(const XDATA &kv, const std::string &table_name, const st
     const std::string &set_str = join(sets, ",");
     const std::string &sql     = std::format("UPDATE `{0}` SET {1} WHERE {2};", table_name, set_str, where);
 
-    /// Ô¤´¦ÀíSQLÓï¾ä
+    /// é¢„å¤„ç†SQLè¯­å¥
     MYSQL_STMT *stmt = mysql_stmt_init(impl_->mysql_);
     if (!stmt)
     {
@@ -818,7 +818,7 @@ int LXMysql::updateBin(const XDATA &kv, const std::string &table_name, const std
     const std::string &set_str = join(sets, ",");
     const std::string &sql     = std::format("UPDATE `{0}` SET {1} WHERE {2};", table_name, set_str, where);
 
-    /// Ô¤´¦ÀíSQLÓï¾ä
+    /// é¢„å¤„ç†SQLè¯­å¥
     MYSQL_STMT *stmt = mysql_stmt_init(impl_->mysql_);
     if (!stmt)
     {

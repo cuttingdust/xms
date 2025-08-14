@@ -1,4 +1,4 @@
-#include "XConfigClient.h"
+ï»¿#include "XConfigClient.h"
 
 #include <XThreadPool.h>
 #include <XTools.h>
@@ -22,15 +22,15 @@ static std::mutex                           conf_map_mutex;
 static std::condition_variable              config_cv;
 static bool                                 config_received = false;
 
-/// ´æ´¢µ±Ç°Î¢·şÎñÅäÖÃ
+/// å­˜å‚¨å½“å‰å¾®æœåŠ¡é…ç½®
 static google::protobuf::Message *cur_service_conf = nullptr;
 static std::mutex                 cur_service_conf_mutex;
 
-/// ´æ´¢»ñÈ¡µÄÅäÖÃÁĞ±í
+/// å­˜å‚¨è·å–çš„é…ç½®åˆ—è¡¨
 static xmsg::XConfigList *all_config = nullptr;
 static std::mutex         all_config_mutex;
 
-/// ÏÔÊ¾½âÎöµÄÓï·¨´íÎó
+/// æ˜¾ç¤ºè§£æçš„è¯­æ³•é”™è¯¯
 class ConfError : public google::protobuf::compiler::MultiFileErrorCollector
 {
 public:
@@ -52,11 +52,11 @@ public:
 
 public:
     XConfigClient                              *owenr_         = nullptr;
-    char                                        local_ip_[16]  = { 0 };   /// ±¾µØÎ¢·şÎñµÄip
-    int                                         local_port_    = 0;       /// ±¾µØÎ¢·şÎñµÄ¶Ë¿Ú
-    google::protobuf::compiler::Importer       *importer_      = nullptr; /// ¶¯Ì¬½âÎöprotoÎÄ¼ş
-    google::protobuf::compiler::DiskSourceTree *source_tree_   = nullptr; /// ½âÎöÎÄ¼şµÄ¹ÜÀí¶ÔÏó
-    google::protobuf::Message                  *message_       = nullptr; /// ¸ù¾İprotoÎÄ¼ş¶¯Ì¬´´½¨µÄµÄmessage
+    char                                        local_ip_[16]  = { 0 };   /// æœ¬åœ°å¾®æœåŠ¡çš„ip
+    int                                         local_port_    = 0;       /// æœ¬åœ°å¾®æœåŠ¡çš„ç«¯å£
+    google::protobuf::compiler::Importer       *importer_      = nullptr; /// åŠ¨æ€è§£æprotoæ–‡ä»¶
+    google::protobuf::compiler::DiskSourceTree *source_tree_   = nullptr; /// è§£ææ–‡ä»¶çš„ç®¡ç†å¯¹è±¡
+    google::protobuf::Message                  *message_       = nullptr; /// æ ¹æ®protoæ–‡ä»¶åŠ¨æ€åˆ›å»ºçš„çš„message
     ConfigTimerCBFunc                           configTimerCB_ = nullptr;
 };
 
@@ -64,10 +64,10 @@ XConfigClient::PImpl::PImpl(XConfigClient *owenr) : owenr_(owenr)
 {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
-    /// ÎÄ¼ş¼ÓÔØÂ·¾¶
+    /// æ–‡ä»¶åŠ è½½è·¯å¾„
     source_tree_ = new google::protobuf::compiler::DiskSourceTree();
     source_tree_->MapPath("", "");
-    /// Ê¹ÓÃ¾ø¶ÔÂ·¾¶Ê±£¬²»¼Óroot»áÊ§°Ü
+    /// ä½¿ç”¨ç»å¯¹è·¯å¾„æ—¶ï¼Œä¸åŠ rootä¼šå¤±è´¥
     source_tree_->MapPath(PB_ROOT, "");
 }
 
@@ -85,20 +85,20 @@ auto XConfigClient::init() -> bool
 {
     XServiceClient::init();
 
-    /// ÏÈµ÷ÓÃÒ»´Î¶¨Ê±Æ÷£¬È·±£ÏûÏ¢¼°Ê±»ñÈ¡
+    /// å…ˆè°ƒç”¨ä¸€æ¬¡å®šæ—¶å™¨ï¼Œç¡®ä¿æ¶ˆæ¯åŠæ—¶è·å–
     timerCB();
     return true;
 }
 
 void XConfigClient::sendConfig(xmsg::XConfig *conf)
 {
-    LOGDEBUG("·¢ËÍÅäÖÃ");
+    LOGDEBUG("å‘é€é…ç½®");
     sendMsg(xmsg::MT_SAVE_CONFIG_REQ, conf);
 }
 
 void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("½ÓÊÕµ½ÉÏ´«ÅäÖÃµÄ·´À¡");
+    LOGDEBUG("æ¥æ”¶åˆ°ä¸Šä¼ é…ç½®çš„åé¦ˆ");
     xmsg::XMessageRes res;
     if (!res.ParseFromArray(msg->data, msg->size))
     {
@@ -109,13 +109,13 @@ void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     }
     if (res.return_() == xmsg::XMessageRes::XR_OK)
     {
-        LOGDEBUG("ÉÏ´«ÅäÖÃ³É¹¦!");
+        LOGDEBUG("ä¸Šä¼ é…ç½®æˆåŠŸ!");
         if (sendConfigResCB)
-            sendConfigResCB(true, "ÉÏ´«ÅäÖÃ³É¹¦!");
+            sendConfigResCB(true, "ä¸Šä¼ é…ç½®æˆåŠŸ!");
         return;
     }
     std::stringstream ss;
-    ss << "ÉÏ´«ÅäÖÃÊ§°Ü:" << res.msg();
+    ss << "ä¸Šä¼ é…ç½®å¤±è´¥:" << res.msg();
     if (sendConfigResCB)
         sendConfigResCB(false, ss.str().c_str());
     LOGDEBUG(ss.str().c_str());
@@ -123,23 +123,23 @@ void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 
 void XConfigClient::loadConfig(const char *ip, int port)
 {
-    LOGDEBUG("»ñÈ¡ÅäÖÃÇëÇó");
+    LOGDEBUG("è·å–é…ç½®è¯·æ±‚");
     if (port < 0 || port > 65535)
     {
         LOGDEBUG("LoadConfig failed!port error");
         return;
     }
     xmsg::XLoadConfigReq req;
-    if (ip) /// IPÈç¹ûÎªNULL ÔòÈ¡Á¬½ÓÅäÖÃÖĞĞÄµÄµØÖ·
+    if (ip) /// IPå¦‚æœä¸ºNULL åˆ™å–è¿æ¥é…ç½®ä¸­å¿ƒçš„åœ°å€
         req.set_service_ip(ip);
     req.set_service_port(port);
-    /// ·¢ËÍÏûÏ¢µ½·şÎñ¶Ë
+    /// å‘é€æ¶ˆæ¯åˆ°æœåŠ¡ç«¯
     sendMsg(xmsg::MT_LOAD_CONFIG_REQ, &req);
 }
 
 void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("»ñÈ¡ÅäÖÃÏìÓ¦");
+    LOGDEBUG("è·å–é…ç½®å“åº”");
     xmsg::XConfig conf;
     if (!conf.ParseFromArray(msg->data, msg->size))
     {
@@ -152,11 +152,11 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     std::stringstream key;
     key << conf.service_ip() << "_" << conf.service_port();
 
-    /// ¸üĞÂÅäÖÃ
+    /// æ›´æ–°é…ç½®
     conf_map[key.str()] = conf;
     config_cv.notify_one();
 
-    /// Ã»ÓĞ±¾µØÅäÖÃ
+    /// æ²¡æœ‰æœ¬åœ°é…ç½®
     if (impl_->local_port_ <= 0 || !cur_service_conf)
         return;
 
@@ -179,8 +179,8 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     }
 
 
-    /// ´æ´¢µ½±¾µØÎÄ¼ş
-    /// ÎÄ¼şÃû [port]_conf.cache  20030_conf.cache
+    /// å­˜å‚¨åˆ°æœ¬åœ°æ–‡ä»¶
+    /// æ–‡ä»¶å [port]_conf.cache  20030_conf.cache
     std::stringstream ss;
     ss << impl_->local_port_ << "_conf.cache";
     std::ofstream ofs;
@@ -194,10 +194,10 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     ofs.close();
 }
 
-// ///»ñÈ¡ÅäÖÃÁĞ±í£¨ÒÑ»º´æ£©ÖĞµÄÅäÖÃ£¬»á¸´ÖÆÒ»·İµ½out_conf
+// ///è·å–é…ç½®åˆ—è¡¨ï¼ˆå·²ç¼“å­˜ï¼‰ä¸­çš„é…ç½®ï¼Œä¼šå¤åˆ¶ä¸€ä»½åˆ°out_conf
 // bool XConfigClient::GetConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms)
 // {
-//     //Ê®ºÁÃëÅĞ¶ÏÒ»´Î
+//     //åæ¯«ç§’åˆ¤æ–­ä¸€æ¬¡
 //     int          count = timeout_ms / 10;
 //     stringstream key;
 //     key << ip << "_" << port;
@@ -205,14 +205,14 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 //     for (int i = 0; i < count; i++)
 //     {
 //         XMutex mutex(&conf_map_mutex);
-//         //²éÕÒÅäÖÃ
+//         //æŸ¥æ‰¾é…ç½®
 //         auto conf = conf_map.find(key.str());
 //         if (conf == conf_map.end())
 //         {
 //             this_thread::sleep_for(10ms);
 //             continue;
 //         }
-//         //¸´ÖÆÅäÖÃ
+//         //å¤åˆ¶é…ç½®
 //         out_conf->CopyFrom(conf->second);
 //         return true;
 //     }
@@ -222,13 +222,13 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 
 bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
 {
-    /// Ìõ¼ş±äÁ¿ »òÕß ³¬Ê±Ê±¼ä
+    /// æ¡ä»¶å˜é‡ æˆ–è€… è¶…æ—¶æ—¶é—´
     std::unique_lock<std::mutex> lck(conf_map_mutex);
     config_cv.wait(lck);
 
     std::stringstream key;
     key << ip << "_" << port;
-    /// s²éÕÒÅäÖÃ
+    /// sæŸ¥æ‰¾é…ç½®
     auto conf = conf_map.find(key.str());
     if (conf == conf_map.end())
     {
@@ -236,7 +236,7 @@ bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
         return false;
     }
     LOGDEBUG(conf->second.DebugString());
-    /// ¸´ÖÆÅäÖÃ
+    /// å¤åˆ¶é…ç½®
     out_conf->CopyFrom(conf->second);
     return true;
 }
@@ -255,11 +255,11 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     {
         return nullptr;
     }
-    /// 1 ¼ÓÔØprotoÎÄ¼ş
+    /// 1 åŠ è½½protoæ–‡ä»¶
     std::string path = PB_ASSERT;
     path += file_name;
 
-    /// ·µ»ØprotoÎÄ¼şÃèÊö·û
+    /// è¿”å›protoæ–‡ä»¶æè¿°ç¬¦
     auto file_desc = impl_->importer_->Import(path);
     if (!file_desc)
     {
@@ -267,30 +267,30 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     }
     LOGDEBUG(file_desc->DebugString());
     std::stringstream ss;
-    ss << file_name << "proto ÎÄ¼ş¼ÓÔØ³É¹¦";
+    ss << file_name << "proto æ–‡ä»¶åŠ è½½æˆåŠŸ";
     LOGDEBUG(ss.str().c_str());
 
 
-    /// »ñÈ¡ÀàĞÍÃèÊö·û
-    /// Èç¹ûclass_nameÎª¿Õ£¬ÔòÊ¹ÓÃµÚÒ»¸öÀàĞÍ
+    /// è·å–ç±»å‹æè¿°ç¬¦
+    /// å¦‚æœclass_nameä¸ºç©ºï¼Œåˆ™ä½¿ç”¨ç¬¬ä¸€ä¸ªç±»å‹
     const google::protobuf::Descriptor *message_desc = nullptr;
     if (class_name.empty())
     {
         if (file_desc->message_type_count() <= 0)
         {
-            LOGDEBUG("protoÎÄ¼şÖĞÃ»ÓĞmessage");
+            LOGDEBUG("protoæ–‡ä»¶ä¸­æ²¡æœ‰message");
             return NULL;
         }
-        /// È¡µÚÒ»¸öÀàĞÍ
+        /// å–ç¬¬ä¸€ä¸ªç±»å‹
         message_desc = file_desc->message_type(0);
     }
     else
     {
-        /// °üº¬ÃüÃû¿Õ¼äµÄÀàÃû xmsg.XDirConfig
+        /// åŒ…å«å‘½åç©ºé—´çš„ç±»å xmsg.XDirConfig
         std::string class_name_pack;
-        /// ²éÕÒÀàĞÍ ÃüÃû¿Õ¼ä£¬ÊÇ·ñÒªÓÃ»§Ìá¹©
+        /// æŸ¥æ‰¾ç±»å‹ å‘½åç©ºé—´ï¼Œæ˜¯å¦è¦ç”¨æˆ·æä¾›
 
-        ///ÓÃ»§Ã»ÓĞÌá¹©ÃüÃû¿Õ¼ä
+        ///ç”¨æˆ·æ²¡æœ‰æä¾›å‘½åç©ºé—´
         if (class_name.find('.') == std::string::npos)
         {
             if (file_desc->package().empty())
@@ -311,7 +311,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         message_desc = impl_->importer_->pool()->FindMessageTypeByName(class_name_pack);
         if (!message_desc)
         {
-            std::string log = "protoÎÄ¼şÖĞÃ»ÓĞÖ¸¶¨µÄmessage ";
+            std::string log = "protoæ–‡ä»¶ä¸­æ²¡æœ‰æŒ‡å®šçš„message ";
             log += class_name_pack;
             LOGDEBUG(log.c_str());
             return nullptr;
@@ -320,31 +320,31 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
 
     LOGDEBUG(message_desc->DebugString());
 
-    /// ·´ÉäÉú³Émessage¶ÔÏó
+    /// åå°„ç”Ÿæˆmessageå¯¹è±¡
     // if (impl_->message_)
     // {
     //     delete impl_->message_;
     //     impl_->message_ = nullptr;
     // }
 
-    /// ¶¯Ì¬´´½¨ÏûÏ¢ÀàĞÍµÄ¹¤³§£¬²»ÄÜÏú»Ù£¬Ïú»ÙºóÓÉ´Ë´´½¨µÄmessageÒ²Ê§Ğ§
+    /// åŠ¨æ€åˆ›å»ºæ¶ˆæ¯ç±»å‹çš„å·¥å‚ï¼Œä¸èƒ½é”€æ¯ï¼Œé”€æ¯åç”±æ­¤åˆ›å»ºçš„messageä¹Ÿå¤±æ•ˆ
     static google::protobuf::DynamicMessageFactory factory;
 
 
-    /// ´´½¨Ò»¸öÀàĞÍÔ­ĞÍ
+    /// åˆ›å»ºä¸€ä¸ªç±»å‹åŸå‹
     auto message_proto = factory.GetPrototype(message_desc);
     impl_->message_    = message_proto->New();
     LOGDEBUG(impl_->message_->DebugString());
 
     ////////////////////////////////////////
-    /// syntax="proto3";	//°æ±¾ºÅ
-    /// package xmsg;		//ÃüÃû¿Õ¼ä
+    /// syntax="proto3";	//ç‰ˆæœ¬å·
+    /// package xmsg;		//å‘½åç©ºé—´
     /// message XDirConfig
     /// {
     ///     string root = 1;
     /// }
     /////////////////////////////////////////
-    // syntax="proto3";	//°æ±¾ºÅ
+    // syntax="proto3";	//ç‰ˆæœ¬å·
 
     google::protobuf::FileDescriptorProto proto;
     file_desc->CopyTo(&proto);
@@ -352,13 +352,13 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     out_proto_code             = "syntax=\"";
     out_proto_code += syntax_version;
     out_proto_code += "\";\n";
-    //package xmsg;		//ÃüÃû¿Õ¼ä
+    //package xmsg;		//å‘½åç©ºé—´
     out_proto_code += "package ";
     out_proto_code += file_desc->package();
     out_proto_code += ";\n";
 
-    /// ´æÃ¶¾Ù¶¨Òå £¬ÔİÊ±²»Ö§³Ö¶àproto importÎÄ¼ş
-    /// Í¬Ò»¸öÀàĞÍÖ»Éú³ÉÒ»´Î´úÂë
+    /// å­˜æšä¸¾å®šä¹‰ ï¼Œæš‚æ—¶ä¸æ”¯æŒå¤šproto importæ–‡ä»¶
+    /// åŒä¸€ä¸ªç±»å‹åªç”Ÿæˆä¸€æ¬¡ä»£ç 
     std::map<std::string, const google::protobuf::EnumDescriptor *> enum_desc;
     for (int i = 0; i < message_desc->field_count(); i++)
     {
@@ -367,8 +367,8 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         {
             continue;
         }
-        /// Èç¹ûÊÇÃ¶¾ÙÀàĞÍ
-        if (enum_desc.contains(field->enum_type()->name())) /// ÒÑ¾­Ìí¼Ó¹ıµÄÀàĞÍ
+        /// å¦‚æœæ˜¯æšä¸¾ç±»å‹
+        if (enum_desc.contains(field->enum_type()->name())) /// å·²ç»æ·»åŠ è¿‡çš„ç±»å‹
             continue;
         out_proto_code += field->enum_type()->DebugString() + "\n";
         enum_desc[field->enum_type()->name()] = field->enum_type();
@@ -412,7 +412,7 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
         std::cout << "connting config center failed..." << std::endl;
         return false;
     }
-    /// Éè¶¨»ñÈ¡ÅäÖÃµÄ¶¨Ê±Ê±¼ä£¨ºÁÃë£©
+    /// è®¾å®šè·å–é…ç½®çš„å®šæ—¶æ—¶é—´ï¼ˆæ¯«ç§’ï¼‰
     setTimer(3000);
     return true;
 }
@@ -420,7 +420,7 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
 bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::protobuf::Message *conf_message,
                                  ConfigTimerCBFunc func)
 {
-    /// ×¢²áÏûÏ¢»Øµ÷º¯Êı
+    /// æ³¨å†Œæ¶ˆæ¯å›è°ƒå‡½æ•°
     regMsgCallback();
 
     /// _CRT_SECURE_NO_WARNINGS
@@ -428,14 +428,14 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
         strncpy(impl_->local_ip_, local_ip, 16);
     impl_->local_port_ = local_port;
 
-    /// ÉèÖÃµ±Ç°ÅäÖÃÀàĞÍ
+    /// è®¾ç½®å½“å‰é…ç½®ç±»å‹
     setCurServiceMessage(conf_message);
 
     impl_->configTimerCB_ = func;
 
     setTime(3000);
 
-    /// ¶ÁÈ¡±¾µØ»º´æ
+    /// è¯»å–æœ¬åœ°ç¼“å­˜
     std::stringstream ss;
     ss << impl_->local_port_ << "_conf.cache";
     std::ifstream ifs;
@@ -452,7 +452,7 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
     }
 
 
-    /// Á¬½ÓÅäÖÃÖĞĞÄÈÎÎñ¼ÓÈëµ½Ïß³Ì³Ø
+    /// è¿æ¥é…ç½®ä¸­å¿ƒä»»åŠ¡åŠ å…¥åˆ°çº¿ç¨‹æ± 
     startConnect();
     return true;
 }
@@ -462,7 +462,7 @@ std::string XConfigClient::GetString(const char *key)
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
         return "";
-    /// »ñÈ¡×Ö¶Î
+    /// è·å–å­—æ®µ
     auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
     if (!field)
     {
@@ -489,7 +489,7 @@ bool XConfigClient::GetBool(const char *key)
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
         return false;
-    /// »ñÈ¡×Ö¶Î
+    /// è·å–å­—æ®µ
     auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
     if (!field)
     {
@@ -505,7 +505,7 @@ void XConfigClient::timerCB() // NOLINT(clang-diagnostic-invalid-utf8)
         impl_->configTimerCB_();
     }
 
-    /// ·¢³ö»ñÈ¡ÅäÖÃµÄÇëÇó
+    /// å‘å‡ºè·å–é…ç½®çš„è¯·æ±‚
     if (impl_->local_port_ > 0)
     {
         loadConfig(impl_->local_ip_, impl_->local_port_);
@@ -529,7 +529,7 @@ void XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 
 xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int timeout_sec)
 {
-    ///ÇåÀíÀúÊ·Êı¾İ
+    ///æ¸…ç†å†å²æ•°æ®
     {
         XMutex mux(&all_config_mutex);
         delete all_config;
@@ -537,29 +537,29 @@ xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int time
     }
 
     xmsg::XConfigList confs;
-    /// 1 ¶Ï¿ªÁ¬½Ó×Ô¶¯ÖØÁ¬
+    /// 1 æ–­å¼€è¿æ¥è‡ªåŠ¨é‡è¿
     if (!autoConnect(timeout_sec))
         return confs;
 
-    /// 2 ·¢ËÍ»ñÈ¡ÅäÖÃÁĞ±íµÄÏûÏ¢
+    /// 2 å‘é€è·å–é…ç½®åˆ—è¡¨çš„æ¶ˆæ¯
     xmsg::XLoadAllConfigReq req;
     req.set_page(page);
     req.set_page_count(page_count);
     sendMsg(xmsg::MT_LOAD_ALL_CONFIG_REQ, &req);
 
-    /// 10ºÁÃë¼àÌıÒ»´Î
+    /// 10æ¯«ç§’ç›‘å¬ä¸€æ¬¡
     int count = timeout_sec * 100;
     for (int i = 0; i < count; i++)
     {
         {
-            /// »áÔÚreturn Ö®ºóµ÷ÓÃÊÍ·Å
+            /// ä¼šåœ¨return ä¹‹åè°ƒç”¨é‡Šæ”¾
             XMutex mux(&all_config_mutex);
             if (all_config)
             {
                 return *all_config;
             }
         }
-        /// ÊÇ·ñÊÕµ½ÏìÓ¦
+        /// æ˜¯å¦æ”¶åˆ°å“åº”
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
@@ -576,14 +576,14 @@ void XConfigClient::deleteConfig(const char *ip, int port)
     xmsg::XLoadConfigReq req;
     req.set_service_ip(ip);
     req.set_service_port(port);
-    /// ·¢ËÍÏûÏ¢µ½·şÎñ¶Ë
+    /// å‘é€æ¶ˆæ¯åˆ°æœåŠ¡ç«¯
     sendMsg(xmsg::MT_DEL_CONFIG_REQ, &req);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 {
-    LOGDEBUG("½ÓÊÕµ½É¾³ıÅäÖÃµÄ·´À¡");
+    LOGDEBUG("æ¥æ”¶åˆ°åˆ é™¤é…ç½®çš„åé¦ˆ");
     xmsg::XMessageRes res;
     if (!res.ParseFromArray(msg->data, msg->size))
     {
@@ -592,8 +592,8 @@ void XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     }
     if (res.return_() == xmsg::XMessageRes::XR_OK)
     {
-        LOGDEBUG("É¾³ıÅäÖÃ³É¹¦!");
+        LOGDEBUG("åˆ é™¤é…ç½®æˆåŠŸ!");
         return;
     }
-    LOGDEBUG("É¾³ıÅäÖÃÊ§°Ü!");
+    LOGDEBUG("åˆ é™¤é…ç½®å¤±è´¥!");
 }

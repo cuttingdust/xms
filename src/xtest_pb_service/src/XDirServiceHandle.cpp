@@ -1,4 +1,4 @@
-#include "XDirServiceHandle.h"
+Ôªø#include "XDirServiceHandle.h"
 #include <XTools.h>
 #include <XConfigClient.h>
 
@@ -15,7 +15,7 @@ void XDirServiceHandle::dirReq(xmsg::XMsgHead *head, XMsg *msg)
         return;
     }
 
-    /// Ω” ‹øÕªß∂À÷∏¡Ó ∑¥–Ú¡–ªØ
+    /// Êé•ÂèóÂÆ¢Êà∑Á´ØÊåá‰ª§ ÂèçÂ∫èÂàóÂåñ
     xmsg::XDirReq req;
     if (!req.ParseFromArray(msg->data, msg->size))
     {
@@ -24,13 +24,13 @@ void XDirServiceHandle::dirReq(xmsg::XMsgHead *head, XMsg *msg)
     }
     std::cout << "client req path = " << req.path() << std::endl;
 
-    /// œÏ”¶øÕªß∂À Õ∑≤ø–≈œ¢±£¡Ù£¨”√”⁄¬∑”…
+    /// ÂìçÂ∫îÂÆ¢Êà∑Á´Ø Â§¥ÈÉ®‰ø°ÊÅØ‰øùÁïôÔºåÁî®‰∫éË∑ØÁî±
     xmsg::XDirRes res;
     std::string   root = XConfigClient::get()->GetString("root");
-    //////////≤‚ ‘¥˙¬Î/////////////
+    //////////ÊµãËØï‰ª£Á†Å/////////////
     for (int i = 0; i < 10; ++i)
     {
-        /// ≤‚ ‘ ˝æ›
+        /// ÊµãËØïÊï∞ÊçÆ
         static int count = 0;
         ++count;
         std::stringstream ss;

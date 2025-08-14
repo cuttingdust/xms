@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XThread.h
  * @brief  
  *
@@ -22,30 +22,30 @@ public:
     virtual ~XThread();
 
 public:
-    /// \brief °²×°Ïß³Ì£¬³õÊ¼»¯event_baseºÍ¹ÜµÀ¼àÌýÊÂ¼þÓÃÓÚ¼¤»î
+    /// \brief å®‰è£…çº¿ç¨‹ï¼Œåˆå§‹åŒ–event_baseå’Œç®¡é“ç›‘å¬äº‹ä»¶ç”¨äºŽæ¿€æ´»
     /// \return
     auto setup() -> bool;
 
-    /// \brief Æô¶¯Ïß³Ì
+    /// \brief å¯åŠ¨çº¿ç¨‹
     auto start() -> void;
 
     auto notify(intptr_t fd, short which) -> void;
 
-    /// \brief Ìí¼ÓÈÎÎñ
+    /// \brief æ·»åŠ ä»»åŠ¡
     /// \param t
     auto addTask(XTask *t) -> void;
 
-    /// \brief Ïß³Ì¼¤»î
+    /// \brief çº¿ç¨‹æ¿€æ´»
     auto activate() -> void;
 
     auto setId(int id) -> void;
 
     auto getId() const -> int;
 
-    /// \brief Ïß³ÌÈë¿Úº¯Êý
+    /// \brief çº¿ç¨‹å…¥å£å‡½æ•°
     auto threadFun() -> void;
 
-    /// \brief ÍË³öÏß³Ì
+    /// \brief é€€å‡ºçº¿ç¨‹
     auto exit() -> void;
 
 private:

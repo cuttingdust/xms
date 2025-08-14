@@ -1,4 +1,4 @@
-#ifndef XPLATFROM_GLOBAL_H
+﻿#ifndef XPLATFROM_GLOBAL_H
 #define XPLATFROM_GLOBAL_H
 
 #ifdef _WIN32

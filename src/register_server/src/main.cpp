@@ -1,4 +1,4 @@
-#include "XRegisterServer.h"
+ï»¿#include "XRegisterServer.h"
 
 #include <iostream>
 
@@ -6,13 +6,13 @@ int main(int argc, char *argv[])
 {
     std::cout << "Register Server" << std::endl;
     XRegisterServer server;
-    /// ³õÊ¼»¯ ´«µÝ²ÎÊý£¬¶Ë¿ÚºÅ register_server 20018
+    /// åˆå§‹åŒ– ä¼ é€’å‚æ•°ï¼Œç«¯å£å· register_server 20018
     server.main(argc, argv);
 
-    /// Æô¶¯·þÎñÏß³Ì£¬¿ªÊ¼¼àÌý¶Ë¿Ú
+    /// å¯åŠ¨æœåŠ¡çº¿ç¨‹ï¼Œå¼€å§‹ç›‘å¬ç«¯å£
     server.start();
 
-    /// ×èÈû£¬µÈ´ýÏß³Ì³ØÍË³ö
+    /// é˜»å¡žï¼Œç­‰å¾…çº¿ç¨‹æ± é€€å‡º
     server.wait();
 
     return 0;

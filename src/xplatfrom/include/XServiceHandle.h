@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file   XServiceHandle.h
  * @brief
  *

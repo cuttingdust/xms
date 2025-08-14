@@ -1,4 +1,4 @@
-#include "XSSL.h"
+ï»¿#include "XSSL.h"
 
 #include <iostream>
 
@@ -52,7 +52,7 @@ auto XSSL::connect() -> bool
         std::cout << "ssl == 0" << std::endl;
         return false;
     }
-    /// ½¨Á¢sslÁ¬½ÓÑéÖ¤£¬ÃÜÔ¿Ð­ÉÌ
+    /// å»ºç«‹sslè¿žæŽ¥éªŒè¯ï¼Œå¯†é’¥åå•†
     int re = SSL_connect(impl_->ssl_);
     if (re <= 0)
     {
@@ -100,7 +100,7 @@ auto XSSL::printCert() const -> void
     if (!impl_->ssl_)
         return;
 
-    /// »ñÈ¡µ½Ö¤Êé
+    /// èŽ·å–åˆ°è¯ä¹¦
     X509 *cert = SSL_get_peer_certificate(impl_->ssl_);
     if (!cert)
     {
@@ -176,7 +176,7 @@ Certificate:
         std::cout << "subject:" << str << std::endl;
     }
 
-    /// ·¢ÐÐ
+    /// å‘è¡Œ
     const auto &issuer = X509_get_issuer_name(cert);
     const auto &str2   = X509_NAME_oneline(issuer, buf, sizeof(buf));
     if (str2)

@@ -1,4 +1,4 @@
-#include "XServiceHandle.h"
+﻿#include "XServiceHandle.h"
 
 class XServiceHandle::PImpl
 {

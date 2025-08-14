@@ -1,4 +1,4 @@
-#include "XConfigClient.h"
+ï»¿#include "XConfigClient.h"
 #include "XRouteServer.h"
 #include "XServiceProxy.h"
 
@@ -23,40 +23,40 @@ int main(int argc, char *argv[])
     if (argc > 3)
         register_port = atoi(argv[3]);
 
-    /// ÉèÖÃ×¢²áÖÐÐÄµÄIPºÍ¶Ë¿Ú
+    /// è®¾ç½®æ³¨å†Œä¸­å¿ƒçš„IPå’Œç«¯å£
     XRegisterClient::get()->setServerIp(register_ip.c_str());
     XRegisterClient::get()->setServerPort(register_port);
 
-    /// ×¢²áµ½×¢²áÖÐÐÄ
+    /// æ³¨å†Œåˆ°æ³¨å†Œä¸­å¿ƒ
     XRegisterClient::get()->registerServer(API_GATEWAY_NAME, server_port, nullptr);
 
-    /// µÈ´ý×¢²áÖÐÐÄÁ¬½Ó
+    /// ç­‰å¾…æ³¨å†Œä¸­å¿ƒè¿žæŽ¥
     XRegisterClient::get()->waitConnected(3);
     XRegisterClient::get()->getServiceReq(nullptr);
 
     XServiceProxy::get()->init();
 
-    /// ¿ªÆô×Ô¶¯ÖØÁ¬
+    /// å¼€å¯è‡ªåŠ¨é‡è¿ž
     XServiceProxy::get()->start();
 
-    /// Á¬½ÓÅäÖÃÖÐÐÄ£¬»ñÈ¡Â·ÓÉÅäÖÃ
-    /// µÈ´ýÅäÖÃ»ñÈ¡³É¹¦
+    /// è¿žæŽ¥é…ç½®ä¸­å¿ƒï¼ŒèŽ·å–è·¯ç”±é…ç½®
+    /// ç­‰å¾…é…ç½®èŽ·å–æˆåŠŸ
 
     auto confs = XRegisterClient::get()->getServices(CONFIG_NAME, 10);
     std::cout << "=================================================" << std::endl;
     std::cout << confs.DebugString() << std::endl;
-    /// ÅäÖÃÖÐÐÄIP»ñÈ¡Ê§°Ü£¬¶ÁÈ¡±¾µØÅäÖÃ
+    /// é…ç½®ä¸­å¿ƒIPèŽ·å–å¤±è´¥ï¼Œè¯»å–æœ¬åœ°é…ç½®
     if (confs.services_size() <= 0)
     {
         std::cout << "find config service failed!" << std::endl;
     }
     else
     {
-        /// Ö»È¡µÚÒ»¸öÅäÖÃÖÐÐÄ
+        /// åªå–ç¬¬ä¸€ä¸ªé…ç½®ä¸­å¿ƒ
         auto                        conf = confs.services()[0];
         static xmsg::XGatewayConfig cur_conf;
         if (XConfigClient::get()->startGetConf(conf.ip().c_str(), conf.port(), 0, server_port, &cur_conf))
-            std::cout << "Á¬½ÓÅäÖÃÖÐÐÄ³É¹¦" << cur_conf.DebugString() << std::endl;
+            std::cout << "è¿žæŽ¥é…ç½®ä¸­å¿ƒæˆåŠŸ" << cur_conf.DebugString() << std::endl;
     }
 
     XRouteServer service;

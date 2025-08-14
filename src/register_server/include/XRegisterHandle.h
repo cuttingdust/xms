@@ -1,6 +1,6 @@
-/**
+ï»¿/**
  * @file   XRegisterHandle.h
- * @brief  ´¦Àí×¢²áÖĞĞÄµÄ¿Í»§¶Ë ¶ÔÓ¦Ò»¸öÁ¬½Ó
+ * @brief  å¤„ç†æ³¨å†Œä¸­å¿ƒçš„å®¢æˆ·ç«¯ å¯¹åº”ä¸€ä¸ªè¿æ¥
  *
  * @details   
  *
@@ -16,12 +16,12 @@
 class XRegisterHandle : public XServiceHandle
 {
 public:
-    /// \brief ½ÓÊÕ·şÎñµÄ×¢²áÇëÇó
+    /// \brief æ¥æ”¶æœåŠ¡çš„æ³¨å†Œè¯·æ±‚
     /// \param head
     /// \param msg
     void registerReq(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief ½ÓÊÕ·şÎñµÄ·¢ÏÖÇëÇó
+    /// \brief æ¥æ”¶æœåŠ¡çš„å‘ç°è¯·æ±‚
     /// \param head
     /// \param msg
     void getServiceReq(xmsg::XMsgHead *head, XMsg *msg);

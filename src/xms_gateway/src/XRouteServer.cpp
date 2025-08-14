@@ -1,4 +1,4 @@
-#include "XRouteServer.h"
+ï»¿#include "XRouteServer.h"
 
 #include "XConfigClient.h"
 #include "XRouteHandle.h"
@@ -17,7 +17,7 @@ XServiceHandle* XRouteServer::createHandle()
     if (!is_ssl)
         return router;
 
-    /// ÒÑ¾­ÉèÖÃ¹ı£¬ ÔİÊ±²»¿¼ÂÇĞŞ¸Ä
+    /// å·²ç»è®¾ç½®è¿‡ï¼Œ æš‚æ—¶ä¸è€ƒè™‘ä¿®æ”¹
     if (getSSLContent())
     {
         return router;

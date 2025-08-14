@@ -1,4 +1,4 @@
-#include "XThread.h"
+ï»¿#include "XThread.h"
 
 #include "XTask.h"
 
@@ -14,7 +14,7 @@
 #include <unistd.h>
 #endif
 
-/// ¼¤»îÏß³ÌÈÎÎñµÄ»Øµ÷º¯Êý
+/// æ¿€æ´»çº¿ç¨‹ä»»åŠ¡çš„å›žè°ƒå‡½æ•°
 static void notify_cb(evutil_socket_t fd, short which, void *arg)
 {
     auto *t = static_cast<XThread *>(arg);
@@ -49,15 +49,15 @@ XThread::XThread()
 
 XThread::~XThread() = default;
 
-/// °²×°Ïß³Ì£¬³õÊ¼»¯event_baseºÍ¹ÜµÀ¼àÌýÊÂ¼þÓÃÓÚ¼¤»î
+/// å®‰è£…çº¿ç¨‹ï¼Œåˆå§‹åŒ–event_baseå’Œç®¡é“ç›‘å¬äº‹ä»¶ç”¨äºŽæ¿€æ´»
 auto XThread::setup() -> bool
 {
     std::cout << "XThread::setup" << std::endl;
 
-    /// windows ÓÃÅä¶Ôsocket
-    /// linux   ÓÃ¹ÜµÀ
+    /// windows ç”¨é…å¯¹socket
+    /// linux   ç”¨ç®¡é“
 #ifdef _WIN32
-    /// ´´½¨Ò»¸ösockerpair ¿ÉÒÔ»¥ÏàÍ¨ÐÅ fd[0]¶Á fd[1]Ð´
+    /// åˆ›å»ºä¸€ä¸ªsockerpair å¯ä»¥äº’ç›¸é€šä¿¡ fd[0]è¯» fd[1]å†™
     evutil_socket_t fds[2];
     if (evutil_socketpair(AF_INET, SOCK_STREAM, 0, fds) < 0)
     {
@@ -65,12 +65,12 @@ auto XThread::setup() -> bool
         return false;
     }
 
-    /// ÉèÖÃ³É·Ç×èÈû
+    /// è®¾ç½®æˆéžé˜»å¡ž
     evutil_make_socket_nonblocking(fds[0]);
     evutil_make_socket_nonblocking(fds[1]);
 
 #else
-    /// ´´½¨µÄ¹ÜµÀ²»ÄÜÓÃsend recv¶ÁÈ¡ read write
+    /// åˆ›å»ºçš„ç®¡é“ä¸èƒ½ç”¨send recvè¯»å– read write
     int fds[2];
     if (pipe(fds))
     {
@@ -80,10 +80,10 @@ auto XThread::setup() -> bool
 
 #endif
 
-    /// ¶ÁÈ¡°ó¶¨µ½eventÊÂ¼þÖÐ£¬Ð´ÈëÒª±£´æ
+    /// è¯»å–ç»‘å®šåˆ°eventäº‹ä»¶ä¸­ï¼Œå†™å…¥è¦ä¿å­˜
     impl_->notify_send_fd_ = fds[1];
 
-    /// ´´½¨libeventÉÏÏÂÎÄ£¨ÎÞËø£©
+    /// åˆ›å»ºlibeventä¸Šä¸‹æ–‡ï¼ˆæ— é”ï¼‰
     event_config *ev_conf = event_config_new();
     event_config_set_flag(ev_conf, EVENT_BASE_FLAG_NOLOCK);
     impl_->base_ = event_base_new_with_config(ev_conf);
@@ -94,7 +94,7 @@ auto XThread::setup() -> bool
         return false;
     }
 
-    /// Ìí¼Ó¹ÜµÀ¼àÌýÊÂ¼þ
+    /// æ·»åŠ ç®¡é“ç›‘å¬äº‹ä»¶
     event *ev = event_new(impl_->base_, fds[0], EV_READ | EV_PERSIST, notify_cb, this);
     event_add(ev, 0);
 
@@ -107,16 +107,16 @@ auto XThread::start() -> void
 
     std::cout << "XThread::start" << std::endl;
 
-    /// Æô¶¯Ïß³Ì
+    /// å¯åŠ¨çº¿ç¨‹
     std::thread t(&XThread::threadFun, this);
 
-    /// ¶Ï¿ªÓëÖ÷Ïß³ÌµÄÁªÏµ
+    /// æ–­å¼€ä¸Žä¸»çº¿ç¨‹çš„è”ç³»
     t.detach();
 }
 
 auto XThread::notify(intptr_t fd, short which) -> void
 {
-    /// Ë®Æ½´¥·¢ Ö»ÒªÓÐÊý¾Ý¾Í»á´¥·¢
+    /// æ°´å¹³è§¦å‘ åªè¦æœ‰æ•°æ®å°±ä¼šè§¦å‘
     char buf[2] = { 0 };
 #ifdef _WIN32
     int re = ::recv(fd, buf, 1, 0);
@@ -129,7 +129,7 @@ auto XThread::notify(intptr_t fd, short which) -> void
     std::cout << impl_->id_ << " thread :" << buf << std::endl;
 
     XTask *task = nullptr;
-    /// È¡³öÈÎÎñ ²¢³õÊ¼»¯ÈÎÎñ
+    /// å–å‡ºä»»åŠ¡ å¹¶åˆå§‹åŒ–ä»»åŠ¡
     impl_->tasks_mutex_.lock();
     if (impl_->tasks_.empty())
     {
@@ -156,7 +156,7 @@ auto XThread::addTask(XTask *t) -> void
     impl_->tasks_mutex_.unlock();
 }
 
-/// ¼¤»îÏß³Ì
+/// æ¿€æ´»çº¿ç¨‹
 auto XThread::activate() -> void
 {
 #ifdef _WIN32
@@ -191,10 +191,10 @@ auto XThread::threadFun() -> void
         return;
     }
 
-    /// ÉèÖÃÎª²»×èÈû·Ö·¢ÏûÏ¢
+    /// è®¾ç½®ä¸ºä¸é˜»å¡žåˆ†å‘æ¶ˆæ¯
     while (!impl_->is_exit_)
     {
-        /// Ò»´Î´¦Àí¶àÌõÏûÏ¢
+        /// ä¸€æ¬¡å¤„ç†å¤šæ¡æ¶ˆæ¯
         event_base_loop(impl_->base_, EVLOOP_NONBLOCK);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }

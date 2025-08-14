@@ -1,6 +1,6 @@
-/**
+ï»¿/**
  * @file   XRegisterServer.h
- * @brief  ×¢²áÖĞĞÄ·şÎñ¶Ë
+ * @brief  æ³¨å†Œä¸­å¿ƒæœåŠ¡ç«¯
  *
  * @details   
  *
@@ -16,10 +16,10 @@
 class XRegisterServer : public XService
 {
 public:
-    /// ¸ù¾İ²ÎÊı ³õÊ¼»¯·şÎñ£¬ĞèÒªÏÈµ÷ÓÃ
+    /// æ ¹æ®å‚æ•° åˆå§‹åŒ–æœåŠ¡ï¼Œéœ€è¦å…ˆè°ƒç”¨
     void main(int argc, char *argv[]);
 
-    /// µÈ´ıÏß³ÌÍË³ö
+    /// ç­‰å¾…çº¿ç¨‹é€€å‡º
     void wait();
 
     XServiceHandle *createHandle() override;

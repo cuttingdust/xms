@@ -1,6 +1,6 @@
-/**
+ï»¿/**
  * @file   ConfigDao.h
- * @brief  ÅäÖÃÖĞĞÄ
+ * @brief  é…ç½®ä¸­å¿ƒ
  *
  * @details   
  *
@@ -29,7 +29,7 @@ private:
     virtual ~ConfigDao();
 
 public:
-    /// \brief ³õÊ¼»¯Êı¾İ¿â
+    /// \brief åˆå§‹åŒ–æ•°æ®åº“
     /// \param ip
     /// \param user
     /// \param pass
@@ -42,25 +42,25 @@ public:
     /// \return
     bool install();
 
-    /// \brief ±£´æpbÅäÖÃ
+    /// \brief ä¿å­˜pbé…ç½®
     /// \param conf
     /// \return
     bool saveConfig(const xmsg::XConfig *conf);
 
 
-    /// \brief ¶ÁÈ¡ÅäÖÃ
+    /// \brief è¯»å–é…ç½®
     /// \param ip
     /// \param port
     /// \return
     xmsg::XConfig loadConfig(const char *ip, int port);
 
-    /// \brief ¶ÁÈ¡·ÖÒ³µÄÅäÖÃÁĞ±í
-    /// \param page ´Ó 1¿ªÊ¼
-    /// \param page_count Ã¿Ò³ÊıÁ¿
+    /// \brief è¯»å–åˆ†é¡µçš„é…ç½®åˆ—è¡¨
+    /// \param page ä» 1å¼€å§‹
+    /// \param page_count æ¯é¡µæ•°é‡
     /// \return
     xmsg::XConfigList loadAllConfig(unsigned int page, int page_count);
 
-    /// \brief É¾³ıÖ¸¶¨µÄÅäÖÃ
+    /// \brief åˆ é™¤æŒ‡å®šçš„é…ç½®
     /// \param ip
     /// \param port
     /// \return

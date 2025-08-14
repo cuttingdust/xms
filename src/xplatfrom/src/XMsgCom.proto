@@ -1,57 +1,57 @@
-syntax="proto3" ;	/// Óï·¨°æ±¾
-package xmsg;		/// °üÃû(ÃüÃû¿Õ¼ä)
+ï»¿syntax="proto3" ;	/// è¯­æ³•ç‰ˆæœ¬
+package xmsg;		/// åŒ…å(å‘½åç©ºé—´)
 import "XMsgType.proto";
 
-/// ÏûÏ¢Í·
+/// æ¶ˆæ¯å¤´
 message XMsgHead
 {
-	int32		msgSize		= 1;	///< ÏûÏ¢ÄÚÈİ´óĞ¡£¬ ²»°üº¬Í·
-	MsgType     msgType		= 2;	///< ÏûÏ¢ÀàĞÍ
-	string		token		= 3;	///< ÁîÅÆ Èç¹ûÊÇµÇÂ¼ÏûÏ¢ÔòÎª¿Õ
-	string		serverName	= 4;	///< Î¢·şÎñµÄÃû³Æ ÓÃÓÚÂ·ÓÉ
+	int32		msgSize		= 1;	///< æ¶ˆæ¯å†…å®¹å¤§å°ï¼Œ ä¸åŒ…å«å¤´
+	MsgType     msgType		= 2;	///< æ¶ˆæ¯ç±»å‹
+	string		token		= 3;	///< ä»¤ç‰Œ å¦‚æœæ˜¯ç™»å½•æ¶ˆæ¯åˆ™ä¸ºç©º
+	string		serverName	= 4;	///< å¾®æœåŠ¡çš„åç§° ç”¨äºè·¯ç”±
 	int64		msgID		= 5;	
 }
 
-/// ĞÄÌø
+/// å¿ƒè·³
 message XMsgHeart
 {
 	int64 count = 1;
 }
 
-/// ÓÃ»§µÇÂ½ÇëÇó MSG_LOGIN_REQ
+/// ç”¨æˆ·ç™»é™†è¯·æ±‚ MSG_LOGIN_REQ
 message XLoginReq 
 {
-	string username = 1;	///< ÓÃ»§Ãû
-	string password = 2;	///< md5ºóµÄÃÜÂë
+	string username = 1;	///< ç”¨æˆ·å
+	string password = 2;	///< md5åçš„å¯†ç 
 }
 
 message XLoginRes
 {
 	enum XLoginResType
 	{
-		XRT_OK			= 0;	///<<< µÇÂ½³É¹¦
-		XRT_ERR			= 1;	///<<< ÓÃ»§ÃûÃÜÂë´íÎó
-		XRT_NO_USER		= 2;	///<<< ÓÃ»§²»´æÔÚ
+		XRT_OK			= 0;	///<<< ç™»é™†æˆåŠŸ
+		XRT_ERR			= 1;	///<<< ç”¨æˆ·åå¯†ç é”™è¯¯
+		XRT_NO_USER		= 2;	///<<< ç”¨æˆ·ä¸å­˜åœ¨
 	}
-	XLoginResType resType = 1;	///< µÇÂ½½á¹ûÀàĞÍ
-	string token		  = 2;	///< µÇÂ½³É¹¦ºóµÄÁîÅÆ, Ê§°ÜÎª¿Õ
+	XLoginResType resType = 1;	///< ç™»é™†ç»“æœç±»å‹
+	string token		  = 2;	///< ç™»é™†æˆåŠŸåçš„ä»¤ç‰Œ, å¤±è´¥ä¸ºç©º
 }
 
 
-/// Ä¿Â¼ÇëÇó
+/// ç›®å½•è¯·æ±‚
 message XDirReq
 {
-	string path = 1;	/// Ä¿Â¼Â·¾¶
+	string path = 1;	/// ç›®å½•è·¯å¾„
 }
 
-/// Ä¿Â¼ÏìÓ¦
+/// ç›®å½•å“åº”
 message XDirRes
 {
 	enum XDirType
 	{
-		XDT_OK    = 0;	///<<< Ä¿Â¼»ñÈ¡³É¹¦
-		XDT_ERROR = 1;	///<<< Ä¿Â¼»ñÈ¡´íÎó
-		XDT_NODIR = 2;	///<<< Ä¿Â¼²»´æÔÚ
+		XDT_OK    = 0;	///<<< ç›®å½•è·å–æˆåŠŸ
+		XDT_ERROR = 1;	///<<< ç›®å½•è·å–é”™è¯¯
+		XDT_NODIR = 2;	///<<< ç›®å½•ä¸å­˜åœ¨
 	}
 
 	message XDir
@@ -60,14 +60,14 @@ message XDirRes
 		int32  filesize = 2;
 	}
 
-	XDirType resType   = 1;	///< Ä¿Â¼½á¹ûÀàĞÍ
-	repeated XDir dirs = 2;	///< Ä¿Â¼ÎÄ¼şÁĞ±í
+	XDirType resType   = 1;	///< ç›®å½•ç»“æœç±»å‹
+	repeated XDir dirs = 2;	///< ç›®å½•æ–‡ä»¶åˆ—è¡¨
 }
 
 enum XServiceType
 {
-	XT_ONE = 0;	///<<< Ö»È¡Ò»Àà·şÎñ	
-	XT_ALL = 1;	///<<< È¡È«²¿·şÎñ
+	XT_ONE = 0;	///<<< åªå–ä¸€ç±»æœåŠ¡	
+	XT_ALL = 1;	///<<< å–å…¨éƒ¨æœåŠ¡
 }
 
 message XServiceMap
@@ -85,17 +85,17 @@ message XServiceMap
 	}
 	map<string,XServiceList> serviceMap = 1;
 	XMessageRes				 res		= 2;
-	XServiceType			 type		= 3;	///< ·şÎñÀàĞÍ£¬XT_ONE Ö»È¡Ò»Àà·şÎñ£¬XT_ALL È¡È«²¿·şÎñ
+	XServiceType			 type		= 3;	///< æœåŠ¡ç±»å‹ï¼ŒXT_ONE åªå–ä¸€ç±»æœåŠ¡ï¼ŒXT_ALL å–å…¨éƒ¨æœåŠ¡
 }
 
 message XRegisterReq
 {
-	string name = 1; ///< ·şÎñÃû³Æ
-	int32  port = 2; ///< ·şÎñ¶Ë¿Ú
-	string ip	= 3; ///< ·şÎñip
+	string name = 1; ///< æœåŠ¡åç§°
+	int32  port = 2; ///< æœåŠ¡ç«¯å£
+	string ip	= 3; ///< æœåŠ¡ip
 }
 
-/// Í¨ÓÃÏìÓ¦ MT_REGISTER_RES ×¢²á·şÎñÏìÓ¦
+/// é€šç”¨å“åº” MT_REGISTER_RES æ³¨å†ŒæœåŠ¡å“åº”
 message XMessageRes
 {
 	enum XReturn
@@ -107,14 +107,14 @@ message XMessageRes
 	bytes  msg	   = 2;
 }
 
-/// MT_GET_SERVICE_REQ = 7;	/// ·¢ÏÖ·şÎñÇëÇó
+/// MT_GET_SERVICE_REQ = 7;	/// å‘ç°æœåŠ¡è¯·æ±‚
 message XGetServiceReq
 {
-	string			name = 1; ///< ·şÎñÃû³Æ£¬Èç¹ûÎ´¿Õ£¬Ôò»ñÈ¡ËùÓĞ·şÎñ
-	XServiceType	type = 2; ///< ·şÎñÀàĞÍ£¬XT_ONE Ö»È¡Ò»Àà·şÎñ£¬XT_ALL È¡È«²¿·şÎñ
+	string			name = 1; ///< æœåŠ¡åç§°ï¼Œå¦‚æœæœªç©ºï¼Œåˆ™è·å–æ‰€æœ‰æœåŠ¡
+	XServiceType	type = 2; ///< æœåŠ¡ç±»å‹ï¼ŒXT_ONE åªå–ä¸€ç±»æœåŠ¡ï¼ŒXT_ALL å–å…¨éƒ¨æœåŠ¡
 }
 
-/// ´æ´¢ÅäÖÃÄÚÈİ
+/// å­˜å‚¨é…ç½®å†…å®¹
 message XConfig
 {
 	string service_name = 1;
@@ -124,7 +124,7 @@ message XConfig
 	bytes  proto		= 5;
 }
 
-/// ÏÂÔØÅäÖÃÇëÇó£¬ÏìÓ¦ÊÇ XConfig
+/// ä¸‹è½½é…ç½®è¯·æ±‚ï¼Œå“åº”æ˜¯ XConfig
 message XLoadConfigReq
 {
 	int32	service_port = 1;
@@ -136,29 +136,29 @@ message XDirConfig
 	string root = 1;
 }
 
-/// ÇëÇó»ñÈ¡ÅäÖÃÁĞ±í
+/// è¯·æ±‚è·å–é…ç½®åˆ—è¡¨
 /// MT_LOAD_ALL_CONFIG_REQ = 13;	//XLoadAllConfigReq
 message XLoadAllConfigReq
 {
-	int32 page		 = 1;	///< ·ÖÒ³µÄµÚ¼¸Ò³ ´Ó1¿ªÊ¼
-	int32 page_count = 2;	///< Ã¿Ò³ÏÔÊ¾µÄ¼ÇÂ¼ÊıÁ¿
+	int32 page		 = 1;	///< åˆ†é¡µçš„ç¬¬å‡ é¡µ ä»1å¼€å§‹
+	int32 page_count = 2;	///< æ¯é¡µæ˜¾ç¤ºçš„è®°å½•æ•°é‡
 }
 
 /// MT_LOAD_ALL_CONFIG_RES = 14;	//XConfigList
 
-/// ÏìÓ¦ÅäÖÃÁĞ±í
-/// Ö»°üº¬Î¢·şÎñÃû³Æ£¬IP£¬port
+/// å“åº”é…ç½®åˆ—è¡¨
+/// åªåŒ…å«å¾®æœåŠ¡åç§°ï¼ŒIPï¼Œport
 message XConfigList
 {
 	repeated XConfig config = 1;
 }
 
-/// Íø¹ØÅäÖÃ
+/// ç½‘å…³é…ç½®
 message XGatewayConfig
 {
-	bool   is_ssl 		= 1;	///< ÊÇ·ñ¿ªÆôSSLÍ¨ĞÅ
-	string crt_path		= 2;	///< Ö¤ÊéÂ·¾¶
-	string key_path 	= 3;	///< Ë½Ô¿Â·¾¶
-	string ca_path  	= 4;	///< Ö¤ÊéÇ©ÃûÑéÖ¤Â·¾¶
-	// int32  server_port	= 5;	///< ·şÎñÆ÷¶Ë¿ÚºÅ ·ÇSSL Ä¬ÈÏ API_GATEWAY_PORT£¬ Ä¬ÈÏSSL API_GATEWAY_SSL_PORT
+	bool   is_ssl 		= 1;	///< æ˜¯å¦å¼€å¯SSLé€šä¿¡
+	string crt_path		= 2;	///< è¯ä¹¦è·¯å¾„
+	string key_path 	= 3;	///< ç§é’¥è·¯å¾„
+	string ca_path  	= 4;	///< è¯ä¹¦ç­¾åéªŒè¯è·¯å¾„
+	// int32  server_port	= 5;	///< æœåŠ¡å™¨ç«¯å£å· éSSL é»˜è®¤ API_GATEWAY_PORTï¼Œ é»˜è®¤SSL API_GATEWAY_SSL_PORT
 }

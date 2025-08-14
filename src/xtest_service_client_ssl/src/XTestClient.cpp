@@ -1,4 +1,4 @@
-#include "XTestClient.h"
+ï»¿#include "XTestClient.h"
 
 #include <XTools.h>
 #include <XMsgCom.pb.h>
@@ -21,7 +21,7 @@ bool XTestClient::getDir(const std::string &path)
     ss << "XTestClient::getDir " << path;
     LOGDEBUG(ss.str().c_str());
 
-    /// ·¢ËÍpbµÄÏûÏ¢¸ø·þÎñ
+    /// å‘é€pbçš„æ¶ˆæ¯ç»™æœåŠ¡
     xmsg::XDirReq req;
     req.set_path(path);
 
@@ -67,19 +67,19 @@ void XTestClient::regMsgCallback()
 bool XTestClient::autoConnect(int timeout_ms)
 {
     LOGDEBUG("XTestClient::autoConnect");
-    /// 1 ÒÑÁ¬½Ó
+    /// 1 å·²è¿žæŽ¥
     if (isConnected())
         return true;
-    /// 2 Î´Á¬½Ó Ò²²»ÔÚÁ¬½ÓÖÐ
+    /// 2 æœªè¿žæŽ¥ ä¹Ÿä¸åœ¨è¿žæŽ¥ä¸­
     if (!isConnecting())
     {
-        /// ¿ªÊ¼Á¬½Ó
+        /// å¼€å§‹è¿žæŽ¥
         if (!connect())
             return false;
     }
 
     int count = timeout_ms / 10;
-    /// Á¬½ÓÖÐ
+    /// è¿žæŽ¥ä¸­
     for (int i = 0; i < count; i++)
     {
         if (isConnected())

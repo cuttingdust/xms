@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   CongfigGui.h
  * @brief  
  *
@@ -30,22 +30,22 @@ public:
 
     void showEvent(QShowEvent *event) override;
 
-    /// ÏÔÊ¾ÔÚÈÕÖ¾ÁĞ±íÖĞ
+    /// æ˜¾ç¤ºåœ¨æ—¥å¿—åˆ—è¡¨ä¸­
     void addLog(const char *log);
 
-    /// \brief Ë¢ĞÂÅäÖÃ
+    /// \brief åˆ·æ–°é…ç½®
     void updateUI();
 public Q_SLOTS:
-    /// Ë¢ĞÂÏÔÊ¾ÅäÖÃ
+    /// åˆ·æ–°æ˜¾ç¤ºé…ç½®
     void slotRefresh();
 
-    /// \brief ĞÂÔöÅäÖÃ
+    /// \brief æ–°å¢é…ç½®
     void slotAddConfig();
 
-    /// \brief É¾³ıÅäÖÃ
+    /// \brief åˆ é™¤é…ç½®
     void slotDeleteConfig();
 
-    /// \brief ±à¼­ÅäÖÃ
+    /// \brief ç¼–è¾‘é…ç½®
     void slotEditConfig();
 
 private:

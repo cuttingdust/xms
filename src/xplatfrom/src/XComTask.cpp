@@ -1,4 +1,4 @@
-#include "XComTask.h"
+ï»¿#include "XComTask.h"
 #include "XMsg.h"
 #include "XTools.h"
 #include "XSSL_CTX.h"
@@ -48,9 +48,9 @@ public:
     ~PImpl();
 
 public:
-    /// \brief ³õÊ¼»¯ bev
-    /// \param com_sock -1 ×Ô¶¯´´½¨socket
-    /// \return true ³É¹¦£¬false Ê§°Ü
+    /// \brief åˆå§‹åŒ– bev
+    /// \param com_sock -1 è‡ªåŠ¨åˆ›å»ºsocket
+    /// \return true æˆåŠŸï¼Œfalse å¤±è´¥
     auto initBev(int com_sock) -> bool;
 
 public:
@@ -61,25 +61,25 @@ public:
     int                 serverPort_   = -1;
     char                buffer_[1024] = { 0 };
     XMsg                msg_;
-    bool                isRecvMsg     = true;  ///< ÊÇ·ñ½ÓÊÜÏûÏ¢
-    bool                isAutoDelete  = true;  ///< ÊÇ·ñ×Ô¶¯É¾³ı
-    bool                isAutoConnect = false; ///< ÊÇ·ñ×Ô¶¯Á¬½Ó
+    bool                isRecvMsg     = true;  ///< æ˜¯å¦æ¥å—æ¶ˆæ¯
+    bool                isAutoDelete  = true;  ///< æ˜¯å¦è‡ªåŠ¨åˆ é™¤
+    bool                isAutoConnect = false; ///< æ˜¯å¦è‡ªåŠ¨è¿æ¥
 
-    /// ¿Í»§µ¥µÄÁ¬½Ó×´Ì¬
-    /// 1 Î´´¦Àí  => ¿ªÊ¼Á¬½Ó £¨¼ÓÈëµ½Ïß³Ì³Ø´¦Àí£©
-    /// 2 Á¬½ÓÖĞ => µÈ´ıÁ¬½Ó³É¹¦
-    /// 3 ÒÑÁ¬½Ó => ×öÒµÎñ²Ù×÷
-    /// 4 Á¬½ÓºóÊ§°Ü => ¸ù¾İÁ¬½Ó¼ä¸ôÊ±¼ä£¬¿ªÊ¼Á¬½Ó
-    bool        is_connecting_ = true;    ///< Á¬½ÓÖĞ
-    bool        is_connected_  = false;   ///< Á¬½Ó³É¹¦
-    std::mutex *mtx_           = nullptr; ///< »¥³âËø
+    /// å®¢æˆ·å•çš„è¿æ¥çŠ¶æ€
+    /// 1 æœªå¤„ç†  => å¼€å§‹è¿æ¥ ï¼ˆåŠ å…¥åˆ°çº¿ç¨‹æ± å¤„ç†ï¼‰
+    /// 2 è¿æ¥ä¸­ => ç­‰å¾…è¿æ¥æˆåŠŸ
+    /// 3 å·²è¿æ¥ => åšä¸šåŠ¡æ“ä½œ
+    /// 4 è¿æ¥åå¤±è´¥ => æ ¹æ®è¿æ¥é—´éš”æ—¶é—´ï¼Œå¼€å§‹è¿æ¥
+    bool        is_connecting_ = true;    ///< è¿æ¥ä¸­
+    bool        is_connected_  = false;   ///< è¿æ¥æˆåŠŸ
+    std::mutex *mtx_           = nullptr; ///< äº’æ–¥é”
 
-    struct event *timer_event_              = nullptr; ///< ¶¨Ê±Æ÷ÊÂ¼ş
-    struct event *auto_connect_timer_event_ = nullptr; ///< ×Ô¶¯Á¬½Ó¶¨Ê±Æ÷ÊÂ¼ş closeÊ±²»ÇåÀí
-    XSSL_CTX     *ssl_ctx_                  = nullptr; ///< sslÉÏÏÂÎÄ
+    struct event *timer_event_              = nullptr; ///< å®šæ—¶å™¨äº‹ä»¶
+    struct event *auto_connect_timer_event_ = nullptr; ///< è‡ªåŠ¨è¿æ¥å®šæ—¶å™¨äº‹ä»¶ closeæ—¶ä¸æ¸…ç†
+    XSSL_CTX     *ssl_ctx_                  = nullptr; ///< sslä¸Šä¸‹æ–‡
 
-    int read_timeout_ms_ = 0; ///< ¶Á³¬Ê±Ê±¼ä£¬ºÁÃë
-    int timer_ms_        = 0; ///< TimerCB ¶¨Ê±µ÷ÓÃÊ±¼ä
+    int read_timeout_ms_ = 0; ///< è¯»è¶…æ—¶æ—¶é—´ï¼Œæ¯«ç§’
+    int timer_ms_        = 0; ///< TimerCB å®šæ—¶è°ƒç”¨æ—¶é—´
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
@@ -98,7 +98,7 @@ XComTask::PImpl::~PImpl()
 
 auto XComTask::PImpl::initBev(int com_sock) -> bool
 {
-    /// ÓÃbufferevent½¨Á¢Á¬½Ó
+    /// ç”¨buffereventå»ºç«‹è¿æ¥
     if (ssl_ctx_)
     {
         auto ssl = ssl_ctx_->createXSSL(com_sock);
@@ -129,15 +129,15 @@ auto XComTask::PImpl::initBev(int com_sock) -> bool
         }
     }
 
-    /// Éè¶¨¶Á³¬Ê±Ê±¼ä
+    /// è®¾å®šè¯»è¶…æ—¶æ—¶é—´
     if (read_timeout_ms_ > 0)
     {
-        ///Ãë£¬Î¢Ãî
+        ///ç§’ï¼Œå¾®å¦™
         timeval read_tv = { read_timeout_ms_ / 1000, (read_timeout_ms_ % 1000) * 1000 };
         bufferevent_set_timeouts(bev_, &read_tv, 0);
     }
 
-    /// ¶¨Ê±Æ÷Éè¶¨
+    /// å®šæ—¶å™¨è®¾å®š
     if (timer_ms_ > 0)
     {
         owenr_->setTimer(timer_ms_);
@@ -179,7 +179,7 @@ auto XComTask::connect() const -> bool
         std::cerr << "bufferevent_socket_connect failed" << std::endl;
         return false;
     }
-    /// ¿ªÊ¼Á¬½Ó
+    /// å¼€å§‹è¿æ¥
     impl_->is_connecting_ = true;
     return true;
 }
@@ -196,7 +196,7 @@ auto XComTask::isConnecting() const -> bool
 
 auto XComTask::init() -> bool
 {
-    /// Çø·Ö¿Í»§¶ËºÍ·şÎñÆ÷
+    /// åŒºåˆ†å®¢æˆ·ç«¯å’ŒæœåŠ¡å™¨
     int comSock = this->sock();
     if (comSock <= 0)
         comSock = -1;
@@ -209,13 +209,13 @@ auto XComTask::init() -> bool
     // timeval tv = { 3, 0 };
     // bufferevent_set_timeouts(impl_->bev_, &tv, &tv);
 
-    /// Á¬½Ó·şÎñÆ÷
+    /// è¿æ¥æœåŠ¡å™¨
     if (impl_->serverIp_[0] == '\0')
     {
         return true;
     }
 
-    setAutoConnectTimer(3000); /// 3Ãë×Ô¶¯Á¬½ÓÒ»´Î
+    setAutoConnectTimer(3000); /// 3ç§’è‡ªåŠ¨è¿æ¥ä¸€æ¬¡
 
     return connect();
 }
@@ -266,7 +266,7 @@ void XComTask::setAutoConnect(bool bAuto)
 
 bool XComTask::waitConnected(int timeout_sec)
 {
-    /// 10ºÁÃë¼àÌıÒ»´Î
+    /// 10æ¯«ç§’ç›‘å¬ä¸€æ¬¡
     int count = timeout_sec * 100;
     for (int i = 0; i < count; i++)
     {
@@ -279,7 +279,7 @@ bool XComTask::waitConnected(int timeout_sec)
 
 bool XComTask::autoConnect(int timeout_sec)
 {
-    /// Èç¹ûÕıÔÚÁ¬½Ó£¬ÔòµÈ´ı£¬Èç¹ûÃ»ÓĞ£¬Ôò¿ªÊ¼Á¬½Ó
+    /// å¦‚æœæ­£åœ¨è¿æ¥ï¼Œåˆ™ç­‰å¾…ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™å¼€å§‹è¿æ¥
     if (isConnected())
         return true;
     if (!isConnecting())
@@ -316,7 +316,7 @@ void XComTask::eventCB(short events)
         ss << "connnect server " << impl_->serverIp_ << ":" << impl_->serverPort_ << " success!";
         LOGINFO(ss.str().c_str());
 
-        /// Á¬½Ó³É¹¦ºó·¢ËÍÏûÏ¢
+        /// è¿æ¥æˆåŠŸåå‘é€æ¶ˆæ¯
         impl_->is_connected_  = true;
         impl_->is_connecting_ = false;
 
@@ -331,7 +331,7 @@ void XComTask::eventCB(short events)
         connectCB();
     }
 
-    /// ÍË³öÒª´¦Àí»º³åÄÚÈİ
+    /// é€€å‡ºè¦å¤„ç†ç¼“å†²å†…å®¹
     if (events & (BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT))
     {
         std::cout << "BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT" << std::endl;
@@ -410,7 +410,7 @@ void XComTask::close()
         }
     }
 
-    /// TODO ÇåÀíÁ¬½Ó¶ÔÏó¿Õ¼ä£¬Èç¹û¶Ï¿ªÖØÁ¬£¬ĞèÒªµ¥¶À´¦Àí
+    /// TODO æ¸…ç†è¿æ¥å¯¹è±¡ç©ºé—´ï¼Œå¦‚æœæ–­å¼€é‡è¿ï¼Œéœ€è¦å•ç‹¬å¤„ç†
     if (impl_->isAutoDelete)
     {
         clearTimer();
@@ -443,8 +443,8 @@ void XComTask::setTimer(int ms)
         LOGERROR("set timer failed :event_new faield!");
         return;
     }
-    int     sec = ms / 1000;          /// Ãë
-    int     us  = (ms % 1000) * 1000; /// Î¢Ãî
+    int     sec = ms / 1000;          /// ç§’
+    int     us  = (ms % 1000) * 1000; /// å¾®å¦™
     timeval tv  = { .tv_sec = sec, .tv_usec = us };
     event_add(impl_->timer_event_, &tv);
 }
@@ -474,8 +474,8 @@ void XComTask::setAutoConnectTimer(int ms)
         LOGERROR("set autoConnectTimer failed :event_new faield!");
         return;
     }
-    int     sec = ms / 1000;          /// Ãë
-    int     us  = (ms % 1000) * 1000; /// Î¢Ãî
+    int     sec = ms / 1000;          /// ç§’
+    int     us  = (ms % 1000) * 1000; /// å¾®å¦™
     timeval tv  = { sec, us };
     event_add(impl_->auto_connect_timer_event_, &tv);
 }
@@ -483,7 +483,7 @@ void XComTask::setAutoConnectTimer(int ms)
 void XComTask::AutoConnectTimerCB()
 {
     std::cout << "." << std::flush;
-    /// Èç¹ûÕıÔÚÁ¬½Ó£¬ÔòµÈ´ı£¬Èç¹ûÃ»ÓĞ£¬Ôò¿ªÊ¼Á¬½Ó
+    /// å¦‚æœæ­£åœ¨è¿æ¥ï¼Œåˆ™ç­‰å¾…ï¼Œå¦‚æœæ²¡æœ‰ï¼Œåˆ™å¼€å§‹è¿æ¥
     if (isConnected())
         return;
     if (!isConnecting())

@@ -1,17 +1,17 @@
-syntax="proto3";	/// ÓïÑÔ°æ±¾
-package xmsg;		/// °üÃû(ÃüÃû¿Õ¼ä)
+ï»¿syntax="proto3";	/// è¯­è¨€ç‰ˆæœ¬
+package xmsg;		/// åŒ…å(å‘½åç©ºé—´)
 
-enum MsgType {						///<<< Ã¶¾ÙÀàĞÍ
-	MT_NONE_DO_NOT_USE		= 0;	///<<< ÎŞĞ§Öµ
-	MT_LOGIN_REQ			= 1;	///<<< ¿Í»§¶ËÓÃ»§ÃûºÍÃÜÂëµÇÂ½ÇëÇó XLoginReq
-	MT_LOGIN_RES			= 2;	///<<< ·şÎñ¶ËÏìÓ¦»Ø¸´ÏûÏ¢ XLoginRes
-	MT_DIR_REQ				= 3;	///<<< ¿Í»§¶ËÇëÇóÄ¿Â¼ XDirReq
-	MT_DIR_RES				= 4;	///<<< ·şÎñ¶ËÏìÓ¦Ä¿Â¼ XDirRes
-	MT_REGISTER_REQ			= 5;	///<<< ×¢²á·şÎñÏìÓ¦ XRegisterReq
-	MT_REGISTER_RES			= 6;	///<<< ×¢²á·şÎñÇëÇó XMessageRes
-	MT_GET_SERVICE_REQ		= 7;	///<<< ·¢ÏÖ·şÎñÇëÇó XGetServiceReq
-	MT_GET_SERVICE_RES		= 8;	///<<< ·¢ÏÖ·şÎñÏìÓ¦ XServiceMap
-	MT_SAVE_CONFIG_REQ		= 9;	///<<< ÅäÖÃÖĞĞÄµÄÉÏ´«ºÍÏÂÔØ //XConfig
+enum MsgType {						///<<< æšä¸¾ç±»å‹
+	MT_NONE_DO_NOT_USE		= 0;	///<<< æ— æ•ˆå€¼
+	MT_LOGIN_REQ			= 1;	///<<< å®¢æˆ·ç«¯ç”¨æˆ·åå’Œå¯†ç ç™»é™†è¯·æ±‚ XLoginReq
+	MT_LOGIN_RES			= 2;	///<<< æœåŠ¡ç«¯å“åº”å›å¤æ¶ˆæ¯ XLoginRes
+	MT_DIR_REQ				= 3;	///<<< å®¢æˆ·ç«¯è¯·æ±‚ç›®å½• XDirReq
+	MT_DIR_RES				= 4;	///<<< æœåŠ¡ç«¯å“åº”ç›®å½• XDirRes
+	MT_REGISTER_REQ			= 5;	///<<< æ³¨å†ŒæœåŠ¡å“åº” XRegisterReq
+	MT_REGISTER_RES			= 6;	///<<< æ³¨å†ŒæœåŠ¡è¯·æ±‚ XMessageRes
+	MT_GET_SERVICE_REQ		= 7;	///<<< å‘ç°æœåŠ¡è¯·æ±‚ XGetServiceReq
+	MT_GET_SERVICE_RES		= 8;	///<<< å‘ç°æœåŠ¡å“åº” XServiceMap
+	MT_SAVE_CONFIG_REQ		= 9;	///<<< é…ç½®ä¸­å¿ƒçš„ä¸Šä¼ å’Œä¸‹è½½ //XConfig
 	MT_SAVE_CONFIG_RES		= 10;	///<<< XMessageRes
 	MT_LOAD_CONFIG_REQ		= 11;	///<<< XLoadConfigReq
 	MT_LOAD_CONFIG_RES		= 12;	///<<< XConfig

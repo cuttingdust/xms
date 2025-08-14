@@ -1,4 +1,4 @@
-#include "XSSL_CTX.h"
+ï»¿#include "XSSL_CTX.h"
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
@@ -26,7 +26,7 @@ public:
     ~PImpl() = default;
 
 public:
-    /// \brief ÑéÖ¤¶Ô·½Ö¤Êé
+    /// \brief éªŒè¯å¯¹æ–¹è¯ä¹¦
     /// \param ca_crt
     void setVerify(const char *ca_crt);
 
@@ -39,7 +39,7 @@ public:
 XSSL_CTX::PImpl::PImpl(XSSL_CTX *owenr) : owenr_(owenr)
 {
     OpenSSL_add_ssl_algorithms();
-    /*Îª´òÓ¡µ÷ÊÔÐÅÏ¢×÷×¼±¸*/
+    /*ä¸ºæ‰“å°è°ƒè¯•ä¿¡æ¯ä½œå‡†å¤‡*/
     SSL_load_error_strings();
 }
 
@@ -48,7 +48,7 @@ void XSSL_CTX::PImpl::setVerify(const char *ca_crt)
     if (!ca_crt || !ssl_ctx_)
         return;
 
-    /// ÉèÖÃÑéÖ¤¶Ô·½Ö¤Êé
+    /// è®¾ç½®éªŒè¯å¯¹æ–¹è¯ä¹¦
     SSL_CTX_set_verify(ssl_ctx_, SSL_VERIFY_PEER, SSLVerifyCB);
     SSL_CTX_load_verify_locations(ssl_ctx_, ca_crt, 0);
 }
@@ -71,7 +71,7 @@ XSSL_CTX::~XSSL_CTX()
 
 auto XSSL_CTX::initServer(const char *crt_file, const char *key_file, const char *ca_file) -> bool
 {
-    /// ´´½¨·þÎñÆ÷ ssl ctxÉÏÏÂÎÄ
+    /// åˆ›å»ºæœåŠ¡å™¨ ssl ctxä¸Šä¸‹æ–‡
     impl_->ssl_ctx_ = SSL_CTX_new(TLS_server_method());
     if (!impl_->ssl_ctx_)
     {
@@ -79,7 +79,7 @@ auto XSSL_CTX::initServer(const char *crt_file, const char *key_file, const char
         return false;
     }
 
-    /// ¼ÓÔØÖ¤Êé£¬Ë½Ô¿£¬²¢ÑéÖ¤
+    /// åŠ è½½è¯ä¹¦ï¼Œç§é’¥ï¼Œå¹¶éªŒè¯
     int re = SSL_CTX_use_certificate_file(impl_->ssl_ctx_, crt_file, SSL_FILETYPE_PEM);
     if (re <= 0)
     {
@@ -103,7 +103,7 @@ auto XSSL_CTX::initServer(const char *crt_file, const char *key_file, const char
     }
     std::cout << "===========check_private_key success!===========" << std::endl;
 
-    /// ¶Ô·þÎñÆ÷Ö¤ÊéÑéÖ¤
+    /// å¯¹æœåŠ¡å™¨è¯ä¹¦éªŒè¯
     impl_->setVerify(ca_file);
     return true;
 }
@@ -116,7 +116,7 @@ auto XSSL_CTX::initClient(const char *ca_file) -> bool
         std::cerr << "SSL_CTX_new TLS_client_method failed!" << std::endl;
         return false;
     }
-    /// ¶Ô¿Í»§¶ËÖ¤ÊéÑéÖ¤
+    /// å¯¹å®¢æˆ·ç«¯è¯ä¹¦éªŒè¯
     impl_->setVerify(ca_file);
     return true;
 }
@@ -136,7 +136,7 @@ auto XSSL_CTX::createXSSL(int socket) -> XSSL::Ptr
         std::cerr << "SSL_new failed!" << std::endl;
         return xssl;
     }
-    /// bufferevent»á×Ô¼º´´½¨
+    /// buffereventä¼šè‡ªå·±åˆ›å»º
     if (socket > 0)
         SSL_set_fd(impl_->ssl_, socket);
     xssl->set_ssl(impl_->ssl_);

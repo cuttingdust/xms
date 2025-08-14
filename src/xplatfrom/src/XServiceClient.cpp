@@ -1,4 +1,4 @@
-#include "XServiceClient.h"
+﻿#include "XServiceClient.h"
 #include "XThreadPool.h"
 
 class XServiceClient::PImpl

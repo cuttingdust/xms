@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XRegisterClient.h
  * @brief  
  *
@@ -21,7 +21,7 @@ class XPLATFROM_EXPORT XRegisterClient : public XServiceClient
 public:
     static XRegisterClient *get()
     {
-        /// TODO ÄÚ²¿´æÔÚÖ¸ÕëÇåÀíÐÐÎª
+        /// TODO å†…éƒ¨å­˜åœ¨æŒ‡é’ˆæ¸…ç†è¡Œä¸º
         static std::once_flag   s_flag;
         static XRegisterClient *r = nullptr;
         std::call_once(s_flag,
@@ -43,35 +43,35 @@ public:
     void timerCB() override;
 
 public:
-    /// \brief Ïò×¢²áÖÐÐÄ×¢²á·þÎñ ´Ëº¯Êý£¬ÐèÒªµÚÒ»¸öµ÷ÓÃ£¬½¨Á¢Á¬½Ó
-    /// \param service_name  Î¢·þÎñÃû³Æ
-    /// \param port          Î¢·þÎñ½Ó¿Ú
-    /// \param ip            Î¢·þÎñIP Èç¹û´«µÝNULL£¬Ôò²ÉÓÃ¿Í»§¶ËÁ¬½ÓµØÖ·
+    /// \brief å‘æ³¨å†Œä¸­å¿ƒæ³¨å†ŒæœåŠ¡ æ­¤å‡½æ•°ï¼Œéœ€è¦ç¬¬ä¸€ä¸ªè°ƒç”¨ï¼Œå»ºç«‹è¿žæŽ¥
+    /// \param service_name  å¾®æœåŠ¡åç§°
+    /// \param port          å¾®æœåŠ¡æŽ¥å£
+    /// \param ip            å¾®æœåŠ¡IP å¦‚æžœä¼ é€’NULLï¼Œåˆ™é‡‡ç”¨å®¢æˆ·ç«¯è¿žæŽ¥åœ°å€
     void registerServer(const char *service_name, int port, const char *ip);
 
-    /// \brief ½ÓÊÕ·þÎñµÄ×¢²áÏìÓ¦
+    /// \brief æŽ¥æ”¶æœåŠ¡çš„æ³¨å†Œå“åº”
     /// \param head
     /// \param msg
     void registerRes(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief ·¢³öÓÐ»ñÈ¡Î¢·þÎñÁÐ±íµÄÇëÇó
-    /// \param service_name service_name == NULL ÔòÈ¡È«²¿
+    /// \brief å‘å‡ºæœ‰èŽ·å–å¾®æœåŠ¡åˆ—è¡¨çš„è¯·æ±‚
+    /// \param service_name service_name == NULL åˆ™å–å…¨éƒ¨
     void getServiceReq(const char *service_name);
 
-    /// \brief »ñÈ¡·þÎñÁÐ±íµÄÏìÓ¦
+    /// \brief èŽ·å–æœåŠ¡åˆ—è¡¨çš„å“åº”
     /// \param head
     /// \param msg
     void getServiceRes(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief   »ñÈ¡ËùÓÐµÄ·þÎñÁÐ±í£¬¸´ÖÆÔ­Êý¾Ý£¬Ã¿´ÎÇåÀíÉÏ´ÎµÄ¸´ÖÆÊý¾Ý
-    /// \return  ´Ëº¯ÊýºÍ²Ù×÷XServiceMapÊý¾ÝµÄº¯ÊýÔÚÒ»¸öÏß³Ì
+    /// \brief   èŽ·å–æ‰€æœ‰çš„æœåŠ¡åˆ—è¡¨ï¼Œå¤åˆ¶åŽŸæ•°æ®ï¼Œæ¯æ¬¡æ¸…ç†ä¸Šæ¬¡çš„å¤åˆ¶æ•°æ®
+    /// \return  æ­¤å‡½æ•°å’Œæ“ä½œXServiceMapæ•°æ®çš„å‡½æ•°åœ¨ä¸€ä¸ªçº¿ç¨‹
     auto getAllService() -> xmsg::XServiceMap *;
 
-    /// \brief »ñÈ¡Ö¸¶¨·þÎñÃû³ÆµÄÎ¢·þÎñÁÐ±í £¨×èÈûº¯Êý£©
-    /// 1 µÈ´ýÁ¬½Ó³É¹¦ 2 ·¢ËÍ»ñÈ¡Î¢·þÎñµÄÏûÏ¢ 3 µÈ´ýÎ¢·þÎñÁÐ±íÏûÏ¢·´À¡£¨ÓÐ¿ÉÄÜÄÃµ½ÉÏÒ»´ÎµÄÅäÖÃ£©
-    /// \param service_name ·þÎñÃû³Æ
-    /// \param timeout_sec ³¬Ê±Ê±¼ä
-    /// \return ·þÎñÁÐ±í
+    /// \brief èŽ·å–æŒ‡å®šæœåŠ¡åç§°çš„å¾®æœåŠ¡åˆ—è¡¨ ï¼ˆé˜»å¡žå‡½æ•°ï¼‰
+    /// 1 ç­‰å¾…è¿žæŽ¥æˆåŠŸ 2 å‘é€èŽ·å–å¾®æœåŠ¡çš„æ¶ˆæ¯ 3 ç­‰å¾…å¾®æœåŠ¡åˆ—è¡¨æ¶ˆæ¯åé¦ˆï¼ˆæœ‰å¯èƒ½æ‹¿åˆ°ä¸Šä¸€æ¬¡çš„é…ç½®ï¼‰
+    /// \param service_name æœåŠ¡åç§°
+    /// \param timeout_sec è¶…æ—¶æ—¶é—´
+    /// \return æœåŠ¡åˆ—è¡¨
     auto getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList;
 
     void regMsgCallback();

@@ -1,4 +1,4 @@
-#include <XRegisterClient.h>
+ï»¿#include <XRegisterClient.h>
 #include <XConfigClient.h>
 
 #include <thread>
@@ -9,12 +9,12 @@ void ConfigTimer()
     static std::string conf_ip   = "";
     static int         conf_port = 0;
     /////////////////////////////////////////////////////////////////
-    /// ¶ÁÈ¡ÅäÖÃÏî
+    /// è¯»å–é…ç½®é¡¹
     std::cout << "config root = " << ConfigClient->GetString("root") << std::endl;
 
     if (conf_port <= 0)
     {
-        /// ´Ó×¢²áÖĞĞÄ»ñÈ¡ÅäÖÃÖĞĞÄµÄIP
+        /// ä»æ³¨å†Œä¸­å¿ƒè·å–é…ç½®ä¸­å¿ƒçš„IP
         auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
         std::cout << confs.DebugString();
         if (confs.services_size() <= 0)
@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
     //////////////////////////////////////////////////////////////////
     int client_port = 4000;
 
-    /// ÉèÖÃ×¢²áÖĞĞÄµÄIPºÍ¶Ë¿Ú
+    /// è®¾ç½®æ³¨å†Œä¸­å¿ƒçš„IPå’Œç«¯å£
     RegisterClient->setServerIp("127.0.0.1");
     RegisterClient->setServerPort(REGISTER_PORT);
     RegisterClient->registerServer("test_config", client_port, 0);
     // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    // /// ´Ó×¢²áÖĞĞÄ»ñÈ¡ÅäÖÃÖĞĞÄÁĞ±í
+    // /// ä»æ³¨å†Œä¸­å¿ƒè·å–é…ç½®ä¸­å¿ƒåˆ—è¡¨
 
-    /// ³õÊ¼»¯ÅäÖÃÖĞĞÄ
+    /// åˆå§‹åŒ–é…ç½®ä¸­å¿ƒ
     xmsg::XDirConfig tmp_conf;
     ConfigClient->startGetConf(0, client_port, &tmp_conf, ConfigTimer);
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
@@ -66,16 +66,16 @@ int main(int argc, char *argv[])
 
     {
         ///////////////////////////////////////////////////////////////////
-        /// ´æ´¢ÅäÖÃÏî
+        /// å­˜å‚¨é…ç½®é¡¹
         std::string proto;
         auto        message = ConfigClient->loadProto("XDirConfig.proto", "XDirConfig", proto);
-        /// Í¨¹ı·´ÉäÉèÖÃÖµ
+        /// é€šè¿‡åå°„è®¾ç½®å€¼
         auto ref   = message->GetReflection();
         auto field = message->GetDescriptor()->FindFieldByName("root");
         ref->SetString(message, field, "/test_new_root/");
         std::print("{}", message->DebugString());
 
-        /// ´æ´¢ÅäÖÃ
+        /// å­˜å‚¨é…ç½®
         xmsg::XConfig save_conf;
         save_conf.set_service_name("test_config");
         save_conf.set_service_port(client_port);
@@ -86,16 +86,16 @@ int main(int argc, char *argv[])
 
     // {
     //     /////////////////////////////////////////////////////////////////
-    //     ///¶ÁÈ¡ÅäÖÃÏî
+    //     ///è¯»å–é…ç½®é¡¹
     //     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     //     std::cout << "root = " << ConfigClient->GetString("root") << std::endl;
     // }
 
     {
-        /// ¶ÁÈ¡ÅäÖÃÁĞ±í £¨¹ÜÀí¹¤¾ß£©
+        /// è¯»å–é…ç½®åˆ—è¡¨ ï¼ˆç®¡ç†å·¥å…·ï¼‰
         for (;;)
         {
-            /// »ñÈ¡ÅäÖÃÁĞ±í
+            /// è·å–é…ç½®åˆ—è¡¨
             auto configs = ConfigClient->getAllConfig(1, 1000, 10);
             std::cout << configs.DebugString();
             if (configs.config_size() <= 0)
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
                 continue;
             }
 
-            /// È¡µÃµ¥¸öÅäÖÃĞÅÏ¢(µÚÒ»¸öÅäÖÃÏî)
+            /// å–å¾—å•ä¸ªé…ç½®ä¿¡æ¯(ç¬¬ä¸€ä¸ªé…ç½®é¡¹)
             std::string ip   = configs.config()[1].service_ip();
             int         port = configs.config()[1].service_port();
             ConfigClient->loadConfig(ip.c_str(), port);

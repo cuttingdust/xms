@@ -1,4 +1,4 @@
-#include "ConfigEdit.h"
+﻿#include "ConfigEdit.h"
 #include "CongfigGui.h"
 
 #include <XConfigClient.h>

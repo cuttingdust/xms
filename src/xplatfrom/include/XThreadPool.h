@@ -1,6 +1,6 @@
-/**
+ï»¿/**
  * @file   XThreadPool.h
- * @brief  Ïß³Ì³Ø 
+ * @brief  çº¿ç¨‹æ±  
  *
  * Detailed description if necessary.
  *
@@ -16,31 +16,31 @@
 
 class XTask;
 
-/// ½Ó¿ÚÀà Ïß³Ì³Ø
+/// æŽ¥å£ç±» çº¿ç¨‹æ± 
 class XPLATFROM_EXPORT XThreadPool
 {
 public:
-    /// \brief ³õÊ¼»¯ËùÓÐÏß³Ì²¢Æô¶¯Ïß³Ì
+    /// \brief åˆå§‹åŒ–æ‰€æœ‰çº¿ç¨‹å¹¶å¯åŠ¨çº¿ç¨‹
     /// \param threadNum
     virtual auto init(int threadNum = 4) -> void = 0;
 
-    /// \brief ·Ö·¢Ïß³Ì
+    /// \brief åˆ†å‘çº¿ç¨‹
     /// \param task
     virtual auto dispatch(XTask *task) -> void = 0;
 
     //////////////////////////////////////////
 
-    /// \brief ÍË³öËùÓÐÏß³Ì
+    /// \brief é€€å‡ºæ‰€æœ‰çº¿ç¨‹
     static auto exitAllThread() -> void;
 
-    /// \brief ×èÈûµÈ´ýexitAllThread
+    /// \brief é˜»å¡žç­‰å¾…exitAllThread
     static auto wait() -> void;
 };
 
 class XPLATFROM_EXPORT XThreadPoolFactory
 {
 public:
-    /// \brief ´´½¨Ïß³Ì³Ø¶ÔÏó
+    /// \brief åˆ›å»ºçº¿ç¨‹æ± å¯¹è±¡
     static auto create() -> XThreadPool *;
 };
 

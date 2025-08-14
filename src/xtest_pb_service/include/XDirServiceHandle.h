@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XDirServiceHandle.h
  * @brief  
  *
@@ -18,10 +18,10 @@ public:
     XDirServiceHandle();
     ~XDirServiceHandle() override;
 
-    ///´¦ÀíÓÃ»§µÄÄ¿Â¼ÇëÇó
+    ///å¤„ç†ç”¨æˆ·çš„ç›®å½•è¯·æ±‚
     void dirReq(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief ×¢²áÏûÏ¢»Øµ÷º¯Êı
+    /// \brief æ³¨å†Œæ¶ˆæ¯å›è°ƒå‡½æ•°
     static void regMsgCallback();
 };
 

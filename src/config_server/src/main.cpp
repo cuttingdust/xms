@@ -1,4 +1,4 @@
-#include "ConfigDao.h"
+ï»¿#include "ConfigDao.h"
 #include "XMsgCom.pb.h"
 
 #include <XTools.h>
@@ -29,15 +29,15 @@ int main(int argc, char *argv[])
     config.start();
     config.wait();
 
-    // /// ÏÈ²âÊÔDAO
-    // /// ³õÊ¼»¯Êı¾İ¿â
+    // /// å…ˆæµ‹è¯•DAO
+    // /// åˆå§‹åŒ–æ•°æ®åº“
     // if (ConfigDao::get()->init("localhost", "root", "System123@", "xms", 3306))
     // {
     //     std::cout << "ConfigDao::Get()->Init Success!" << std::endl;
-    //     /// ²âÊÔ°²×°
+    //     /// æµ‹è¯•å®‰è£…
     //     ConfigDao::get()->install();
     //
-    //     /// ²âÊÔÅäÖÃ±£³Ö
+    //     /// æµ‹è¯•é…ç½®ä¿æŒ
     //     xmsg::XConfig conf;
     //     std::string   filename = "tmp_test.proto";
     //     std::ifstream input_file(filename, std::ios::binary);

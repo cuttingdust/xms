@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XTestClient.h
  * @brief  
  *
@@ -20,20 +20,20 @@ public:
 
 public:
     /// \brief
-    /// \param path ÇëÇóµÄ¸ùÄ¿Â¼
-    /// \return ÊÇ·ñÇëÇó³É¹¦£¬²»±£Ö¤Ä¿Â¼»ñÈ¡
+    /// \param path è¯·æ±‚çš„æ ¹ç›®å½•
+    /// \return æ˜¯å¦è¯·æ±‚æˆåŠŸï¼Œä¸ä¿è¯ç›®å½•è·å–
     bool getDir(const std::string& path);
 
-    /// \brief Ä¿Â¼ÇëÇóÏàÓ¦
+    /// \brief ç›®å½•è¯·æ±‚ç›¸åº”
     /// \param head
     /// \param msg
     void dirRes(xmsg::XMsgHead* head, XMsg* msg);
 
     static void regMsgCallback();
 
-    /// \brief ¼ì²éÁ¬½Ó£¬×Ô¶¯ÖØÁ¬,Á¬½ÓÊ§°ÜÁ¢¿Ì·µ»Ø£¬ÒÑÁ¬½ÓÁ¢¿Ì·µ»Ø
-    /// \param timeout_ms ³¬Ê±Ê±¼ä
-    /// \return Á¬½Ó³É¹¦·µ»Øtrue
+    /// \brief æ£€æŸ¥è¿æ¥ï¼Œè‡ªåŠ¨é‡è¿,è¿æ¥å¤±è´¥ç«‹åˆ»è¿”å›ï¼Œå·²è¿æ¥ç«‹åˆ»è¿”å›
+    /// \param timeout_ms è¶…æ—¶æ—¶é—´
+    /// \return è¿æ¥æˆåŠŸè¿”å›true
     bool autoConnect(int timeout_ms);
 };
 

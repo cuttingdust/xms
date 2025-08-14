@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   LXMysql.h
  * @brief  
  *
@@ -58,8 +58,8 @@ enum LX_DATA_TYPE
 
 enum LX_ORDER
 {
-    LXD_ADESC = 0, /// ÉıĞò
-    LXD_DESC  = 1, /// ½µĞò
+    LXD_ADESC = 0, /// å‡åº
+    LXD_DESC  = 1, /// é™åº
 };
 
 struct LXM_EXPORT LXField
@@ -76,7 +76,7 @@ struct LXM_EXPORT LXData
 {
 public:
     LXData();
-    LXData(const char *data); /// ×Ö·û´® ·Ç¶ş½øÖÆ
+    LXData(const char *data); /// å­—ç¬¦ä¸² éäºŒè¿›åˆ¶
     LXData(const char *data, int size, const LX_DATA_TYPE &type);
     LXData(const int *d);
 
@@ -147,148 +147,148 @@ public:
     };
 
 public:
-    /// \brief ³õÊ¼»¯Êı¾İ¿â
+    /// \brief åˆå§‹åŒ–æ•°æ®åº“
     /// \return
     auto init() -> bool;
 
-    /// \brief ¹Ø±ÕÊı¾İ¿â
+    /// \brief å…³é—­æ•°æ®åº“
     auto close() -> void;
 
-    /// \brief Á¬½ÓÊı¾İ¿â
-    /// \param host Ö÷»úµØÖ·
-    /// \param user ÓÃ»§Ãû
-    /// \param pass ÃÜÂë
-    /// \param db   Êı¾İ¿â
-    /// \param port ¶Ë¿Ú
-    /// \param flag Á¬½Ó±êÖ¾
-    /// \param is_check_database ÊÇ·ñ¼ì²éÊı¾İ¿â Èç¹ûÎªtrueÔò²»´æÔÚÔò´´½¨
-    /// \return ÊÇ·ñÁ¬½Ó³É¹¦
+    /// \brief è¿æ¥æ•°æ®åº“
+    /// \param host ä¸»æœºåœ°å€
+    /// \param user ç”¨æˆ·å
+    /// \param pass å¯†ç 
+    /// \param db   æ•°æ®åº“
+    /// \param port ç«¯å£
+    /// \param flag è¿æ¥æ ‡å¿—
+    /// \param is_check_database æ˜¯å¦æ£€æŸ¥æ•°æ®åº“ å¦‚æœä¸ºtrueåˆ™ä¸å­˜åœ¨åˆ™åˆ›å»º
+    /// \return æ˜¯å¦è¿æ¥æˆåŠŸ
     auto connect(const char *host, const char *user, const char *pass, const char *db, unsigned short port = 3306,
                  unsigned long flag = 0, bool is_check_database = false) -> bool;
 
-    /// \brief ´´½¨±í
-    /// \param table_name   ±íÃû
-    /// \param fileds       ×Ö¶Î
-    /// \param is_check_exist ÊÇ·ñ¼ì²é±íÊÇ·ñ´æÔÚ
+    /// \brief åˆ›å»ºè¡¨
+    /// \param table_name   è¡¨å
+    /// \param fileds       å­—æ®µ
+    /// \param is_check_exist æ˜¯å¦æ£€æŸ¥è¡¨æ˜¯å¦å­˜åœ¨
     /// \return
     auto createTable(const std::string &table_name, const XFIELDS &fileds, bool is_check_exist) -> bool;
 
-    /// \brief Ö´ĞĞsql Óï¾ä
-    /// \param sql sql Óï¾ä
-    /// \param sql_len sql Óï¾ä³¤¶È
+    /// \brief æ‰§è¡Œsql è¯­å¥
+    /// \param sql sql è¯­å¥
+    /// \param sql_len sql è¯­å¥é•¿åº¦
     /// \return
     auto query(const char *sql, unsigned long sql_len = 0) -> bool;
 
-    /// \brief Mysql²ÎÊıµÄÉè¶¨
+    /// \brief Mysqlå‚æ•°çš„è®¾å®š
     /// \return
     auto option(const LX_OPT &opt, const void *arg) -> bool;
 
-    /// \brief ÉèÖÃÊı¾İ¿âÁ¬½Ó³¬Ê±Ê±¼ä
-    /// \param sec ³¬Ê±Ê±¼ä
-    /// \return ÊÇ·ñÉèÖÃ³É¹¦
+    /// \brief è®¾ç½®æ•°æ®åº“è¿æ¥è¶…æ—¶æ—¶é—´
+    /// \param sec è¶…æ—¶æ—¶é—´
+    /// \return æ˜¯å¦è®¾ç½®æˆåŠŸ
     auto setConnectTimeout(unsigned int sec) -> bool;
 
-    /// \brief ÉèÖÃÊı¾İ¿â×Ô¶¯ÖØÁ¬
-    /// \param bRe ÊÇ·ñ×Ô¶¯ÖØÁ¬
-    /// \return ÊÇ·ñÉèÖÃ³É¹¦
+    /// \brief è®¾ç½®æ•°æ®åº“è‡ªåŠ¨é‡è¿
+    /// \param bRe æ˜¯å¦è‡ªåŠ¨é‡è¿
+    /// \return æ˜¯å¦è®¾ç½®æˆåŠŸ
     auto setReconnect(bool bRe) -> bool;
 
-    /// \brief ping Êı¾İ¿â ²âÊÔÁ¬½Ó
-    /// \return ÊÇ·ñping³É¹¦
+    /// \brief ping æ•°æ®åº“ æµ‹è¯•è¿æ¥
+    /// \return æ˜¯å¦pingæˆåŠŸ
     auto ping() -> bool;
 
-    /// \brief »ñÈ¡½á¹û¼¯
+    /// \brief è·å–ç»“æœé›†
     /// \return
     auto storeResult() -> bool;
 
-    /// \brief ¿ªÊ¼½ÓÊÕ½á¹û£¬Í¨¹ıFetch»ñÈ¡
+    /// \brief å¼€å§‹æ¥æ”¶ç»“æœï¼Œé€šè¿‡Fetchè·å–
     /// \return
     auto useResult() -> bool;
 
-    /// \brief ÊÍ·Å½á¹û¼¯Õ¼ÓÃµÄ¿Õ¼ä
+    /// \brief é‡Šæ”¾ç»“æœé›†å ç”¨çš„ç©ºé—´
     auto freeResult() -> void;
 
-    /// \brief »ñÈ¡Ò»ĞĞÊı¾İ
+    /// \brief è·å–ä¸€è¡Œæ•°æ®
     /// \return
     auto fetchRow() -> std::vector<LXData>;
 
-    /// \brief Éú³É²åÈësqlÓï¾ä
-    /// \param kv <×Ö¶ÎÃû,×Ö¶ÎÖµ>
-    /// \param table_name ±íÃû
-    /// \return sql Óï¾ä
+    /// \brief ç”Ÿæˆæ’å…¥sqlè¯­å¥
+    /// \param kv <å­—æ®µå,å­—æ®µå€¼>
+    /// \param table_name è¡¨å
+    /// \return sql è¯­å¥
     auto getInsertSql(const XDATA &kv, const std::string &table_name) -> std::string;
 
-    /// \brief ²åÈëÊı¾İ¿â(·Ç¶ş½øÖÆÊı¾İ)
-    /// \param kv <×Ö¶ÎÃû,×Ö¶ÎÖµ>
-    /// \param table_name ±íÃû
-    /// \return ÊÇ·ñ²åÈë³É¹¦
+    /// \brief æ’å…¥æ•°æ®åº“(éäºŒè¿›åˆ¶æ•°æ®)
+    /// \param kv <å­—æ®µå,å­—æ®µå€¼>
+    /// \param table_name è¡¨å
+    /// \return æ˜¯å¦æ’å…¥æˆåŠŸ
     auto insert(const XDATA &kv, const std::string &table_name) -> bool;
 
-    /// \brief ²åÈëÊı¾İ¿â(¶ş½øÖÆÊı¾İ)
-    /// \param kv <×Ö¶ÎÃû£¬ ×Ö¶ÎÖµ>
-    /// \param table_name ±íÃû
-    /// \return ÊÇ·ñ²åÈë³É¹¦
+    /// \brief æ’å…¥æ•°æ®åº“(äºŒè¿›åˆ¶æ•°æ®)
+    /// \param kv <å­—æ®µåï¼Œ å­—æ®µå€¼>
+    /// \param table_name è¡¨å
+    /// \return æ˜¯å¦æ’å…¥æˆåŠŸ
     auto insertBin(const XDATA &kv, const std::string &table_name) -> bool;
 
-    /// \brief Éú³ÉĞŞ¸ÄSqlÓï¾ä
-    /// \param kv <×Ö¶ÎÃû,×Ö¶ÎÖµ>
-    /// \param table_name ±íÃû
-    /// \param where ĞŞ¸ÄÑ¡ÖĞÌõ¼ş
-    /// \return Óï¾ä
+    /// \brief ç”Ÿæˆä¿®æ”¹Sqlè¯­å¥
+    /// \param kv <å­—æ®µå,å­—æ®µå€¼>
+    /// \param table_name è¡¨å
+    /// \param where ä¿®æ”¹é€‰ä¸­æ¡ä»¶
+    /// \return è¯­å¥
     auto getUpdateSql(const XDATA &kv, const std::string &table_name, std::string where) -> std::string;
 
-    /// \brief ĞŞ¸ÄÊı¾İ¿â(·Ç¶ş½øÖÆÊı¾İ)
-    /// \param kv  <×Ö¶ÎÃû,×Ö¶ÎÖµ>
-    /// \param table_name ±íÃû
-    /// \param where ĞŞ¸ÄÑ¡ÖĞÌõ¼ş
-    /// \return ·µ»Ø¸üĞÂÊıÁ¿£¬Ê§°Ü·µ»Ø-1
+    /// \brief ä¿®æ”¹æ•°æ®åº“(éäºŒè¿›åˆ¶æ•°æ®)
+    /// \param kv  <å­—æ®µå,å­—æ®µå€¼>
+    /// \param table_name è¡¨å
+    /// \param where ä¿®æ”¹é€‰ä¸­æ¡ä»¶
+    /// \return è¿”å›æ›´æ–°æ•°é‡ï¼Œå¤±è´¥è¿”å›-1
     auto update(const XDATA &kv, const std::string &table_name, const std::string &where) -> int;
 
-    /// \brief ĞŞ¸ÄÊı¾İ¿â(¶ş½øÖÆÊı¾İ)
-    /// \param kv  <×Ö¶ÎÃû,×Ö¶ÎÖµ>
-    /// \param table_name ±íÃû
-    /// \param where ĞŞ¸ÄÑ¡ÖĞÌõ¼ş
-    /// \return ·µ»Ø¸üĞÂÊıÁ¿£¬Ê§°Ü·µ»Ø-1
+    /// \brief ä¿®æ”¹æ•°æ®åº“(äºŒè¿›åˆ¶æ•°æ®)
+    /// \param kv  <å­—æ®µå,å­—æ®µå€¼>
+    /// \param table_name è¡¨å
+    /// \param where ä¿®æ”¹é€‰ä¸­æ¡ä»¶
+    /// \return è¿”å›æ›´æ–°æ•°é‡ï¼Œå¤±è´¥è¿”å›-1
     int updateBin(const XDATA &kv, const std::string &table_name, const std::string &where);
 
-    /// \brief ĞŞ¸ÄÊı¾İ¿â(¶ş½øÖÆÊı¾İ)
-    /// \param kv  <×Ö¶ÎÃû,×Ö¶ÎÖµ>
-    /// \param table_name  ±íÃû
-    /// \param wheres ĞŞ¸ÄÑ¡ÖĞÌõ¼ş
-    /// \return ·µ»Ø¸üĞÂÊıÁ¿£¬Ê§°Ü·µ»Ø-1
+    /// \brief ä¿®æ”¹æ•°æ®åº“(äºŒè¿›åˆ¶æ•°æ®)
+    /// \param kv  <å­—æ®µå,å­—æ®µå€¼>
+    /// \param table_name  è¡¨å
+    /// \param wheres ä¿®æ”¹é€‰ä¸­æ¡ä»¶
+    /// \return è¿”å›æ›´æ–°æ•°é‡ï¼Œå¤±è´¥è¿”å›-1
     int updateBin(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres);
 
-    /// \brief ¿ªÆôÊÂÎñ
+    /// \brief å¼€å¯äº‹åŠ¡
     /// \return
     auto startTransaction() -> bool;
 
-    /// \brief Ìá½»
+    /// \brief æäº¤
     /// \return
     auto commit() -> bool;
 
-    /// \brief »Ø¹ö
+    /// \brief å›æ»š
     /// \return
     auto rollback() -> bool;
 
-    /// \brief ¹Ø±ÕÊÂÎñ
+    /// \brief å…³é—­äº‹åŠ¡
     /// \return
     auto stopTransaction() -> bool;
 
-    /// \brief ¼òÒ×½Ó¿Ú,·µ»ØselectµÄÊı¾İ½á¹û£¬Ã¿´Îµ÷ÓÃÇåÀíÉÏÒ»´ÎµÄ½á¹û¼¯
+    /// \brief ç®€æ˜“æ¥å£,è¿”å›selectçš„æ•°æ®ç»“æœï¼Œæ¯æ¬¡è°ƒç”¨æ¸…ç†ä¸Šä¸€æ¬¡çš„ç»“æœé›†
     /// \return
     auto getResult(const char *sql) -> XROWS;
 
-    /// \brief»ñÈ¡±íµÄ×Ö¶Î
+    /// \briefè·å–è¡¨çš„å­—æ®µ
     /// \param table_name
     /// \return
     auto getColumns(const char *table_name) -> XCOLUMNS;
 
-    /// \brief »ñÈ¡Ìõ¼şÊı¾İ
-    /// \param table_name   ±íÃû
-    /// \param selectCol    Ñ¡ÔñµÄÁĞ
-    /// \param wheres       ²éÑ¯Ìõ¼ş
-    /// \param limit        ·ÖÒ³ÏŞÖÆ
-    /// \param order        ÅÅĞò
+    /// \brief è·å–æ¡ä»¶æ•°æ®
+    /// \param table_name   è¡¨å
+    /// \param selectCol    é€‰æ‹©çš„åˆ—
+    /// \param wheres       æŸ¥è¯¢æ¡ä»¶
+    /// \param limit        åˆ†é¡µé™åˆ¶
+    /// \param order        æ’åº
     /// \return
     auto getRows(const char *table_name, const char *selectCol = "*",
                  const std::map<std::string, std::string> &wheres = {}, const std::pair<int, int> &limit = { 0, 0 },
@@ -302,16 +302,16 @@ public:
                  const std::pair<std::string, std::string> &where = { "", "" },
                  const std::pair<int, int> &limit = { 0, 0 }, const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
-    /// \brief Í³¼ÆÊı¾İ
+    /// \brief ç»Ÿè®¡æ•°æ®
     /// \param table_name
     /// \return
     auto getCount(const char *table_name, const std::pair<std::string, std::string> &where = { "", "" }) -> int;
 
     auto getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres) -> std::string;
 
-    /// \brief É¾³ıÊı¾İ
+    /// \brief åˆ é™¤æ•°æ®
     /// \param table_name
-    /// \param wheres É¾³ıÌõ¼ş
+    /// \param wheres åˆ é™¤æ¡ä»¶
     /// \return
     auto remove(const char *table_name, const std::map<std::string, std::string> &wheres) -> bool;
 

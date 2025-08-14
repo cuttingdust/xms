@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XConfigClient.h
  * @brief  
  *
@@ -34,16 +34,16 @@ private:
 public:
     auto init() -> bool override;
 
-    /// \brief ·¢ËÍÅäÖÃ
+    /// \brief å‘é€é…ç½®
     /// \param conf
     void sendConfig(xmsg::XConfig *conf);
 
-    /// \brief ½ÓÊÕµ½±£´æÅäÖÃµÄÏûÏ¢
+    /// \brief æ¥æ”¶åˆ°ä¿å­˜é…ç½®çš„æ¶ˆæ¯
     /// \param head
     /// \param msg
     void sendConfigRes(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief »ñÈ¡ÅäÖÃÇëÇó IPÈç¹ûÎªNULL ÔòÈ¡Á¬½ÓÅäÖÃÖĞĞÄµÄµØÖ·
+    /// \brief è·å–é…ç½®è¯·æ±‚ IPå¦‚æœä¸ºNULL åˆ™å–è¿æ¥é…ç½®ä¸­å¿ƒçš„åœ°å€
     /// \param ip
     /// \param port
     void loadConfig(const char *ip, int port);
@@ -58,10 +58,10 @@ public:
     /// \return
     bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf);
 
-    /// \brief ÔØÈëprotoÎÄ¼ş Ïß³Ì²»°²È«
-    /// \param file_name  ÎÄ¼şÂ·¾¶
-    /// \param class_name  ÅäÖÃµÄÀàĞÍ
-    /// \param out_proto_code ¶ÁÈ¡µ½µÄ´úÂë£¬°üº¬¿Õ¼äºÍ°æ±¾
+    /// \brief è½½å…¥protoæ–‡ä»¶ çº¿ç¨‹ä¸å®‰å…¨
+    /// \param file_name  æ–‡ä»¶è·¯å¾„
+    /// \param class_name  é…ç½®çš„ç±»å‹
+    /// \param out_proto_code è¯»å–åˆ°çš„ä»£ç ï¼ŒåŒ…å«ç©ºé—´å’Œç‰ˆæœ¬
     /// \return
     google::protobuf::Message *loadProto(const std::string &file_name, const std::string &class_name,
                                          std::string &out_proto_code);
@@ -70,7 +70,7 @@ public:
 
     void wait();
 
-    /// \brief Á¬½ÓÅäÖÃÖĞĞÄ£¬¿ªÊ¼¶¨Ê±Æ÷»ñÈ¡ÅäÖÃ
+    /// \brief è¿æ¥é…ç½®ä¸­å¿ƒï¼Œå¼€å§‹å®šæ—¶å™¨è·å–é…ç½®
     /// \param server_ip
     /// \param server_port
     /// \param local_ip
@@ -85,7 +85,7 @@ public:
                       ConfigTimerCBFunc func);
 
 
-    /// \brief »ñÈ¡ÏÂÔØµÄ±¾µØ²ÎÊı
+    /// \brief è·å–ä¸‹è½½çš„æœ¬åœ°å‚æ•°
     /// \return
     std::string GetString(const char *key);
     int         GetInt(const char *key);
@@ -93,22 +93,22 @@ public:
 
     void timerCB() override;
 
-    /// \brief ÉèÖÃµ±Ç°ÅäÖÃµÄ¶ÔÏó
+    /// \brief è®¾ç½®å½“å‰é…ç½®çš„å¯¹è±¡
     /// \param message
     void setCurServiceMessage(google::protobuf::Message *message);
 
     void loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief »ñÈ¡È«²¿ÅäÖÃÁĞ±í
-    /// 1 ¶Ï¿ªÁ¬½Ó×Ô¶¯ÖØÁ¬
-    /// 2 µÈ´ı½á¹û·µ»Ø
+    /// \brief è·å–å…¨éƒ¨é…ç½®åˆ—è¡¨
+    /// 1 æ–­å¼€è¿æ¥è‡ªåŠ¨é‡è¿
+    /// 2 ç­‰å¾…ç»“æœè¿”å›
     /// \param page
     /// \param page_count
     /// \param timeout_sec
     /// \return
     xmsg::XConfigList getAllConfig(int page, int page_count, int timeout_sec);
 
-    /// \brief ·¢³öÉ¾³ıÅäÖÃÇëÇó
+    /// \brief å‘å‡ºåˆ é™¤é…ç½®è¯·æ±‚
     /// \param ip
     /// \param port
     void deleteConfig(const char *ip, int port);

@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XMsg.h
  * @brief  
  *
@@ -13,22 +13,22 @@
 #include "XMsgType.pb.h"
 
 #include <cstring>
-#define MAX_MSG_SIZE         8192     /// Í·²¿ÏûÏ¢µÄ×î´ó×Ö½ÚÊý
-#define API_GATEWAY_NAME     "gw"     /// APIÍø¹ØÃû³Æ
-#define API_GATEWAY_PORT     20010    /// APIÍø¹Ø¶Ë¿Ú
-#define API_GATEWAY_SSL_PORT 20011    /// API_SSLÍø¹Ø¶Ë¿Ú
-#define REGISTER_PORT        20018    /// ×¢²áÖÐÐÄ¶Ë¿Ú
-#define CONFIG_NAME          "config" /// ÅäÖÃÖÐÐÄÃû³Æ
-#define CONFIG_PORT          20019    /// ÅäÖÃÖÐÐÄ¶Ë¿Ú
+#define MAX_MSG_SIZE         8192     /// å¤´éƒ¨æ¶ˆæ¯çš„æœ€å¤§å­—èŠ‚æ•°
+#define API_GATEWAY_NAME     "gw"     /// APIç½‘å…³åç§°
+#define API_GATEWAY_PORT     20010    /// APIç½‘å…³ç«¯å£
+#define API_GATEWAY_SSL_PORT 20011    /// API_SSLç½‘å…³ç«¯å£
+#define REGISTER_PORT        20018    /// æ³¨å†Œä¸­å¿ƒç«¯å£
+#define CONFIG_NAME          "config" /// é…ç½®ä¸­å¿ƒåç§°
+#define CONFIG_PORT          20019    /// é…ç½®ä¸­å¿ƒç«¯å£
 
-/// ËùÓÐµÄº¯Êý×öÄÚÁª
+/// æ‰€æœ‰çš„å‡½æ•°åšå†…è”
 class XMsg
 {
 public:
-    int           size     = 0;                        ///< Êý¾Ý´óÐ¡
-    xmsg::MsgType type     = xmsg::MT_NONE_DO_NOT_USE; ///< ÏûÏ¢ÀàÐÍ
-    char         *data     = 0;                        ///< Êý¾Ý´æ·Å£¨protobufµÄÐòÁÐ»¯ºóµÄÊý¾Ý£©
-    int           recvSize = 0;                        ///< ÒÑ¾­½ÓÊÕµÄÊý¾Ý´óÐ¡
+    int           size     = 0;                        ///< æ•°æ®å¤§å°
+    xmsg::MsgType type     = xmsg::MT_NONE_DO_NOT_USE; ///< æ¶ˆæ¯ç±»åž‹
+    char         *data     = 0;                        ///< æ•°æ®å­˜æ”¾ï¼ˆprotobufçš„åºåˆ—åŒ–åŽçš„æ•°æ®ï¼‰
+    int           recvSize = 0;                        ///< å·²ç»æŽ¥æ”¶çš„æ•°æ®å¤§å°
 public:
     bool alloc(int s)
     {
@@ -44,7 +44,7 @@ public:
         return true;
     }
 
-    /// ÅÐ¶ÏÊý¾ÝÊÇ·ñ½ÓÊÕÍê³É
+    /// åˆ¤æ–­æ•°æ®æ˜¯å¦æŽ¥æ”¶å®Œæˆ
     bool recved()
     {
         if (size <= 0)

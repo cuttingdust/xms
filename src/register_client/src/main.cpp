@@ -1,4 +1,4 @@
-#include <XRegisterClient.h>
+ï»¿#include <XRegisterClient.h>
 
 #include <XThreadPool.h>
 #include <XTools.h>
@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     std::cout << "Register Client " << std::endl;
     std::cout << "register_client 127.0.0.1 20018 " << std::endl;
-    /// ×¢²áÖÐÐÄIP ¶Ë¿Ú
+    /// æ³¨å†Œä¸­å¿ƒIP ç«¯å£
     ///
     std::string ip   = "127.0.0.1";
     int         port = REGISTER_PORT;
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     XRegisterClient::get()->registerServer("test", 20020, 0);
     XRegisterClient::get()->waitConnected(3);
 
-    /// ·¢ËÍ»ñÈ¡È«²¿·þÎñµÄÇëÇó
+    /// å‘é€èŽ·å–å…¨éƒ¨æœåŠ¡çš„è¯·æ±‚
     XRegisterClient::get()->getServiceReq(nullptr);
     XRegisterClient::get()->getServiceReq("test");
     for (;;)

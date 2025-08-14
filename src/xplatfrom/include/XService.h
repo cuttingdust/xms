@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XService.h
  * @brief  
  *
@@ -24,17 +24,17 @@ public:
 public:
     virtual XServiceHandle *createHandle() = 0;
 
-    /// \brief ·şÎñÆ÷¼àÌı¶Ë¿Ú
+    /// \brief æœåŠ¡å™¨ç›‘å¬ç«¯å£
     /// \param port
     void setServerPort(int port);
 
-    /// \brief ·şÎñ³õÊ¼»¯£¬ÓÉÏß³Ì³Øµ÷ÓÃ
+    /// \brief æœåŠ¡åˆå§‹åŒ–ï¼Œç”±çº¿ç¨‹æ± è°ƒç”¨
     /// \return
     auto init() -> bool override;
 
     void listenCB(int client_socket, struct sockaddr *addr, int socketlen);
 
-    /// \brief ¿ªÊ¼·şÎñÔËĞĞ£¬ ½ÓÊÜÁ¬½ÓÈÎÎñ¼ÓÈëµ½Ïß³Ì³Ø
+    /// \brief å¼€å§‹æœåŠ¡è¿è¡Œï¼Œ æ¥å—è¿æ¥ä»»åŠ¡åŠ å…¥åˆ°çº¿ç¨‹æ± 
     /// \return
     bool start();
 

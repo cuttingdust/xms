@@ -1,4 +1,4 @@
-#include "XDirServiceHandle.h"
+ï»¿#include "XDirServiceHandle.h"
 
 
 #include <XRegisterClient.h>
@@ -34,13 +34,13 @@ int main(int argc, char *argv[])
     if (argc > 3)
         register_port = atoi(argv[3]);
 
-    /// ÉèÖÃ×¢²áÖÐÐÄµÄIPºÍ¶Ë¿Ú
+    /// è®¾ç½®æ³¨å†Œä¸­å¿ƒçš„IPå’Œç«¯å£
     XRegisterClient::get()->setServerIp(register_ip.c_str());
     XRegisterClient::get()->setServerPort(register_port);
-    /// ×¢²áµ½×¢²áÖÐÐÄ
+    /// æ³¨å†Œåˆ°æ³¨å†Œä¸­å¿ƒ
     XRegisterClient::get()->registerServer("dir", server_port, nullptr);
 
-    /// µÈ´ýÅäÖÃ»ñÈ¡³É¹¦
+    /// ç­‰å¾…é…ç½®èŽ·å–æˆåŠŸ
     const auto &conf_s = XRegisterClient::get()->getServices(CONFIG_NAME, 10);
     std::cout << "=================================================" << std::endl;
     std::cout << conf_s.DebugString() << std::endl;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        /// Ö»È¡µÚÒ»¸öÅäÖÃÖÐÐÄ
+        /// åªå–ç¬¬ä¸€ä¸ªé…ç½®ä¸­å¿ƒ
         auto conf = conf_s.services()[0];
         // XConfigClient::get()->regMsgCallback();
         // XConfigClient::get()->setServerIp(conf.ip().c_str());
@@ -58,20 +58,20 @@ int main(int argc, char *argv[])
         // XConfigClient::get()->startConnect();
         // if (!XConfigClient::get()->waitConnected(10))
         // {
-        //     std::cout << "Á¬½ÓÅäÖÃÖÐÐÄÊ§°Ü" << std::endl;
+        //     std::cout << "è¿žæŽ¥é…ç½®ä¸­å¿ƒå¤±è´¥" << std::endl;
         // }
         static xmsg::XDirConfig cur_dir_conf;
         if (XConfigClient::get()->startGetConf(conf.ip().c_str(), conf.port(), "127.0.0.1", server_port, &cur_dir_conf))
-            std::cout << "Á¬½ÓÅäÖÃÖÐÐÄ³É¹¦" << cur_dir_conf.DebugString() << std::endl;
+            std::cout << "è¿žæŽ¥é…ç½®ä¸­å¿ƒæˆåŠŸ" << cur_dir_conf.DebugString() << std::endl;
 
 
-        /// Ð´Èë²âÊÔµÄÅäÖÃ
+        /// å†™å…¥æµ‹è¯•çš„é…ç½®
         // xmsg::XConfig up_conf;
         // up_conf.set_service_name("dir");
         // up_conf.set_service_ip("127.0.0.1");
         // up_conf.set_service_port(server_port);
         //
-        // /// ÀàÐÍÃèÊö
+        // /// ç±»åž‹æè¿°
         // xmsg::XDirConfig dir_conf;
         // dir_conf.set_root("./");
         // up_conf.set_proto(dir_conf.GetDescriptor()->DebugString());
@@ -91,9 +91,9 @@ int main(int argc, char *argv[])
 
         std::cout << "tmp_conf = " << tmp_conf.DebugString() << std::endl;
 
-        /// ·´ÐòÁÐ»¯ÏÂÔØµÄÅäÖÃ
+        /// ååºåˆ—åŒ–ä¸‹è½½çš„é…ç½®
         xmsg::XDirConfig down_conf;
-        /// Ã¿¸öÎ¢·þÎñµ¥¶ÀµÄÅäÖÃ
+        /// æ¯ä¸ªå¾®æœåŠ¡å•ç‹¬çš„é…ç½®
         if (down_conf.ParseFromString(tmp_conf.private_pb()))
             std::cout << "down_conf = " << down_conf.DebugString() << std::endl;
     }

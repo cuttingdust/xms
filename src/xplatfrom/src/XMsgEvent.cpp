@@ -1,4 +1,4 @@
-#include "XMsgEvent.h"
+ï»¿#include "XMsgEvent.h"
 #include "XTools.h"
 
 #include <XMsgCom.pb.h>
@@ -18,9 +18,9 @@ public:
 
 public:
     XMsgEvent      *owenr_ = nullptr;
-    XMsg            head_;              /// ÏûÏ¢Í·
-    XMsg            msg_;               /// ÏûÏ¢ÄÚÈÝ
-    xmsg::XMsgHead *pb_head_ = nullptr; /// <pbÏûÏ¢Í·
+    XMsg            head_;              /// æ¶ˆæ¯å¤´
+    XMsg            msg_;               /// æ¶ˆæ¯å†…å®¹
+    xmsg::XMsgHead *pb_head_ = nullptr; /// <pbæ¶ˆæ¯å¤´
 };
 
 XMsgEvent::PImpl::PImpl(XMsgEvent *owenr) : owenr_(owenr)
@@ -37,7 +37,7 @@ XMsgEvent::~XMsgEvent() = default;
 
 void XMsgEvent::readCB()
 {
-    /// TODO Èç¹ûÏß³ÌÍË³ö
+    /// TODO å¦‚æžœçº¿ç¨‹é€€å‡º
     while (true)
     {
         if (!recvMsg())
@@ -63,7 +63,7 @@ void XMsgEvent::readCB()
 
 void XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg)
 {
-    /// »Øµ÷ÏûÏ¢º¯Êý
+    /// å›žè°ƒæ¶ˆæ¯å‡½æ•°
     auto iter = msg_callbacks.find(head->msgtype());
     if (iter == msg_callbacks.end())
     {
@@ -89,19 +89,19 @@ void XMsgEvent::regCB(const xmsg::MsgType &type, MsgCBFunc func)
 
 bool XMsgEvent::recvMsg()
 {
-    //////////////////////////////½â°ü/////////////////////////////
+    //////////////////////////////è§£åŒ…/////////////////////////////
 
-    /// ½ÓÊÕÏûÏ¢Í·
+    /// æŽ¥æ”¶æ¶ˆæ¯å¤´
     if (!impl_->head_.size)
     {
-        /// 1 ÏûÏ¢Í·´óÐ¡
+        /// 1 æ¶ˆæ¯å¤´å¤§å°
         int len = read(&impl_->head_.size, sizeof(impl_->head_.size));
         if (len <= 0 || impl_->head_.size <= 0)
         {
             return false;
         }
 
-        /// ·ÖÅäÏûÏ¢Í·¿Õ¼ä ¶ÁÈ¡ÏûÏ¢Í·£¨¼øÈ¨£¬ÏûÏ¢´óÐ¡£©
+        /// åˆ†é…æ¶ˆæ¯å¤´ç©ºé—´ è¯»å–æ¶ˆæ¯å¤´ï¼ˆé‰´æƒï¼Œæ¶ˆæ¯å¤§å°ï¼‰
         if (!impl_->head_.alloc(impl_->head_.size))
         {
             std::cerr << "head_.alloc failed!" << std::endl;
@@ -109,10 +109,10 @@ bool XMsgEvent::recvMsg()
         }
     }
 
-    /// 2 ¿ªÊ¼½ÓÊÕÏûÏ¢Í·£¨¼øÈ¨£¬ÏûÏ¢´óÐ¡£©
+    /// 2 å¼€å§‹æŽ¥æ”¶æ¶ˆæ¯å¤´ï¼ˆé‰´æƒï¼Œæ¶ˆæ¯å¤§å°ï¼‰
     if (!impl_->head_.recved())
     {
-        int len = read(impl_->head_.data + impl_->head_.recvSize, /// µÚ¶þ´Î½øÀ´ ´ÓÉÏ´ÎµÄÎ»ÖÃ¿ªÊ¼¶Á
+        int len = read(impl_->head_.data + impl_->head_.recvSize, /// ç¬¬äºŒæ¬¡è¿›æ¥ ä»Žä¸Šæ¬¡çš„ä½ç½®å¼€å§‹è¯»
                        impl_->head_.size - impl_->head_.recvSize);
         if (len <= 0)
         {
@@ -126,30 +126,30 @@ bool XMsgEvent::recvMsg()
             impl_->pb_head_ = new xmsg::XMsgHead();
         }
 
-        /// ÍêÕûµÄÍ·²¿Êý¾Ý½ÓÊÕÍê³É
-        /// ·´ÐòÁÐ»¯
+        /// å®Œæ•´çš„å¤´éƒ¨æ•°æ®æŽ¥æ”¶å®Œæˆ
+        /// ååºåˆ—åŒ–
         if (!impl_->pb_head_->ParseFromArray(impl_->head_.data, impl_->head_.size))
         {
             std::cerr << "pb_head_.ParseFromArray failed!" << std::endl;
             return false;
         }
 
-        /// ¼øÈ¨
-        /// ÏûÏ¢ÄÚÈÝ´óÐ¡
-        /// ·ÖÅäÏûÏ¢ÄÚÈÝ¿Õ¼ä
+        /// é‰´æƒ
+        /// æ¶ˆæ¯å†…å®¹å¤§å°
+        /// åˆ†é…æ¶ˆæ¯å†…å®¹ç©ºé—´
         if (!impl_->msg_.alloc(impl_->pb_head_->msgsize()))
         {
             std::cerr << "msg_.alloc failed!" << std::endl;
             return false;
         }
-        /// ÉèÖÃÏûÏ¢ÀàÐÍ
+        /// è®¾ç½®æ¶ˆæ¯ç±»åž‹
         impl_->msg_.type = impl_->pb_head_->msgtype();
     }
 
-    /// 3 ¿ªÊ¼½ÓÊÕÏûÏ¢ÄÚÈÝ
+    /// 3 å¼€å§‹æŽ¥æ”¶æ¶ˆæ¯å†…å®¹
     if (!impl_->msg_.recved())
     {
-        int len = read(impl_->msg_.data + impl_->msg_.recvSize, /// µÚ¶þ´Î½øÀ´ ´ÓÉÏ´ÎµÄÎ»ÖÃ¿ªÊ¼¶Á
+        int len = read(impl_->msg_.data + impl_->msg_.recvSize, /// ç¬¬äºŒæ¬¡è¿›æ¥ ä»Žä¸Šæ¬¡çš„ä½ç½®å¼€å§‹è¯»
                        impl_->msg_.size - impl_->msg_.recvSize);
         if (len <= 0)
         {
@@ -179,21 +179,21 @@ auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
         return false;
     head->set_msgsize(msg->size);
 
-    /// ÏûÏ¢Í·ÐòÁÐ»¯
+    /// æ¶ˆæ¯å¤´åºåˆ—åŒ–
     std::string headStr  = head->SerializeAsString();
     int         headSize = headStr.size();
 
-    /// 1 ·¢ËÍÏûÏ¢Í·´óÐ¡ 4×Ö½Ú ÔÝÊ±²»¿¼ÂÇ×Ö½ÚÐòÎÊÌâ
+    /// 1 å‘é€æ¶ˆæ¯å¤´å¤§å° 4å­—èŠ‚ æš‚æ—¶ä¸è€ƒè™‘å­—èŠ‚åºé—®é¢˜
     int re = write(&headSize, sizeof(headSize));
     if (!re)
         return false;
 
-    /// 2 ·¢ËÍÏûÏ¢Í·£¨pbÐòÁÐ»¯£© XMsgHead £¨ÉèÖÃÏûÏ¢ÄÚÈÝµÄ´óÐ¡£©
+    /// 2 å‘é€æ¶ˆæ¯å¤´ï¼ˆpbåºåˆ—åŒ–ï¼‰ XMsgHead ï¼ˆè®¾ç½®æ¶ˆæ¯å†…å®¹çš„å¤§å°ï¼‰
     re = write(headStr.data(), headStr.size());
     if (!re)
         return false;
 
-    /// 3 ·¢ËÍÏûÏ¢ÄÚÈÝ £¨pbÐòÁÐ»¯£© ÒµÎñproto
+    /// 3 å‘é€æ¶ˆæ¯å†…å®¹ ï¼ˆpbåºåˆ—åŒ–ï¼‰ ä¸šåŠ¡proto
     re = write(msg->data, msg->size);
     if (!re)
         return false;
@@ -206,9 +206,9 @@ bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *m
     if (!msg || !head)
         return false;
 
-    ////////////////////////·â°ü////////////////////////
+    ////////////////////////å°åŒ…////////////////////////
 
-    /// ÏûÏ¢ÄÚÈÝÐòÁÐ»¯
+    /// æ¶ˆæ¯å†…å®¹åºåˆ—åŒ–
     std::string msgStr  = msg->SerializeAsString();
     int         msgSize = msgStr.size();
 

@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XSSL_CTX.h
  * @brief  
  *
@@ -23,25 +23,25 @@ public:
     virtual ~XSSL_CTX();
 
 public:
-    /// \brief ³õÊ¼»¯·þÎñ¶Ë
-    /// \param crt_file ·þÎñ¶ËÖ¤ÊéÎÄ¼þ
-    /// \param key_file ·þÎñ¶ËË½Ô¿ÎÄ¼þ
-    /// \param ca_file ÑéÖ¤¿Í»§¶ËÖ¤Êé£¨¿ÉÑ¡£©
-    /// \return ³õÊ¼»¯ÊÇ·ñ³É¹¦
+    /// \brief åˆå§‹åŒ–æœåŠ¡ç«¯
+    /// \param crt_file æœåŠ¡ç«¯è¯ä¹¦æ–‡ä»¶
+    /// \param key_file æœåŠ¡ç«¯ç§é’¥æ–‡ä»¶
+    /// \param ca_file éªŒè¯å®¢æˆ·ç«¯è¯ä¹¦ï¼ˆå¯é€‰ï¼‰
+    /// \return åˆå§‹åŒ–æ˜¯å¦æˆåŠŸ
     virtual auto initServer(const char *crt_file, const char *key_file, const char *ca_file = 0) -> bool;
 
-    /// \brief ³õÊ¼»¯SSL¿Í»§¶Ë
-    /// \param ca_file  ÑéÖ¤·þÎñ¶ËÖ¤Êé
+    /// \brief åˆå§‹åŒ–SSLå®¢æˆ·ç«¯
+    /// \param ca_file  éªŒè¯æœåŠ¡ç«¯è¯ä¹¦
     /// \return
     virtual auto initClient(const char *ca_file = 0) -> bool;
 
-    /// \brief ´´½¨SSLÍ¨ÐÅ¶ÔÏó£¬socketºÍssl_st×ÊÔ´ÓÉµ÷ÓÃÕßÊÍ·Å
-    /// ´´½¨Ê§°Ü·µ»ØÍ¨¹ýXSSL::isEmpty()ÅÐ¶Ï
+    /// \brief åˆ›å»ºSSLé€šä¿¡å¯¹è±¡ï¼Œsocketå’Œssl_stèµ„æºç”±è°ƒç”¨è€…é‡Šæ”¾
+    /// åˆ›å»ºå¤±è´¥è¿”å›žé€šè¿‡XSSL::isEmpty()åˆ¤æ–­
     /// \param socket
     /// \return
     auto createXSSL(int socket) -> XSSL::Ptr;
 
-    /// \brief ÊÍ·Å×ÊÔ´
+    /// \brief é‡Šæ”¾èµ„æº
     auto close() -> void;
 
 private:

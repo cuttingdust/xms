@@ -1,4 +1,4 @@
-#ifndef XSINGLETON_H
+﻿#ifndef XSINGLETON_H
 #define XSINGLETON_H
 
 #include <type_traits>

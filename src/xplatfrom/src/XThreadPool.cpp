@@ -1,4 +1,4 @@
-#include "XThreadPool.h"
+ï»¿#include "XThreadPool.h"
 
 #include "XThread.h"
 
@@ -29,7 +29,7 @@ public:
             XThread *t = new XThread();
             t->setId(i + 1);
             std::cout << "create thread " << i << std::endl;
-            /// Æô¶¯Ïß³Ì
+            /// å¯åŠ¨çº¿ç¨‹
             t->start();
             threads_.emplace_back(t);
             allThreadsMutex.lock();
@@ -41,7 +41,7 @@ public:
 
     auto dispatch(XTask *task) -> void override
     {
-        /// ÂÖÑ¯
+        /// è½®è¯¢
         if (!task)
         {
             return;
@@ -51,10 +51,10 @@ public:
         lastThread_ = tid;
         XThread *t  = threads_[tid];
 
-        /// Ìí¼ÓÈÎÎñ
+        /// æ·»åŠ ä»»åŠ¡
         t->addTask(task);
 
-        /// ¼¤»îÏß³Ì
+        /// æ¿€æ´»çº¿ç¨‹
         t->activate();
     }
 
@@ -95,7 +95,7 @@ auto XThreadPoolFactory::create() -> XThreadPool *
                        WSAStartup(MAKEWORD(2, 2), &wsaData);
 
 #else
-                        /// ºöÂÔ¹ÜµÀĞÅºÅ£¬·¢ËÍÊı¾İ¸øÒÑ¹Ø±ÕµÄsocket
+                        /// å¿½ç•¥ç®¡é“ä¿¡å·ï¼Œå‘é€æ•°æ®ç»™å·²å…³é—­çš„socket
                         if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
                             return;
 #endif

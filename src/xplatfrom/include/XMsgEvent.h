@@ -1,4 +1,4 @@
-/**
+ï»¿/**
  * @file   XMsgEvent.h
  * @brief  
  *
@@ -20,7 +20,7 @@
 
 #include <memory>
 
-/// ²»µ÷ÓÃbufferevent½Ó¿Ú£¬Ö±½Óµ÷ÓÃXComTaskµÄ·â×°
+/// ä¸è°ƒç”¨buffereventæŽ¥å£ï¼Œç›´æŽ¥è°ƒç”¨XComTaskçš„å°è£…
 class XPLATFROM_EXPORT XMsgEvent : public XComTask
 {
 public:
@@ -29,40 +29,40 @@ public:
     typedef void (XMsgEvent::*MsgCBFunc)(xmsg::XMsgHead *head, XMsg *msg);
 
 public:
-    /// \brief ½ÓÊÕÏûÏ¢ ·Ö·¢ÏûÏ¢
+    /// \brief æŽ¥æ”¶æ¶ˆæ¯ åˆ†å‘æ¶ˆæ¯
     void readCB() override;
 
     virtual void readCB(xmsg::XMsgHead *head, XMsg *msg);
 
-    /// \brief Ìí¼ÓÏûÏ¢´¦ÀíµÄ»Øµ÷º¯Êý£¬¸ù¾ÝÏûÏ¢ÀàÐÍ·Ö·¢ ,Í¬Ò»¸öÀàÐÍÖ»ÄÜÓÐÒ»¸ö»Øµ÷º¯Êý
-    /// \param type ÏûÏ¢ÀàÐÍ
-    /// \param func ÏûÏ¢»Øµ÷º¯Êý
+    /// \brief æ·»åŠ æ¶ˆæ¯å¤„ç†çš„å›žè°ƒå‡½æ•°ï¼Œæ ¹æ®æ¶ˆæ¯ç±»åž‹åˆ†å‘ ,åŒä¸€ä¸ªç±»åž‹åªèƒ½æœ‰ä¸€ä¸ªå›žè°ƒå‡½æ•°
+    /// \param type æ¶ˆæ¯ç±»åž‹
+    /// \param func æ¶ˆæ¯å›žè°ƒå‡½æ•°
     static void regCB(const xmsg::MsgType &type, MsgCBFunc func);
 
 public:
-    /// \brief ½ÓÊÕÊý¾Ý°ü£¬
-    /// 1 ÕýÈ·½ÓÊÕµ½ÏûÏ¢  (µ÷ÓÃÏûÏ¢´¦Àíº¯Êý)
-    /// 2 ÏûÏ¢½ÓÊÕ²»ÍêÕû (µÈ´ýÏÂÒ»´Î½ÓÊÕ)
-    /// 3 ÏûÏ¢½ÓÊÕ³ö´í £¨ÍË³öÇåÀí¿Õ¼ä£©
-    /// \return  1 2 ·µ»Øtrue 3·µ»Øfalse
+    /// \brief æŽ¥æ”¶æ•°æ®åŒ…ï¼Œ
+    /// 1 æ­£ç¡®æŽ¥æ”¶åˆ°æ¶ˆæ¯  (è°ƒç”¨æ¶ˆæ¯å¤„ç†å‡½æ•°)
+    /// 2 æ¶ˆæ¯æŽ¥æ”¶ä¸å®Œæ•´ (ç­‰å¾…ä¸‹ä¸€æ¬¡æŽ¥æ”¶)
+    /// 3 æ¶ˆæ¯æŽ¥æ”¶å‡ºé”™ ï¼ˆé€€å‡ºæ¸…ç†ç©ºé—´ï¼‰
+    /// \return  1 2 è¿”å›žtrue 3è¿”å›žfalse
     auto recvMsg() -> bool;
 
-    /// \brief »ñÈ¡½ÓÊÕµ½µÄÊý¾Ý°ü£¬£¨²»°üº¬Í·²¿ÏûÏ¢£©,
-    /// ÓÉµ÷ÓÃÕßÇåÀíXMsg
-    /// \return Èç¹ûÃ»ÓÐÍêÕûµÄÊý¾Ý°ü£¬·µ»ØNULL
+    /// \brief èŽ·å–æŽ¥æ”¶åˆ°çš„æ•°æ®åŒ…ï¼Œï¼ˆä¸åŒ…å«å¤´éƒ¨æ¶ˆæ¯ï¼‰,
+    /// ç”±è°ƒç”¨è€…æ¸…ç†XMsg
+    /// \return å¦‚æžœæ²¡æœ‰å®Œæ•´çš„æ•°æ®åŒ…ï¼Œè¿”å›žNULL
     auto getMsg() const -> XMsg *;
 
     virtual auto sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool;
 
     virtual auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool;
 
-    /// \brief ·¢ËÍÏûÏ¢ °üº¬Í·²¿£¨×Ô¶¯´´½¨£©
-    /// \param msgType  ÏûÏ¢ÀàÐÍ
-    /// \param msg      ÏûÏ¢ÄÚÈÝ
+    /// \brief å‘é€æ¶ˆæ¯ åŒ…å«å¤´éƒ¨ï¼ˆè‡ªåŠ¨åˆ›å»ºï¼‰
+    /// \param msgType  æ¶ˆæ¯ç±»åž‹
+    /// \param msg      æ¶ˆæ¯å†…å®¹
     virtual auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool;
 
 
-    /// \brief ÇåÀí»º´æÏûÏ¢Í·ºÍÏûÏ¢ÄÚÈÝ£¬ÓÃÓÚ½ÓÊÕÏÂÒ»´ÎÏûÏ¢
+    /// \brief æ¸…ç†ç¼“å­˜æ¶ˆæ¯å¤´å’Œæ¶ˆæ¯å†…å®¹ï¼Œç”¨äºŽæŽ¥æ”¶ä¸‹ä¸€æ¬¡æ¶ˆæ¯
     auto clear() -> void;
 
     auto close() -> void;
