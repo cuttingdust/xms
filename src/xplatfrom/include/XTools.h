@@ -12,6 +12,7 @@
 #define XTOOLS_H
 
 #include "XPlatfrom_Global.h"
+
 #include <string>
 #include <iostream>
 #include <mutex>

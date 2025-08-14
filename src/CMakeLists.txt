@@ -13,7 +13,7 @@ endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE Debug) 
@@ -39,6 +39,7 @@ message("Found Qt6 FOUND: ${Qt6_FOUND}")
 # OpenSSL
 find_package(OpenSSL REQUIRED)
 message("OpenSSL_FOUND = ${OpenSSL_FOUND}")
+message("Found OpenSSL VERSION: ${OpenSSL_VERSION}")
 
 #libevent
 find_package(Libevent CONFIG REQUIRED)
