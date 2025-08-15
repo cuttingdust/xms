@@ -65,7 +65,7 @@ public:
     /// \brief 清理缓存消息头和消息内容，用于接收下一次消息
     auto clear() -> void;
 
-    auto close() -> void;
+    auto close() -> void override;
 
 private:
     class PImpl;
