@@ -4,6 +4,7 @@
 
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "zh_CN.UTF-8");
     std::cout << "Register Server" << std::endl;
     XRegisterServer server;
     /// 初始化 传递参数，端口号 register_server 20018

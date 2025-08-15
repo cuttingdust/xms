@@ -256,7 +256,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         return nullptr;
     }
     /// 1 加载proto文件
-    std::string path = PB_ASSERT;
+    std::string path = PB_ROOT;
     path += file_name;
 
     /// 返回proto文件描述符

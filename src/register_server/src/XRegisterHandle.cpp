@@ -43,7 +43,7 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
     std::string service_ip = req.ip();
     if (service_ip.empty())
     {
-        LOGDEBUG("service_ip is empty : client ip");
+        LOGDEBUG("service_ip is empty : client ip:" + std::string(this->clientIP()));
         service_ip = this->clientIP();
     }
 
