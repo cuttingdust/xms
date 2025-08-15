@@ -20,6 +20,10 @@ class XTask;
 class XPLATFROM_EXPORT XThreadPool
 {
 public:
+    XThreadPool();
+    virtual ~XThreadPool();
+
+public:
     /// \brief 初始化所有线程并启动线程
     /// \param threadNum
     virtual auto init(int threadNum = 4) -> void = 0;

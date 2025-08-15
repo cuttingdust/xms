@@ -64,6 +64,9 @@ private:
     int                    lastThread_ = -1;
 };
 
+XThreadPool::XThreadPool()  = default;
+XThreadPool::~XThreadPool() = default;
+
 auto XThreadPool::exitAllThread() -> void
 {
     isExitAll = true;
