@@ -10,6 +10,7 @@
 
 #include <fstream>
 #include <cfloat>
+#include <thread>
 
 static ConfigEdit *cur_edit = nullptr;
 
