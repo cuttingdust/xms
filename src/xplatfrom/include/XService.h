@@ -22,7 +22,7 @@ public:
     virtual ~XService();
 
 public:
-    virtual XServiceHandle *createHandle() = 0;
+    virtual auto createHandle() -> XServiceHandle * = 0;
 
     /// \brief 服务器监听端口
     /// \param port

@@ -67,6 +67,6 @@ int main(int argc, char *argv[])
     //     std::cout << "ConfigDao::Get()->Init Failed!" << std::endl;
     // }
 
-    std::cin.get();
+    getchar(); // 等待输入，防止程序直接退出
     return 0;
 }

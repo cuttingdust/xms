@@ -297,12 +297,12 @@ XSSL_CTX *XComTask::getSSLContent() const
     return impl_->ssl_ctx_;
 }
 
-void XComTask::setReadTime(int ms)
+void XComTask::setReadTimeMs(int ms)
 {
     impl_->read_timeout_ms_ = ms;
 }
 
-void XComTask::setTime(int ms)
+void XComTask::setTimeMs(int ms)
 {
     impl_->timer_ms_ = ms;
 }

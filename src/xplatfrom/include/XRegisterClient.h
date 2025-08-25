@@ -74,9 +74,9 @@ public:
     /// \return 服务列表
     auto getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList;
 
-    void regMsgCallback();
+    auto regMsgCallback() -> void;
 
-    auto localLocalCache() -> bool;
+    auto loadLocalCache() -> bool;
 
 private:
     class PImpl;

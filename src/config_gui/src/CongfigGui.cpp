@@ -67,7 +67,7 @@ void CongfigGui::showEvent(QShowEvent *event)
 void CongfigGui::addLog(const char *log)
 {
     /// 加入日期显示
-    auto t = QTime::currentTime().toString("HH:mm:ss") + " " + QString::fromLocal8Bit(log);
+    auto t = QTime::currentTime().toString("HH:mm:ss") + " " + log;
     LOGDEBUG(log);
     ui->log_list_Widget->insertItem(0, new QListWidgetItem(t));
 }
@@ -150,7 +150,7 @@ void CongfigGui::slotDeleteConfig()
 
     std::stringstream ss;
     ss << "您确认删除" << name << "|" << ip << ":" << port << " 微服务配置吗？";
-    if (QMessageBox::information(nullptr, "", QString::fromLocal8Bit(ss.str().c_str()),
+    if (QMessageBox::information(nullptr, "", ss.str().c_str(),
                                  QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     {
         return;

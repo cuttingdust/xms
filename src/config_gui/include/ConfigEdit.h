@@ -33,6 +33,8 @@ public:
     /// \return
     bool loadConfig(const char *ip, int port);
 
+    void loadProto(const char *filename, const char *class_name);
+
 signals:
     void signalAddLog(const char *log);
 

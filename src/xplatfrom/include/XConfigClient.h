@@ -56,7 +56,7 @@ public:
     /// \param out_conf
     /// \param timeout_ms
     /// \return
-    bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf);
+    bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms = 100);
 
     /// \brief 载入proto文件 线程不安全
     /// \param file_name  文件路径

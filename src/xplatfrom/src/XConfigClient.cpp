@@ -13,14 +13,13 @@
 #include <thread>
 #include <fstream>
 
-#define PB_ROOT   "root/"
-#define PB_ASSERT "assert/"
+#define PB_ROOT "root/"
 
 /// key ip_port
 static std::map<std::string, xmsg::XConfig> conf_map;
 static std::mutex                           conf_map_mutex;
-static std::condition_variable              config_cv;
-static bool                                 config_received = false;
+// static std::condition_variable              config_cv;
+static bool config_received = false;
 
 /// 存储当前微服务配置
 static google::protobuf::Message *cur_service_conf = nullptr;
@@ -153,8 +152,13 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     key << conf.service_ip() << "_" << conf.service_port();
 
     /// 更新配置
+    conf_map_mutex.lock();
     conf_map[key.str()] = conf;
-    config_cv.notify_one();
+    conf_map_mutex.unlock();
+
+    //////////////////////////////////////////////////////////////////
+    // config_cv.notify_one();
+    //////////////////////////////////////////////////////////////////
 
     /// 没有本地配置
     if (impl_->local_port_ <= 0 || !cur_service_conf)
@@ -194,52 +198,52 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     ofs.close();
 }
 
-// ///获取配置列表（已缓存）中的配置，会复制一份到out_conf
-// bool XConfigClient::GetConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms)
-// {
-//     //十毫秒判断一次
-//     int          count = timeout_ms / 10;
-//     stringstream key;
-//     key << ip << "_" << port;
-//
-//     for (int i = 0; i < count; i++)
-//     {
-//         XMutex mutex(&conf_map_mutex);
-//         //查找配置
-//         auto conf = conf_map.find(key.str());
-//         if (conf == conf_map.end())
-//         {
-//             this_thread::sleep_for(10ms);
-//             continue;
-//         }
-//         //复制配置
-//         out_conf->CopyFrom(conf->second);
-//         return true;
-//     }
-//     LOGDEBUG("Can`t find conf");
-//     return false;
-// }
-
-bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
+///获取配置列表（已缓存）中的配置，会复制一份到out_conf
+bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms)
 {
-    /// 条件变量 或者 超时时间
-    std::unique_lock<std::mutex> lck(conf_map_mutex);
-    config_cv.wait(lck);
-
+    /// 十毫秒判断一次
+    int               count = timeout_ms / 10;
     std::stringstream key;
     key << ip << "_" << port;
-    /// s查找配置
-    auto conf = conf_map.find(key.str());
-    if (conf == conf_map.end())
+
+    for (int i = 0; i < count; i++)
     {
-        LOGDEBUG("Can`t find conf");
-        return false;
+        XMutex mutex(&conf_map_mutex);
+        /// 查找配置
+        auto conf = conf_map.find(key.str());
+        if (conf == conf_map.end())
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+        /// 复制配置
+        out_conf->CopyFrom(conf->second);
+        return true;
     }
-    LOGDEBUG(conf->second.DebugString());
-    /// 复制配置
-    out_conf->CopyFrom(conf->second);
-    return true;
+    LOGDEBUG("Can`t find conf");
+    return false;
 }
+
+// bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf)
+// {
+//     /// 条件变量 或者 超时时间
+//     std::unique_lock<std::mutex> lck(conf_map_mutex);
+//     config_cv.wait(lck);
+//
+//     std::stringstream key;
+//     key << ip << "_" << port;
+//     /// s查找配置
+//     auto conf = conf_map.find(key.str());
+//     if (conf == conf_map.end())
+//     {
+//         LOGDEBUG("Can`t find conf");
+//         return false;
+//     }
+//     LOGDEBUG(conf->second.DebugString());
+//     /// 复制配置
+//     out_conf->CopyFrom(conf->second);
+//     return true;
+// }
 
 google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name, const std::string &class_name,
                                                     std::string &out_proto_code)
@@ -320,20 +324,13 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
 
     LOGDEBUG(message_desc->DebugString());
 
-    /// 反射生成message对象
-    // if (impl_->message_)
-    // {
-    //     delete impl_->message_;
-    //     impl_->message_ = nullptr;
-    // }
-
     /// 动态创建消息类型的工厂，不能销毁，销毁后由此创建的message也失效
     static google::protobuf::DynamicMessageFactory factory;
 
-
     /// 创建一个类型原型
     auto message_proto = factory.GetPrototype(message_desc);
-    impl_->message_    = message_proto->New();
+    delete impl_->message_;
+    impl_->message_ = message_proto->New();
     LOGDEBUG(impl_->message_->DebugString());
 
     ////////////////////////////////////////
@@ -412,6 +409,10 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
         std::cout << "connting config center failed..." << std::endl;
         return false;
     }
+    if (impl_->local_port_ > 0)
+        loadConfig(impl_->local_ip_, impl_->local_port_);
+    /// 设定获取配置的定时时间（毫秒）
+
     /// 设定获取配置的定时时间（毫秒）
     setTimer(3000);
     return true;
@@ -433,7 +434,7 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
 
     impl_->configTimerCB_ = func;
 
-    setTime(3000);
+    setTimeMs(3000);
 
     /// 读取本地缓存
     std::stringstream ss;

@@ -81,11 +81,11 @@ public:
 
     /// \brief 设定要在加入线程池之前
     /// \param ms
-    void setReadTime(int ms);
+    void setReadTimeMs(int ms);
 
     /// \brief 设定要在加入线程池之前 virtual void TimerCB() {}
     /// \param ms
-    void setTime(int ms);
+    void setTimeMs(int ms);
 
 public:
     virtual void eventCB(short events);

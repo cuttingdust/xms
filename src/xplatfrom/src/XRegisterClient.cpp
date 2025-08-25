@@ -74,7 +74,7 @@ void XRegisterClient::registerServer(const char *service_name, int port, const c
     setAutoConnect(true);
 
     /// 设定心跳定时器
-    setTime(3000);
+    setTimeMs(3000);
 
     /// 把任务加入到线程池中
     startConnect();
@@ -137,8 +137,6 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
         LOGDEBUG("service_map.ParseFromArray failed!");
         return;
     }
-    LOGDEBUG(cache_map->DebugString());
-
     if (cache_map->type() == xmsg::XT_ALL)
     {
         is_all = true;
@@ -200,7 +198,7 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
 xmsg::XServiceMap *XRegisterClient::getAllService()
 {
     XMutex mutex(&service_map_mutex);
-    localLocalCache();
+    loadLocalCache();
     if (!service_map)
     {
         return nullptr;
@@ -237,7 +235,7 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
         /// 只有第一次读取缓存
         if (!service_map)
         {
-            localLocalCache();
+            loadLocalCache();
         }
         return result;
     }
@@ -282,13 +280,13 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
     return result;
 }
 
-void XRegisterClient::regMsgCallback()
+auto XRegisterClient::regMsgCallback() -> void
 {
     regCB(xmsg::MT_REGISTER_RES, static_cast<MsgCBFunc>(&XRegisterClient::registerRes));
     regCB(xmsg::MT_GET_SERVICE_RES, static_cast<MsgCBFunc>(&XRegisterClient::getServiceRes));
 }
 
-auto XRegisterClient::localLocalCache() -> bool
+auto XRegisterClient::loadLocalCache() -> bool
 {
     if (!service_map)
     {

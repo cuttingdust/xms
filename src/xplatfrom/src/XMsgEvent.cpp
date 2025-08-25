@@ -134,14 +134,30 @@ bool XMsgEvent::recvMsg()
             return false;
         }
 
-        /// 鉴权
-        /// 消息内容大小
-        /// 分配消息内容空间
-        if (!impl_->msg_.alloc(impl_->pb_head_->msgsize()))
+        /// 空包数据
+        if (impl_->pb_head_->msgsize() == 0)
         {
-            std::cerr << "msg_.alloc failed!" << std::endl;
-            return false;
+            std::cout << "0" << std::flush;
+            /// 消息类型
+            impl_->msg_.type = impl_->pb_head_->msgtype();
+            impl_->msg_.size = 0;
+            return true;
         }
+        else
+        {
+            /// 鉴权
+            /// 消息内容大小
+            /// 分配消息内容空间
+            if (!impl_->msg_.alloc(impl_->pb_head_->msgsize()))
+            {
+                std::stringstream ss;
+                ss << "msg_.Alloc failed!msg_size=" << impl_->pb_head_->msgsize();
+                LOGDEBUG(ss.str().c_str());
+                return false;
+            }
+        }
+
+
         /// 设置消息类型
         impl_->msg_.type = impl_->pb_head_->msgtype();
     }
@@ -156,8 +172,6 @@ bool XMsgEvent::recvMsg()
             return true;
         }
         impl_->msg_.recvSize += len;
-        if (!impl_->msg_.recved())
-            return true;
     }
 
     if (impl_->msg_.recved())

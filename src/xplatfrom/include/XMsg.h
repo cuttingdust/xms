@@ -10,9 +10,11 @@
 
 #ifndef XMSG_H
 #define XMSG_H
+
 #include "XMsgType.pb.h"
 
 #include <cstring>
+
 #define MAX_MSG_SIZE         8192     /// 头部消息的最大字节数
 #define API_GATEWAY_NAME     "gw"     /// API网关名称
 #define API_GATEWAY_PORT     20010    /// API网关端口
@@ -47,7 +49,7 @@ public:
     /// 判断数据是否接收完成
     bool recved()
     {
-        if (size <= 0)
+        if (size < 0)
             return false;
         return (recvSize == size);
     }

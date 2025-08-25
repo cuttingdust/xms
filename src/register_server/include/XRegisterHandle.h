@@ -19,16 +19,16 @@ public:
     /// \brief 接收服务的注册请求
     /// \param head
     /// \param msg
-    void registerReq(xmsg::XMsgHead *head, XMsg *msg);
+    auto registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     /// \brief 接收服务的发现请求
     /// \param head
     /// \param msg
-    void getServiceReq(xmsg::XMsgHead *head, XMsg *msg);
+    auto getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-    void heartRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto heartRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-    static void regMsgCallback();
+    static auto regMsgCallback() -> void;
 };
 
 

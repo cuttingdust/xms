@@ -4,13 +4,11 @@
 
 #include <print>
 
-/// 注册服务列表的缓存
-static xmsg::XServiceMap *service_map = nullptr; // NOLINT(misc-use-anonymous-namespace)
 
-/// 多线程访问的锁
-static std::mutex service_map_mutex; // NOLINT(misc-use-anonymous-namespace)
+static xmsg::XServiceMap *service_map = nullptr; ///< 注册服务列表的缓存
+static std::mutex         service_map_mutex;     ///< 多线程访问的锁
 
-void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
+auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("服务端接收到用户的注册请求");
 
@@ -112,7 +110,7 @@ void XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg)
     sendMsg(xmsg::MT_REGISTER_RES, &res);
 }
 
-void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
+auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     /// 暂时只发送全部
     LOGDEBUG("XRegisterHandle::getServiceReq");
@@ -167,12 +165,12 @@ void XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg)
     sendMsg(xmsg::MT_GET_SERVICE_RES, service_map);
 }
 
-void XRegisterHandle::heartRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XRegisterHandle::heartRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     std::print("{}", __func__);
 }
 
-void XRegisterHandle::regMsgCallback()
+auto XRegisterHandle::regMsgCallback() -> void
 {
     regCB(xmsg::MT_HEART_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::heartRes));
     regCB(xmsg::MT_REGISTER_REQ, static_cast<MsgCBFunc>(&XRegisterHandle::registerReq));

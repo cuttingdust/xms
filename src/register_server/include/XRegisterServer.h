@@ -17,12 +17,12 @@ class XRegisterServer : public XService
 {
 public:
     /// 根据参数 初始化服务，需要先调用
-    void main(int argc, char *argv[]);
+    auto main(int argc, char *argv[]) -> void;
 
     /// 等待线程退出
-    void wait();
+    auto wait() -> void;
 
-    XServiceHandle *createHandle() override;
+    auto createHandle() -> XServiceHandle * override;
 };
 
 

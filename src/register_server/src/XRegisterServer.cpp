@@ -3,7 +3,7 @@
 
 #include <XThreadPool.h>
 
-void XRegisterServer::main(int argc, char *argv[])
+auto XRegisterServer::main(int argc, char *argv[]) -> void
 {
     XRegisterHandle::regMsgCallback();
 
@@ -15,15 +15,15 @@ void XRegisterServer::main(int argc, char *argv[])
     this->setServerPort(port);
 }
 
-void XRegisterServer::wait()
+auto XRegisterServer::wait() -> void
 {
     XThreadPool::wait();
 }
 
-XServiceHandle *XRegisterServer::createHandle()
+auto XRegisterServer::createHandle() -> XServiceHandle *
 {
     auto handle = new XRegisterHandle();
-    handle->setReadTime(5000);
+    handle->setReadTimeMs(5000);
 
     return handle;
 }

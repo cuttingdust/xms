@@ -48,7 +48,7 @@ ConfigEdit::ConfigEdit(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)
     connect(this, &ConfigEdit::signalMessageCB, this, &ConfigEdit::slotMessageCB);
     XConfigClient::get()->sendConfigResCB = ConfigMessageCB;
     impl_->config_row_count_              = ui->formLayout->rowCount();
-    impl_->config_                        = new xmsg::XConfig();
+    // impl_->config_                        = new xmsg::XConfig();
 }
 
 ConfigEdit::~ConfigEdit()
@@ -178,17 +178,18 @@ bool ConfigEdit::loadConfig(const char *ip, int port)
     if (!impl_->config_)
         impl_->config_ = new xmsg::XConfig();
 
-    if (!XConfigClient::get()->getConfig(ip, port, impl_->config_))
+    bool is_find = false;
+    for (int i = 0; i < 100; i++)
     {
-        LOGDEBUG("获取配置数据失败！");
-        return false;
+        if (XConfigClient::get()->getConfig(ip, port, impl_->config_))
+        {
+            is_find = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    LOGDEBUG("获取配置数据成功！");
-    if (impl_->config_->proto().empty())
-    {
-        LOGDEBUG("配置的proto为空！");
+    if (!is_find)
         return false;
-    }
 
     /// 写入proto文件
     std::string   proto_filepath = "tmp.proto";
@@ -196,31 +197,46 @@ bool ConfigEdit::loadConfig(const char *ip, int port)
     ofs << impl_->config_->proto();
     ofs.close();
 
-    /// 加载proto 生成message
-    std::string out_proto = "";
-    /// 取proto文件中的第一个类型
-    impl_->message_ = XConfigClient::get()->loadProto(proto_filepath, "", out_proto);
-    if (!impl_->message_)
-    {
-        LOGDEBUG("加载proto文件失败！");
-        return false;
-    }
+    loadProto(proto_filepath.c_str(), 0);
 
-    //LOGDEBUG(config_->DebugString());
-    //LOGDEBUG(message_->GetDescriptor()->DebugString());
-    /// message反序列化，生成proto文件并加载
-    if (!impl_->message_->ParseFromString(impl_->config_->private_pb()))
-    {
-        LOGDEBUG("反序列化message 失败！");
-        return false;
-    }
-    LOGDEBUG(impl_->message_->DebugString());
 
-    /// 根据message 生成界面
-    /// 根据message内容，写入到界面
+    std::cout << "====================================================\n";
+    if (impl_->message_)
+    {
+        impl_->message_->ParseFromString(impl_->config_->private_pb());
+        std::cout << impl_->message_->DebugString() << std::endl;
+        std::cout << "-----------------------------------------------------\n";
+    }
+    std::cout << impl_->config_->DebugString() << std::endl;
+    std::cout << "====================================================\n";
     initGUI();
 
     return true;
+}
+
+void ConfigEdit::loadProto(const char *filename, const char *class_name)
+{
+    /// 清理之前的配置项目
+    while (ui->formLayout->rowCount() != impl_->config_row_count_)
+        ui->formLayout->removeRow(impl_->config_row_count_);
+
+    if (!filename)
+        return;
+
+    /// 用户输入类型名称，如果没有名称，则使用proto文件中的第一个类型
+    std::string class_name_str;
+    if (class_name)
+    {
+        class_name_str = class_name;
+    }
+
+    std::string proto_code = "";
+    impl_->message_        = XConfigClient::get()->loadProto(filename, class_name_str, proto_code);
+    if (impl_->message_ == NULL)
+    {
+        LOGDEBUG("XConfigClient::get()->loadProto failed!");
+        return;
+    }
 }
 
 void ConfigEdit::slotSave()
@@ -372,6 +388,9 @@ void ConfigEdit::slotSave()
 void ConfigEdit::slotLoadProto()
 {
     LOGDEBUG("LoadProto");
+    /// 清理之前的配置项目
+    while (ui->formLayout->rowCount() != impl_->config_row_count_)
+        ui->formLayout->removeRow(impl_->config_row_count_);
 
     /// 用户输入类型名称，如果没有名称，则使用proto文件中的第一个类型
     QString     class_name = ui->proto_nameEdit->text();
@@ -385,7 +404,8 @@ void ConfigEdit::slotLoadProto()
     QString filename = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("请选择proto文件"), "", "*.proto");
     if (filename.isEmpty())
         return;
-    // LOGDEBUG(filename.toStdString().c_str());
+    LOGDEBUG(filename.toStdString().c_str());
+
     std::string proto_code;
     impl_->message_ = XConfigClient::get()->loadProto(filename.toStdString(), class_name_str, proto_code);
     if (impl_->message_ == nullptr)
@@ -393,90 +413,15 @@ void ConfigEdit::slotLoadProto()
         LOGDEBUG("XConfigClient::Get()->LoadProto failed!");
         return;
     }
-    impl_->config_->set_proto(proto_code);
-    initGUI();
+    ui->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
+    ui->proto_textEdit->setText(proto_code.c_str());
 
-    // ui->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
-    // ui->proto_textEdit->setText(proto_code.c_str());
-    //
-    // /// 根据message 反射生成配置输入界面
-    // /// 获取类型描述
-    // auto desc = impl_->message_->GetDescriptor();
-    // /// 遍历字段
-    // int field_count = desc->field_count();
-    // for (int i = 0; i < field_count; i++)
-    // {
-    //     /// 单个字段描述
-    //     auto field = desc->field(i);
-    //
-    //     /// 输入整形
-    //     QSpinBox *int_box = nullptr;
-    //
-    //     /// 输入浮点
-    //     QDoubleSpinBox *double_box = nullptr;
-    //
-    //     ///字符串 byte
-    //     QLineEdit *str_edit = nullptr;
-    //
-    //     /// bool 枚举
-    //     QComboBox *combo_box = nullptr;
-    //
-    //     /// 支持数字，字符串，枚举
-    //     switch (const auto type = field->type())
-    //     {
-    //             ///支持整形数字
-    //         case google::protobuf::FieldDescriptor::TYPE_INT32:
-    //         case google::protobuf::FieldDescriptor::TYPE_INT64:
-    //             // case google::protobuf::FieldDescriptor::TYPE_UINT64:
-    //             // case google::protobuf::FieldDescriptor::TYPE_FIXED64:
-    //             // case google::protobuf::FieldDescriptor::TYPE_FIXED32:
-    //             // case google::protobuf::FieldDescriptor::TYPE_UINT32:
-    //             // case google::protobuf::FieldDescriptor::TYPE_SFIXED32:
-    //             // case google::protobuf::FieldDescriptor::TYPE_SFIXED64:
-    //             // case google::protobuf::FieldDescriptor::TYPE_SINT32:
-    //             // case google::protobuf::FieldDescriptor::TYPE_SINT64:
-    //             int_box = new QSpinBox();
-    //             int_box->setMaximum(INT32_MAX);
-    //             ui->formLayout->addRow(field->name().c_str(), int_box);
-    //             break;
-    //             ///支持浮点数
-    //         case google::protobuf::FieldDescriptor::TYPE_DOUBLE:
-    //         case google::protobuf::FieldDescriptor::TYPE_FLOAT:
-    //             double_box = new QDoubleSpinBox();
-    //             double_box->setMaximum(FLT_MAX);
-    //             ui->formLayout->addRow(field->name().c_str(), double_box);
-    //             break;
-    //             /// 支持字符串
-    //         case google::protobuf::FieldDescriptor::TYPE_BYTES:
-    //         case google::protobuf::FieldDescriptor::TYPE_STRING:
-    //             str_edit = new QLineEdit();
-    //             ui->formLayout->addRow(field->name().c_str(), str_edit);
-    //             break;
-    //         case google::protobuf::FieldDescriptor::TYPE_BOOL:
-    //             combo_box = new QComboBox();
-    //             combo_box->addItem("true", true);
-    //             combo_box->addItem("false", true);
-    //             ui->formLayout->addRow(field->name().c_str(), combo_box);
-    //             break;
-    //         case google::protobuf::FieldDescriptor::TYPE_ENUM:
-    //             combo_box = new QComboBox();
-    //             for (int j = 0; j < field->enum_type()->value_count(); ++j)
-    //             {
-    //                 std::string enum_name = field->enum_type()->value(j)->name();
-    //                 int         enum_val  = field->enum_type()->value(j)->number();
-    //                 combo_box->addItem(enum_name.c_str(), enum_val);
-    //             }
-    //             ui->formLayout->addRow(field->name().c_str(), combo_box);
-    //             break;
-    //
-    //         case google::protobuf::FieldDescriptor::TYPE_GROUP:
-    //             break;
-    //         case google::protobuf::FieldDescriptor::TYPE_MESSAGE:
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
+    if (impl_->config_)
+        delete impl_->config_;
+    impl_->config_ = nullptr;
+
+    loadProto(filename.toStdString().c_str(), class_name_str.c_str());
+    initGUI();
 }
 
 void ConfigEdit::slotMessageCB(bool is_ok, const char *msg)
