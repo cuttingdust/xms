@@ -27,6 +27,10 @@ class XPLATFROM_EXPORT XTools
 {
 public:
     static std::string getDirData(std::string path);
+
+    static std::string XMD5_base64(const unsigned char *d, unsigned long n);
+
+    static char *XMD5_base64(const unsigned char *d, unsigned long n, char *md);
 };
 
 class XPLATFROM_EXPORT XMutex final

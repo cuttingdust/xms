@@ -101,6 +101,8 @@ add_subdirectory(config_gui)
 add_subdirectory(xtest_xplatform_ssl)
 add_subdirectory(xtest_service_client_ssl)
 add_subdirectory(watchdog)
+add_subdirectory(auth_server)
+add_subdirectory(auth_client)
 
 watchdog(register_server 3)
 watchdog(config_server 3)

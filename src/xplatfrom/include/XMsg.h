@@ -22,6 +22,8 @@
 #define REGISTER_PORT        20018    /// 注册中心端口
 #define CONFIG_NAME          "config" /// 配置中心名称
 #define CONFIG_PORT          20019    /// 配置中心端口
+#define AUTH_PORT            20020
+#define AUTH_NAME            "auth"
 
 /// 所有的函数做内联
 class XMsg
