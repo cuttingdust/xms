@@ -18,6 +18,17 @@ message XMsgHeart
 	int64 count = 1;
 }
 
+/// 用户注册 微服务架构的用户系统，只为了做单点登录，不涉及权限，权限有具体的业务处理
+/// 系统只有一个root用户
+/// MSG_ADD_USER
+message XAddUserReq
+{
+	string username = 1;	///< 用户名
+	string password = 2;	///< md5后的密码
+	string rolename = 3;	///< 角色名称，为了后期拓展角色权限
+}
+
+
 /// 用户登陆请求 MSG_LOGIN_REQ
 message XLoginReq 
 {
@@ -29,12 +40,18 @@ message XLoginRes
 {
 	enum XLoginResType
 	{
-		XRT_OK			= 0;	///<<< 登陆成功
-		XRT_ERR			= 1;	///<<< 用户名密码错误
-		XRT_NO_USER		= 2;	///<<< 用户不存在
+		XRT_NONE         = 0;    ///<<< 未处理	
+		XRT_LOGGING      = 1;	///<<< 登录中
+		XRT_OK			 = 2;	///<<< 登陆成功
+		XRT_ERR			 = 3;	///<<< 用户名密码错误
+		XRT_NO_USER		 = 4;	///<<< 用户不存在
+		XRT_SERVER_ERROR = 5;   ///<<< 服务端连接错误
 	}
 	XLoginResType resType = 1;	///< 登陆结果类型
 	string token		  = 2;	///< 登陆成功后的令牌, 失败为空
+	int32 expired_time 	  = 3;  ///< token 超时时间戳
+	string rolename 	  = 4;
+	string username       = 5;
 }
 
 
@@ -161,4 +178,15 @@ message XGatewayConfig
 	string key_path 	= 3;	///< 私钥路径
 	string ca_path  	= 4;	///< 证书签名验证路径
 	// int32  server_port	= 5;	///< 服务器端口号 非SSL 默认 API_GATEWAY_PORT， 默认SSL API_GATEWAY_SSL_PORT
+}
+
+/// 鉴权微服务配置
+message XAuthConfig
+{
+	int32 token_timeout_sec = 1;	///< 登录token
+	//string db_ip = 1;		//数据库ip 默认 127.0.0.1
+	//string dp_user = 2;		//数据库用户 默认 root
+	//string dp_pass = 3;		//数据库密码  后面考虑要加密存储 默认为空
+	//string dp_type = 4;		//数据库类型，暂时只支持mysql，后面考虑加redis
+	//string dp_name = 5;		//数据库的名称 	默认 xms
 }

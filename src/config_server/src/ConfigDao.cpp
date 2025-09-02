@@ -70,7 +70,7 @@ bool ConfigDao::init(const char *ip, const char *user, const char *pass, const c
 
 bool ConfigDao::install()
 {
-    LOGDEBUG("ConfigDao::Install()");
+    LOGDEBUG("ConfigDao::install()");
 
     XMutex mux(&my_mutex);
     if (!impl_->mysql_)

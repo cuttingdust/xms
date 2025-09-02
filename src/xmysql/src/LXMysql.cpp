@@ -5,16 +5,60 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+
+constexpr auto unique_describe = "unique_describe";
+
 #ifdef _WIN32
 #include <windows.h>
+#include <conio.h>
+#define MYSQL_CONFIG_PATH "xms_mysql_init.conf"
+static int GetPassword(char *out, int out_size)
+{
+    for (int i = 0; i < out_size; i++)
+    {
+        char p = _getch();
+        if (p == '\r' || p == '\n')
+        {
+            return i;
+        }
+
+        std::cout << "*" << std::flush;
+        out[i] = p;
+    }
+    return 0;
+}
 #else
 #include <iconv.h>
+#define MYSQL_CONFIG_PATH "/etc/xms_mysql_init.conf"
+static int GetPassword(char *out, int out_size)
+{
+    bool is_begin = false;
+    for (int i = 0; i < out_size;)
+    {
+        system("stty -echo");
+        char p = cin.get();
+        if (p != '\r' && p != '\n')
+            is_begin = true;
+        if (!is_begin)
+            continue;
+        system("stty echo");
+        if (p == '\r' || p == '\n')
+            return i;
+        cout << "*" << flush;
+        out[i] = p;
+        i++;
+    }
+    return 0;
+}
 #endif
 
 //////////////////////////////////工具函数///////////////////////////////////
 auto join(const std::vector<std::string> &strings, const std::string &delimiter) -> std::string
 {
     std::ostringstream oss;
+
+    if (strings.empty())
+        return oss.str();
 
     for (size_t i = 0; i < strings.size(); ++i)
     {
@@ -50,6 +94,15 @@ static size_t convert(char *from_cha, char *to_cha, char *in, size_t inlen, char
 }
 #endif
 /////////////////////////////////////////////////////////////////////////////
+
+struct MysqlInfo
+{
+    char host[128]    = { 0 };
+    char user[128]    = { 0 };
+    char pass[128]    = { 0 };
+    char db_name[128] = { 0 };
+    int  port         = 3306;
+};
 
 class LXMysql::PImpl
 {
@@ -261,6 +314,54 @@ auto LXMysql::init() -> bool
     return true;
 }
 
+auto LXMysql::inputDBConfig() -> bool
+{
+    if (!impl_->mysql_ && !init())
+    {
+        std::cerr << "InputDBConfig failed! msyql is not init!" << std::endl;
+        return false;
+    }
+    /// string config_path = MYSQL_CONFIG_PATH;
+    /// 如果输入过就不用输入
+    std::ifstream ifs;
+    MysqlInfo     db;
+    ifs.open(MYSQL_CONFIG_PATH, std::ios::binary);
+    if (ifs.is_open())
+    {
+        ifs.read(reinterpret_cast<char *>(&db), sizeof(db));
+        if (ifs.gcount() == sizeof(db))
+        {
+            ifs.close();
+            return connect(db.host, db.user, db.pass, db.db_name, db.port);
+        }
+        ifs.close();
+    }
+    std::cout << "input the db set" << std::endl;
+    std::cout << "input db host:";
+    std::cin >> db.host;
+    std::cout << "input db user:";
+    std::cin >> db.user;
+    std::cout << "input db pass:";
+    //string pass = "";
+    GetPassword(db.pass, sizeof(db.pass) - 1);
+    //memcpy(db.pass, pass.c_str(), pass.size());
+    std::cout << std::endl;
+    //cin >> db.pass;
+    std::cout << "input db dbname(xms):";
+    std::cin >> db.db_name;
+    std::cout << "input db port(3306):";
+    std::cin >> db.port;
+    std::ofstream ofs;
+    ofs.open(MYSQL_CONFIG_PATH, std::ios::binary);
+    if (ofs.is_open())
+    {
+        ofs.write(reinterpret_cast<char *>(&db), sizeof(db));
+        ofs.close();
+    }
+
+    return connect(db.host, db.user, db.pass, db.db_name, db.port);
+}
+
 auto LXMysql::close() -> void
 {
     if (impl_->mysql_)
@@ -323,11 +424,15 @@ auto LXMysql::createTable(const std::string &table_name, const XFIELDS &fileds, 
         return false;
     }
 
-    std::string              key_string = "";
+    std::string              key_string    = "";
+    std::string              unique_string = "";
+    std::vector<std::string> unique_name_list;
+    std::string              pri_key = "";
     std::vector<std::string> fields;
     for (const auto field : fileds)
     {
-        std::string tmp = "`" + field.name + "`";
+        std::string name = "`" + field.name + "`";
+        std::string tmp  = name;
         switch (field.type)
         {
             case LX_DATA_TYPE::LXD_TYPE_STRING:
@@ -357,7 +462,15 @@ auto LXMysql::createTable(const std::string &table_name, const XFIELDS &fileds, 
         }
 
         if (field.is_key)
-            key_string = std::format(" PRIMARY KEY (`{}`)", field.name);
+        {
+            pri_key = name;
+        }
+
+        if (field.is_unique)
+        {
+            unique_name_list.emplace_back(name);
+        }
+
         if (field.is_auto_increment)
             tmp += " AUTO_INCREMENT";
         if (field.is_not_null)
@@ -374,8 +487,23 @@ auto LXMysql::createTable(const std::string &table_name, const XFIELDS &fileds, 
 #endif
 
     const std::string &field_str = join(fields, ",");
-    const std::string &sql = std::format("CREATE TABLE IF NOT EXISTS `{0}` ({1},{2}) CHARACTER SET {3};", table_name,
-                                         field_str, key_string, charset);
+
+    const std::string &unique_name_str = join(unique_name_list, ",");
+
+    if (!unique_name_str.empty())
+    {
+        unique_string += ", ";
+        unique_string += std::format(" UNIQUE KEY `{}` ({})", unique_describe, unique_name_str);
+    }
+
+    if (!pri_key.empty())
+    {
+        key_string += ", ";
+        key_string += std::format("PRIMARY KEY ({})", pri_key);
+    }
+
+    const std::string &sql = std::format("CREATE TABLE IF NOT EXISTS `{0}` ({1}{2}{3}) CHARACTER SET {4};", table_name,
+                                         field_str, key_string, unique_string, charset);
 
     if (!query(sql.c_str()))
     {
@@ -1044,6 +1172,57 @@ auto LXMysql::getRows(const char *table_name, const char *selectCol, const std::
 }
 
 auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &selectCols,
+                      const std::map<std::string, std::string> &wheres, const std::pair<int, int> &limit,
+                      const XORDER &order) -> XROWS
+{
+    XROWS rows;
+    if (!table_name)
+        return rows;
+
+    std::string selectCol;
+    if (selectCols.empty())
+    {
+        selectCol = "*";
+    }
+    else
+    {
+        selectCol = join(selectCols, ",");
+    }
+
+    std::string sql = std::format("SELECT {} FROM {}", selectCol, table_name);
+
+    if (!wheres.empty())
+    {
+        sql += " WHERE ";
+        std::vector<std::string> temps;
+        temps.reserve(wheres.size());
+        for (const auto &[key, value] : wheres)
+        {
+            temps.emplace_back(std::format("`{}`='{}'", key, value));
+        }
+        sql += join(temps, " AND ");
+    }
+
+    auto [order_name, order_value] = order;
+    if (!order_name.empty())
+    {
+        std::string str_order = order_value == LXD_ADESC ? "ASC" : "DESC";
+        sql += std::format(" ORDER BY `{}` {}", order_name, str_order);
+    }
+
+    auto [start, end] = limit;
+    if (start >= 0 && end > 0)
+    {
+        const auto str_start = std::to_string(start - 1);
+        const auto str_end   = std::to_string(end);
+
+        sql += std::format(" LIMIT {}, {};", str_start, str_end);
+    }
+
+    return getResult(sql.c_str());
+}
+
+auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &selectCols,
                       const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit,
                       const XORDER &order) -> XROWS
 {
@@ -1053,10 +1232,13 @@ auto LXMysql::getRows(const char *table_name, const std::vector<std::string> &se
 
     std::string selectCol;
     if (selectCol.empty())
+    {
         selectCol = "*";
-
-    selectCol = join(selectCols, ",");
-
+    }
+    else
+    {
+        selectCol = join(selectCols, ",");
+    }
 
     std::string sql   = std::format("SELECT {} FROM {}", selectCol, table_name);
     auto [key, value] = where;
@@ -1101,13 +1283,54 @@ auto LXMysql::getCount(const char *table_name, const std::pair<std::string, std:
     return atoi(rows[0][0].data);
 }
 
-auto LXMysql::getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres) -> std::string
+auto LXMysql::getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres,
+                           lX_CONDICTION lc /*= LXT_EQUAL*/) -> std::string
 {
     std::string sql;
     if (!table_name)
         return sql;
 
     sql = std::format("DELETE FROM {}", table_name);
+
+    std::string opt = "";
+    switch (lc)
+    {
+        case LX_C_EQUAL:
+            opt = "=";
+            break;
+        case LX_C_LIKE:
+            opt = " LIKE ";
+            break;
+        case LX_C_IN:
+            opt = " IN ";
+            break;
+        case LX_C_GT:
+            opt = ">";
+            break;
+        case LX_C_LT:
+            opt = "<";
+            break;
+        case LX_C_GE:
+            opt = ">=";
+            break;
+        case LX_C_LE:
+            opt = "<=";
+            break;
+        case LX_C_NE:
+            opt = "!=";
+            break;
+        case LX_C_IS:
+            opt = "IS";
+            break;
+        case LX_C_IS_NOT:
+            opt = "IS NOT";
+            break;
+        default:;
+    }
+
+    if (opt.empty())
+        return sql;
+
 
     if (!wheres.empty())
     {
@@ -1116,7 +1339,7 @@ auto LXMysql::getRemoveSql(const char *table_name, const std::map<std::string, s
         temps.reserve(wheres.size());
         for (const auto &[key, value] : wheres)
         {
-            temps.emplace_back(std::format("`{}`='{}'", key, value));
+            temps.emplace_back(std::format("`{}` {} '{}'", key, opt, value));
         }
         sql += join(temps, " AND ");
     }
@@ -1124,7 +1347,8 @@ auto LXMysql::getRemoveSql(const char *table_name, const std::map<std::string, s
     return sql;
 }
 
-auto LXMysql::remove(const char *table_name, const std::map<std::string, std::string> &wheres) -> bool
+auto LXMysql::remove(const char *table_name, const std::map<std::string, std::string> &wheres,
+                     lX_CONDICTION lc /*= LXT_EQUAL*/) -> bool
 {
     if (!impl_->mysql_)
     {
@@ -1132,7 +1356,7 @@ auto LXMysql::remove(const char *table_name, const std::map<std::string, std::st
         return false;
     }
 
-    const std::string &sql = getRemoveSql(table_name, wheres);
+    std::string sql = getRemoveSql(table_name, wheres, lc);
     if (sql.empty())
     {
         std::cerr << "Mysql insert failed! sql is empty!!!" << std::endl;
@@ -1144,4 +1368,14 @@ auto LXMysql::remove(const char *table_name, const std::map<std::string, std::st
     if (num <= 0)
         return false;
     return true;
+}
+
+auto LXMysql::getInSqlInId() -> int
+{
+    if (!impl_->mysql_)
+    {
+        std::cerr << "GetInsertID failed:mysql is NULL" << std::endl;
+        return -1;
+    }
+    return mysql_insert_id((MYSQL *)impl_->mysql_);
 }

@@ -31,6 +31,8 @@ set(PROTOC_EXPORT_CLASS
     XLoginReq
     XGatewayConfig
     XMsgHeart
+    XAddUserReq
+    XLoginRes
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

@@ -10,13 +10,20 @@ int main(int argc, char *argv[])
 
     //////////////////////////////////////////////////////////////////
     std::cout << "XAuth Client!\n";
+    XAuthClient::regMsgCallback();
 
     XAuthClient client;
     client.setServerIp("127.0.0.1");
     client.setServerPort(AUTH_PORT);
     client.startConnect();
     client.waitConnected(3);
-    client.LoginReq("root", "123456");
+    xmsg::XAddUserReq adduser;
+    adduser.set_username("root");
+    adduser.set_password("123456");
+    adduser.set_rolename("root");
+    client.addUserReq(&adduser);
+
+    client.loginReq("root", "123456");
     XThreadPool::wait();
 
     return 0;

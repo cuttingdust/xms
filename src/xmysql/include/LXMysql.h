@@ -70,6 +70,7 @@ struct LXM_EXPORT LXField
     bool         is_key            = false;
     bool         is_auto_increment = false;
     bool         is_not_null       = false;
+    bool         is_unique         = false;
 };
 
 struct LXM_EXPORT LXData
@@ -146,10 +147,28 @@ public:
         LX_OPT_SSL_FIPS_MODE
     };
 
+    enum lX_CONDICTION
+    {
+        LX_C_EQUAL  = 0, /// =
+        LX_C_LIKE   = 1, /// like
+        LX_C_IN     = 2, /// in
+        LX_C_GT     = 3, /// >
+        LX_C_LT     = 4, /// <
+        LX_C_GE     = 5, /// >=
+        LX_C_LE     = 6, /// <=
+        LX_C_NE     = 7, /// <>
+        LX_C_IS     = 8, /// is
+        LX_C_IS_NOT = 9  /// is not
+    };
+
 public:
     /// \brief 初始化数据库
     /// \return
     auto init() -> bool;
+
+    /// \brief 接收用户输入数据库配置
+    /// \return
+    auto inputDBConfig() -> bool;
 
     /// \brief 关闭数据库
     auto close() -> void;
@@ -166,7 +185,7 @@ public:
     auto connect(const char *host, const char *user, const char *pass, const char *db, unsigned short port = 3306,
                  unsigned long flag = 0, bool is_check_database = false) -> bool;
 
-    /// \brief 创建表
+    /// \brief 创建表 (Note: 主键必须设置)
     /// \param table_name   表名
     /// \param fileds       字段
     /// \param is_check_exist 是否检查表是否存在
@@ -285,7 +304,7 @@ public:
 
     /// \brief 获取条件数据
     /// \param table_name   表名
-    /// \param selectCol    选择的列
+    /// \param selectCol    选择的列(单个)
     /// \param wheres       查询条件
     /// \param limit        分页限制
     /// \param order        排序
@@ -299,21 +318,40 @@ public:
                  const XORDER                              &order = { "", LXD_ADESC }) -> XROWS;
 
     auto getRows(const char *table_name, const std::vector<std::string> &selectCols,
-                 const std::pair<std::string, std::string> &where = { "", "" },
+                 const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit,
+                 const XORDER &order) -> XROWS;
+
+    /// \brief
+    /// \param table_name
+    /// \param selectCols
+    /// \param wheres
+    /// \param limit
+    /// \param order
+    /// \return
+    auto getRows(const char *table_name, const std::vector<std::string> &selectCols,
+                 const std::map<std::string, std::string> &wheres = { "", "" },
                  const std::pair<int, int> &limit = { 0, 0 }, const XORDER &order = { "", LXD_ADESC }) -> XROWS;
+
 
     /// \brief 统计数据
     /// \param table_name
+    /// \param where
     /// \return
     auto getCount(const char *table_name, const std::pair<std::string, std::string> &where = { "", "" }) -> int;
 
-    auto getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres) -> std::string;
+    auto getRemoveSql(const char *table_name, const std::map<std::string, std::string> &wheres,
+                      lX_CONDICTION lc = LX_C_EQUAL) -> std::string;
 
     /// \brief 删除数据
     /// \param table_name
     /// \param wheres 删除条件
     /// \return
-    auto remove(const char *table_name, const std::map<std::string, std::string> &wheres) -> bool;
+    auto remove(const char *table_name, const std::map<std::string, std::string> &wheres, lX_CONDICTION lc = LX_C_EQUAL)
+            -> bool;
+
+    /// \brief 获取上一次插入的ID号
+    /// \return
+    auto getInSqlInId() -> int;
 
 private:
     class PImpl;

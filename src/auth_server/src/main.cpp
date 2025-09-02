@@ -1,4 +1,5 @@
-﻿#include "XAuthServer.h"
+﻿#include "XAuthDao.h"
+#include "XAuthServer.h"
 #include "XAuthHandle.h"
 
 #include <XRegisterClient.h>
@@ -12,9 +13,11 @@ int main(int argc, char *argv[])
     std::cout << "Auth Server" << std::endl;
 
     int server_port = AUTH_PORT;
-    // RegisterClient->setServerIp("127.0.0.1");
-    // RegisterClient->setServerPort(REGISTER_PORT);
-    // RegisterClient->registerServer(AUTH_NAME, server_port, 0);
+    RegisterClient->setServerIp("127.0.0.1");
+    RegisterClient->setServerPort(REGISTER_PORT);
+    RegisterClient->registerServer(AUTH_NAME, server_port, 0);
+    XAuthDao::get()->init();
+    XAuthDao::get()->install();
 
     XAuthHandle::regMsgCallback();
 

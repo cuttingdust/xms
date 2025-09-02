@@ -23,7 +23,9 @@ public:
     /// \brief 接收登录请求
     /// \param head
     /// \param msg
-    void loginReq(xmsg::XMsgHead *head, XMsg *msg);
+    auto loginReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
+    auto addUserReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     static void regMsgCallback();
 };

@@ -23,7 +23,22 @@ public:
     /// \brief 登录
     /// \param username 用户名
     /// \param password 密码（明文),在函数中会经过md5_base64编码后发送
-    void LoginReq(std::string username, std::string password);
+    auto loginReq(std::string username, std::string password) -> void;
+
+    auto addUserReq(xmsg::XAddUserReq *user) -> void;
+
+    auto getLoginInfo(std::string username, xmsg::XLoginRes *out_info, int timeout_ms) -> bool;
+
+    static auto regMsgCallback() -> void;
+
+private:
+    void addUserRes(xmsg::XMsgHead *head, XMsg *msg);
+
+    void loginRes(xmsg::XMsgHead *head, XMsg *msg);
+
+private:
+    class PImpl;
+    std::unique_ptr<PImpl> impl_;
 };
 
 
