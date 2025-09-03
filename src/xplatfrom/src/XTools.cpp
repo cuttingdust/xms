@@ -113,7 +113,7 @@ unsigned char *XMD5(const unsigned char *d, unsigned long n, unsigned char *md)
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-std::string XTools::getDirData(std::string path)
+std::string XTools::GetDirData(std::string path)
 {
     std::string data = "";
     try
@@ -167,4 +167,14 @@ char *XTools::XMD5_base64(const unsigned char *d, unsigned long n, char *md)
     XMD5(d, n, buf);
     Base64Encode(buf, 16, md);
     return md;
+}
+
+auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
+{
+    char   time_buf[128] = { 0 };
+    time_t tm            = timestamp;
+    if (timestamp <= 0)
+        tm = time(0);
+    strftime(time_buf, sizeof(time_buf), fmt.c_str(), gmtime(&tm));
+    return time_buf;
 }
