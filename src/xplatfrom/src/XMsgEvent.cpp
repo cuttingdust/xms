@@ -46,16 +46,30 @@ void XMsgEvent::readCB()
             clear();
             return;
         }
+        if (!impl_->pb_head_)
+        {
+            return;
+        }
 
         auto *msg = getMsg();
         if (!msg)
         {
-            std::cerr << "getMsg failed!" << std::endl;
+            std::cerr << "【RECV】 " << "getMsg failed!" << std::endl;
             return;
         }
 
+        if (impl_->pb_head_)
+        {
+            //cout << "【MSG】" << pb_head_->service_name() << " " << msg->size << " " << msg->type << endl;
+            std::stringstream ss;
+            ss << "【RECV】 " << clientIP() << ":" << clientPort() << " " << impl_->pb_head_->DebugString();
+
+            LOGINFO(ss.str().c_str());
+        }
+
+
         // std::cout << "service_name = " << impl_->pb_head_->servername() << std::endl;
-        LOGDEBUG(impl_->pb_head_->servername());
+        // LOGDEBUG(impl_->pb_head_->servername());
         readCB(impl_->pb_head_, msg);
         clear();
     }
@@ -104,7 +118,9 @@ bool XMsgEvent::recvMsg()
         /// 分配消息头空间 读取消息头（鉴权，消息大小）
         if (!impl_->head_.alloc(impl_->head_.size))
         {
-            std::cerr << "head_.alloc failed!" << std::endl;
+            std::stringstream ss;
+            ss << "head_.Alloc failed!" << impl_->head_.size;
+            LOGDEBUG(ss.str().c_str());
             return false;
         }
     }
@@ -130,7 +146,10 @@ bool XMsgEvent::recvMsg()
         /// 反序列化
         if (!impl_->pb_head_->ParseFromArray(impl_->head_.data, impl_->head_.size))
         {
-            std::cerr << "pb_head_.ParseFromArray failed!" << std::endl;
+            std::stringstream ss;
+            ss << "pb_head.ParseFromArray failed!" << impl_->head_.size;
+
+            LOGDEBUG(ss.str().c_str());
             return false;
         }
 
@@ -190,27 +209,43 @@ auto XMsgEvent::getMsg() const -> XMsg *
 auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
 {
     if (!head || !msg)
+    {
         return false;
+    }
+
     head->set_msgsize(msg->size);
 
     /// 消息头序列化
     std::string headStr  = head->SerializeAsString();
     int         headSize = headStr.size();
 
+    if (head)
+    {
+        std::stringstream ss;
+        ss << "【SEND】 " << getServerIp() << ":" << getServerPort() << " " << head->DebugString();
+        LOGINFO(ss.str().c_str());
+    }
+
     /// 1 发送消息头大小 4字节 暂时不考虑字节序问题
     int re = write(&headSize, sizeof(headSize));
     if (!re)
+    {
         return false;
+    }
 
     /// 2 发送消息头（pb序列化） XMsgHead （设置消息内容的大小）
     re = write(headStr.data(), headStr.size());
     if (!re)
+    {
         return false;
+    }
 
     /// 3 发送消息内容 （pb序列化） 业务proto
     re = write(msg->data, msg->size);
     if (!re)
+    {
         return false;
+    }
 
     return true;
 }

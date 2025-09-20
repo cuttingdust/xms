@@ -411,7 +411,6 @@ bool XConfigClient::startGetConf(const char *server_ip, int server_port, const c
     }
     if (impl_->local_port_ > 0)
         loadConfig(impl_->local_ip_, impl_->local_port_);
-    /// 设定获取配置的定时时间（毫秒）
 
     /// 设定获取配置的定时时间（毫秒）
     setTimer(3000);

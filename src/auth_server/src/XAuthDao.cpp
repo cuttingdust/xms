@@ -100,14 +100,11 @@ auto XAuthDao::install() -> bool
           .type              = LX_DATA_TYPE::LXD_TYPE_INT24,
           .length            = 0,
           .is_key            = true,
-          .is_auto_increment = true }, /// id
-        { .name      = col_user_name,
-          .type      = LX_DATA_TYPE::LXD_TYPE_STRING,
-          .length    = 1024,
-          .is_unique = true },                                                           /// 登录用户名称
-        { .name = col_user_role, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 128 }, /// 用户角色名称
-        { .name = col_token, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 64 },      /// token
-        { .name = col_expired_time, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },              /// 过期时间
+          .is_auto_increment = true },                                                    /// id
+        { .name = col_user_name, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 1024 }, /// 登录用户名称
+        { .name = col_user_role, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 128 },  /// 用户角色名称
+        { .name = col_token, .type = LX_DATA_TYPE::LXD_TYPE_STRING, .length = 64 },       /// token
+        { .name = col_expired_time, .type = LX_DATA_TYPE::LXD_TYPE_INT24 },               /// 过期时间
     };
 
     if (!impl_->mysql_->createTable(table_name_token, token_fields, true))

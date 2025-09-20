@@ -1,14 +1,14 @@
 ﻿#include "CongfigGui.h"
-
-#include "ConfigEdit.h"
 #include "ui_config_gui.h"
 
+#include "ConfigEdit.h"
+#include "XLoginGui.h"
 
 #include <XTools.h>
 #include <XConfigClient.h>
 
-#include <QtGui/QtEvents>
 #include <QtCore/QTime>
+#include <QtGui/QtEvents>
 #include <QtWidgets/QMessageBox>
 
 CongfigGui::CongfigGui(QWidget *parent, Qt::WindowFlags flags) : QWidget(parent, flags)
@@ -87,6 +87,13 @@ void CongfigGui::updateUI()
     ss << server_ip << ":" << server_port;
     LOGDEBUG(ss.str().c_str());
 
+    XLoginGui gui;
+    if (gui.exec() != QDialog::Accepted)
+    {
+        return;
+    }
+
+
     /// 关闭之前的连接，重新建立连接
     XConfigClient::get()->setServerIp(server_ip.c_str());
     XConfigClient::get()->setServerPort(server_port);
@@ -150,8 +157,7 @@ void CongfigGui::slotDeleteConfig()
 
     std::stringstream ss;
     ss << "您确认删除" << name << "|" << ip << ":" << port << " 微服务配置吗？";
-    if (QMessageBox::information(nullptr, "", ss.str().c_str(),
-                                 QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
+    if (QMessageBox::information(nullptr, "", ss.str().c_str(), QMessageBox::Yes | QMessageBox::No) == QMessageBox::No)
     {
         return;
     }

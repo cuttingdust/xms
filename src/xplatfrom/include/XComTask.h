@@ -58,6 +58,16 @@ public:
 
     void setServerRoot(const std::string path);
 
+    /// \brief 设置客户端IP
+    /// \param ip
+    auto setClientIP(const char* ip) -> void;
+    auto clientIP() -> const char*;
+
+    /// \brief 设置客户端端口
+    /// \param port
+    auto setClientPort(int port) -> void;
+    auto clientPort() const -> int;
+
     void setIsRecvMsg(bool isRecvMsg);
 
     void setAutoDelete(bool bAuto);

@@ -19,19 +19,6 @@ class XPLATFROM_EXPORT XServiceHandle : public XMsgEvent
 public:
     XServiceHandle();
     ~XServiceHandle() override;
-
-public:
-    auto setClientIP(const char *ip) -> void;
-    auto clientIP() -> const char *;
-
-    void setClientPort(int port);
-
-public:
-    void close() override;
-
-private:
-    class PImpl;
-    std::shared_ptr<PImpl> impl_;
 };
 
 

@@ -61,9 +61,11 @@ public:
     int                 serverPort_   = -1;
     char                buffer_[1024] = { 0 };
     XMsg                msg_;
-    bool                isRecvMsg     = true;  ///< 是否接受消息
-    bool                isAutoDelete  = true;  ///< 是否自动删除
-    bool                isAutoConnect = false; ///< 是否自动连接
+    bool                isRecvMsg      = true;  ///< 是否接受消息
+    bool                isAutoDelete   = true;  ///< 是否自动删除
+    bool                isAutoConnect  = false; ///< 是否自动连接
+    char                client_ip_[16] = { 0 };
+    int                 client_port_   = -1;
 
     /// 客户单的连接状态
     /// 1 未处理  => 开始连接 （加入到线程池处理）
@@ -238,6 +240,30 @@ void XComTask::setServerPort(int port)
 int XComTask::getServerPort() const
 {
     return impl_->serverPort_;
+}
+
+auto XComTask::setClientIP(const char *ip) -> void
+{
+    if (!ip)
+    {
+        return;
+    }
+    strncpy(impl_->client_ip_, ip, sizeof(impl_->client_ip_));
+}
+
+auto XComTask::clientIP() -> const char *
+{
+    return impl_->client_ip_;
+}
+
+auto XComTask::setClientPort(int port) -> void
+{
+    impl_->client_port_ = port;
+}
+
+auto XComTask::clientPort() const -> int
+{
+    return impl_->client_port_;
 }
 
 void XComTask::setServerRoot(const std::string path)

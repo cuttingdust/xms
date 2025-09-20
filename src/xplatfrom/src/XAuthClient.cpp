@@ -1,6 +1,6 @@
 ﻿#include "XAuthClient.h"
 
-#include <XTools.h>
+#include "XTools.h"
 
 class XAuthClient::PImpl
 {
@@ -19,6 +19,12 @@ XAuthClient::PImpl::PImpl(XAuthClient *owenr) : owenr_(owenr)
 {
 }
 
+auto XAuthClient::get() -> XAuthClient *
+{
+    static XAuthClient xc;
+    return &xc;
+}
+
 XAuthClient::XAuthClient()
 {
     impl_ = std::make_unique<PImpl>(this);
@@ -33,6 +39,10 @@ auto XAuthClient::loginReq(std::string username, std::string password) -> void
     auto md5_pass = XTools::XMD5_base64(reinterpret_cast<unsigned char *>(password.data()), password.size());
     req.set_password(md5_pass);
     std::cout << req.DebugString();
+    {
+        XMutex mux(&impl_->logins_mutex_);
+        impl_->login_map_.erase(username);
+    }
     sendMsg(xmsg::MT_LOGIN_REQ, &req);
 }
 

@@ -11,11 +11,13 @@
 #ifndef XAUTHCLIENT_H
 #define XAUTHCLIENT_H
 
+#include "XPlatfrom_Global.h"
 #include <XServiceClient.h>
 
-class XAuthClient : public XServiceClient
+class XPLATFROM_EXPORT XAuthClient : public XServiceClient
 {
 public:
+    static auto get() -> XAuthClient *;
     XAuthClient();
     ~XAuthClient() override;
 
