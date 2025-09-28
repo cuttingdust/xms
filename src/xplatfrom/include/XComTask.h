@@ -48,84 +48,84 @@ public:
 public:
     /// \brief 设置服务器ip
     /// \param ip
-    void        setServerIp(const char* ip);
-    const char* getServerIp() const;
+    auto setServerIp(const char* ip) -> void;
+    auto getServerIP() const -> const char*;
 
     /// \brief 设置服务器端口
     /// \param port
-    void setServerPort(int port);
-    int  getServerPort() const;
+    auto setServerPort(int port) -> void;
+    auto getServerPort() const -> int;
 
-    void setServerRoot(const std::string path);
+    auto setServerRoot(const std::string path) -> void;
 
     /// \brief 设置客户端IP
     /// \param ip
     auto setClientIP(const char* ip) -> void;
-    auto clientIP() -> const char*;
+    auto getClientIP() -> const char*;
 
     /// \brief 设置客户端端口
     /// \param port
     auto setClientPort(int port) -> void;
-    auto clientPort() const -> int;
+    auto getClientPort() const -> int;
 
-    void setIsRecvMsg(bool isRecvMsg);
+    auto setIsRecvMsg(bool isRecvMsg) -> void;
 
-    void setAutoDelete(bool bAuto);
+    auto setAutoDelete(bool bAuto) -> void;
 
     /// \brief 是否自动重连 默认不自动 要在添加线程池之前设置
     /// 设置自动自动重连， 对象就不会自动删除
     /// \param bAuto
-    void setAutoConnect(bool bAuto);
+    auto setAutoConnect(bool bAuto) -> void;
 
     /// \brief 等待连接成功
     /// \param timeout_sec 最大等待时间
-    bool waitConnected(int timeout_sec);
+    auto waitConnected(int timeout_sec) -> bool;
 
     /// \brief 建立连接，如果断开，会再次重连，知道连接成功，或者超时
     /// \param timeout_sec
     /// \return
-    bool autoConnect(int timeout_sec);
+    auto autoConnect(int timeout_sec) -> bool;
 
-    void      setSSLContent(XSSL_CTX* ctx);
-    XSSL_CTX* getSSLContent() const;
+    auto setSSLContent(XSSL_CTX* ctx) -> void;
+    auto getSSLContent() const -> XSSL_CTX*;
 
     /// \brief 设定要在加入线程池之前
     /// \param ms
-    void setReadTimeMs(int ms);
+    auto setReadTimeMs(int ms) -> void;
 
     /// \brief 设定要在加入线程池之前 virtual void TimerCB() {}
     /// \param ms
-    void setTimeMs(int ms);
+    auto setTimeMs(int ms) -> void;
 
 public:
-    virtual void eventCB(short events);
+    virtual auto eventCB(short events) -> void;
 
-    virtual void connectCB();
+    virtual auto connectCB() -> void;
 
-    virtual void readCB() = 0;
+    virtual auto readCB() -> void = 0;
 
-    virtual int read(void* data, int size);
+    virtual auto read(void* data, int size) -> int;
 
-    virtual void writeCB();
+    virtual auto writeCB() -> void;
 
-    virtual bool write(const void* data, int size);
+    virtual auto write(const void* data, int size) -> bool;
 
     /// \brief 激活写入回调
-    virtual void beginWriteCB();
+    virtual auto beginWriteCB() -> void;
 
-    virtual void close();
+    virtual auto close() -> void;
 
-    virtual void clearTimer();
+    virtual auto clearTimer() -> void;
 
-    virtual void setTimer(int ms);
+    virtual auto setTimer(int ms) -> void;
 
-    virtual void timerCB();
+    virtual auto timerCB() -> void;
 
     /// \brief 设置自动连接定时器
     /// \param ms
-    virtual void setAutoConnectTimer(int ms);
+    virtual auto setAutoConnectTimer(int ms) -> void;
 
-    virtual void AutoConnectTimerCB();
+    virtual auto autoConnectTimerCB() -> void;
 
 private:
     class PImpl;

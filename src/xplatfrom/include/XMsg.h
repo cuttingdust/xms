@@ -15,15 +15,33 @@
 
 #include <cstring>
 
-#define MAX_MSG_SIZE         8192     /// 头部消息的最大字节数
-#define API_GATEWAY_NAME     "gw"     /// API网关名称
-#define API_GATEWAY_PORT     20010    /// API网关端口
-#define API_GATEWAY_SSL_PORT 20011    /// API_SSL网关端口
-#define REGISTER_PORT        20018    /// 注册中心端口
-#define CONFIG_NAME          "config" /// 配置中心名称
-#define CONFIG_PORT          20019    /// 配置中心端口
-#define AUTH_PORT            20020
-#define AUTH_NAME            "auth"
+//////////////////////////////////////////////////////////////////
+#define API_GATEWAY_NAME        "gw"  /// API网关名称
+#define API_GATEWAY_PORT        20010 /// API网关端口
+#define API_GATEWAY_SSL_PORT    20011 /// API_SSL网关端口
+#define API_GATEWAY_SERVER_NAME "xms_gateway_server"
+//////////////////////////////////////////////////////////////////
+#define REGISTER_PORT            20018 /// 注册中心端口
+#define REGISTER_NAME            "reg"
+#define API_REGISTER_SERVER_NAME "xms_register_server"
+
+#define XLOG_NAME "xlog"
+#define XLOG_PORT 20030
+
+#define CONFIG_NAME "config" /// 配置中心名称
+#define CONFIG_PORT 20019    /// 配置中心端口
+
+#define AUTH_PORT 20020
+#define AUTH_NAME "auth"
+
+#define UPLOAD_PORT   20100
+#define UPLOAD_NAME   "upload"
+#define DOWNLOAD_PORT 20200
+#define DOWNLOAD_NAME "download"
+#define DIR_PORT      20300
+#define DIR_NAME      "dir"
+
+#define MAX_MSG_SIZE 8192 /// 头部消息的最大字节数
 
 /// 所有的函数做内联
 class XMsg

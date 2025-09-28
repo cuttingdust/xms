@@ -1,5 +1,9 @@
 ﻿#include "XTools.h"
 
+#include "XMsgType.pb.h"
+#include "XMsgCom.pb.h"
+#include "XMsg.h"
+
 #include <openssl/md5.h>
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
@@ -177,4 +181,70 @@ auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
         tm = time(0);
     strftime(time_buf, sizeof(time_buf), fmt.c_str(), gmtime(&tm));
     return time_buf;
+}
+
+auto XTools::XGetPortName(unsigned short port) -> const char *
+{
+    switch (port)
+    {
+        case API_GATEWAY_PORT:
+            return API_GATEWAY_NAME;
+            break;
+        case REGISTER_PORT:
+            return REGISTER_NAME;
+            break;
+        case CONFIG_PORT:
+            return AUTH_NAME;
+            break;
+        case XLOG_PORT:
+            return XLOG_NAME;
+            break;
+        case DOWNLOAD_PORT:
+            return DOWNLOAD_NAME;
+            break;
+        case DIR_PORT:
+            return DIR_NAME;
+            break;
+        case UPLOAD_PORT:
+            return UPLOAD_NAME;
+            break;
+        default:
+            break;
+    }
+    return "";
+}
+
+auto XTools::PrintMsg(xmsg::XMsgHead *head, XMsg *msg)
+{
+    std::stringstream ss;
+    ss << "【MSG】";
+    if (head)
+    {
+        ss << head->servername();
+    }
+    std::cout << "【MSG】" << head->servername() << " " << msg->size << " " << msg->type << std::endl;
+    if (msg)
+    {
+        google::protobuf::int32 msg_size = 1;
+
+        /// 消息类型
+        xmsg::MsgType msg_type = xmsg::MT_LOGIN_RES;
+
+        /// 令牌 如果时登陆消息则未空
+        std::string token = std::to_string(3);
+
+        /// 微服务的名称，用于路由
+        std::string service_name = std::to_string(4);
+    }
+}
+
+XMutex::XMutex(std::mutex *mux)
+{
+    mux_ = mux;
+    mux_->lock();
+}
+
+XMutex::~XMutex()
+{
+    mux_->unlock();
 }

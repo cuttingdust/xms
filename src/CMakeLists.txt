@@ -103,6 +103,7 @@ add_subdirectory(xtest_service_client_ssl)
 add_subdirectory(watchdog)
 add_subdirectory(auth_server)
 add_subdirectory(auth_client)
+add_subdirectory(log_server)
 
 watchdog(register_server 3)
 watchdog(config_server 3)

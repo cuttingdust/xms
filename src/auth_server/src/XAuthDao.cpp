@@ -1,6 +1,6 @@
 ﻿#include "XAuthDao.h"
 
-#include "XMsgCom.pb.h"
+#include <XMsgCom.pb.h>
 
 #include <XTools.h>
 #include <LXMysql.h>

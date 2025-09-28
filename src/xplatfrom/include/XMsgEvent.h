@@ -18,8 +18,6 @@
 #include "XComTask.h"
 #include "XMsgCom.pb.h"
 
-#include <memory>
-
 /// 不调用bufferevent接口，直接调用XComTask的封装
 class XPLATFROM_EXPORT XMsgEvent : public XComTask
 {
@@ -69,7 +67,7 @@ public:
 
 private:
     class PImpl;
-    std::shared_ptr<PImpl> impl_;
+    std::unique_ptr<PImpl> impl_;
 };
 
 

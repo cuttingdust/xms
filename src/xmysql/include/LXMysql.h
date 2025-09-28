@@ -64,13 +64,16 @@ enum LX_ORDER
 
 struct LXM_EXPORT LXField
 {
-    std::string  name;
-    LX_DATA_TYPE type              = LXD_TYPE_STRING;
-    int          length            = 0;
-    bool         is_key            = false;
-    bool         is_auto_increment = false;
-    bool         is_not_null       = false;
-    bool         is_unique         = false;
+    std::string                         name;                                ///<<< 名称
+    LX_DATA_TYPE                        type              = LXD_TYPE_STRING; ///<<< 类型
+    int                                 length            = 0;               ///<<< 长度
+    bool                                is_key            = false;           ///<<< 主键约束（PRIMARY KEY）
+    bool                                is_auto_increment = false;           ///<<< 自增约束 (AUTO INCREMENT)
+    bool                                is_not_null       = false;           ///<<< 非空约束（NOT NULL ）
+    bool                                is_unique         = false;           ///<<< 唯一约束（UNIQUE）
+    std::string                         default_value;                       ///<<< 默认值约束（DEFAULT ）
+    std::string                         comment;                             ///<<< 字段注释
+    std::pair<std::string, std::string> foreign;                             ///<<< 外键约束
 };
 
 struct LXM_EXPORT LXData

@@ -86,13 +86,13 @@ auto XService::init() -> bool
     {
         std::stringstream ss;
         ss << "listen port " << impl_->server_port_ << " failed!!!" << std::endl;
-        LOGERROR(ss.str().c_str());
+        LOGERROR(ss.str());
         return false;
     }
 
     std::stringstream ss;
     ss << "listen port " << impl_->server_port_ << " success!!!" << std::endl;
-    LOGINFO(ss.str().c_str());
+    LOGINFO(ss.str());
     return true;
 }
 
@@ -109,7 +109,7 @@ void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
     evutil_inet_ntop(AF_INET, &adder->sin_addr.s_addr, ip, sizeof(ip));
     int client_port = ntohs(adder->sin_port);
     ss << "accept client ip :" << ip << " port:" << client_port << std::endl;
-    LOGINFO(ss.str().c_str());
+    LOGINFO(ss.str());
 
     /// 任务加入到线程池
     handle->setClientIP(ip);

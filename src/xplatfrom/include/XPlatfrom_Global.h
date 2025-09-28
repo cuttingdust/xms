@@ -16,4 +16,6 @@
 #define XPLATFROM_EXPORT
 #endif
 
+#include <memory>
+
 #endif // XPLATFROM_GLOBAL_H

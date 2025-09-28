@@ -28,7 +28,7 @@ void XConfigHandle::saveConfig(xmsg::XMsgHead *head, XMsg *msg)
 
     if (conf.service_ip().empty())
     {
-        std::string ip = clientIP();
+        std::string ip = getClientIP();
         conf.set_service_ip(ip);
     }
 
@@ -58,7 +58,7 @@ void XConfigHandle::loadConfig(xmsg::XMsgHead *head, XMsg *msg)
     std::string ip = req.service_ip();
     if (ip.empty())
     {
-        ip = clientIP();
+        ip = getClientIP();
     }
 
     /// 根据IP和端口获取配置项

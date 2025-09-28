@@ -1,9 +1,8 @@
 ﻿#include "ConfigDao.h"
 
-#include "LXMysql.h"
-
-
 #include <XTools.h>
+#include <LXMysql.h>
+
 
 #include <iostream>
 #include <fstream>
@@ -40,11 +39,9 @@ ConfigDao::ConfigDao()
     impl_ = std::make_unique<PImpl>(this);
 }
 
-ConfigDao::~ConfigDao()
-{
-}
+ConfigDao::~ConfigDao() = default;
 
-bool ConfigDao::init(const char *ip, const char *user, const char *pass, const char *db_name, int port)
+auto ConfigDao::init(const char *ip, const char *user, const char *pass, const char *db_name, int port) -> bool
 {
     XMutex mux(&my_mutex);
 
@@ -68,7 +65,7 @@ bool ConfigDao::init(const char *ip, const char *user, const char *pass, const c
     return impl_->mysql_->query(std::format("SET NAMES {}", chart).c_str());
 }
 
-bool ConfigDao::install()
+auto ConfigDao::install() -> bool
 {
     LOGDEBUG("ConfigDao::install()");
 

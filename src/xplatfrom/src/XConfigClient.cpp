@@ -1,8 +1,8 @@
 ﻿#include "XConfigClient.h"
 
-#include <XThreadPool.h>
-#include <XTools.h>
-#include <XMsgCom.pb.h>
+#include "XThreadPool.h"
+#include "XTools.h"
+#include "XMsgCom.pb.h"
 
 #include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/dynamic_message.h>
@@ -37,7 +37,7 @@ public:
     {
         std::stringstream ss;
         ss << filename << "|" << line << "|" << column << "|" << message;
-        LOGDEBUG(ss.str().c_str());
+        LOGDEBUG(ss.str());
     }
 };
 
@@ -117,7 +117,7 @@ void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     ss << "上传配置失败:" << res.msg();
     if (sendConfigResCB)
         sendConfigResCB(false, ss.str().c_str());
-    LOGDEBUG(ss.str().c_str());
+    LOGDEBUG(ss.str());
 }
 
 void XConfigClient::loadConfig(const char *ip, int port)

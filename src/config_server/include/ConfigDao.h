@@ -36,11 +36,11 @@ public:
     /// \param db_name
     /// \param port
     /// \return
-    bool init(const char *ip, const char *user, const char *pass, const char *db_name, int port = 3306);
+    auto init(const char *ip, const char *user, const char *pass, const char *db_name, int port = 3306) -> bool;
 
     /// \brief
     /// \return
-    bool install();
+    auto install() -> bool;
 
     /// \brief 保存pb配置
     /// \param conf

@@ -1,7 +1,6 @@
 ﻿#include "XMsgEvent.h"
 #include "XTools.h"
-
-#include <XMsgCom.pb.h>
+#include "XMsgCom.pb.h"
 
 #include <event2/bufferevent.h>
 
@@ -18,9 +17,10 @@ public:
 
 public:
     XMsgEvent      *owenr_ = nullptr;
-    XMsg            head_;              /// 消息头
-    XMsg            msg_;               /// 消息内容
-    xmsg::XMsgHead *pb_head_ = nullptr; /// <pb消息头
+    XMsg            head_;              ///< 消息头
+    XMsg            msg_;               ///< 消息内容
+    xmsg::XMsgHead *pb_head_ = nullptr; ///< pb消息头
+    bool            is_drop_ = false;
 };
 
 XMsgEvent::PImpl::PImpl(XMsgEvent *owenr) : owenr_(owenr)
@@ -30,25 +30,29 @@ XMsgEvent::PImpl::PImpl(XMsgEvent *owenr) : owenr_(owenr)
 
 XMsgEvent::XMsgEvent()
 {
-    impl_ = std::make_shared<PImpl>(this);
+    impl_ = std::make_unique<PImpl>(this);
 }
 
 XMsgEvent::~XMsgEvent() = default;
 
 void XMsgEvent::readCB()
 {
+    static int i = 0;
+    i++;
+    //cout << "<" << i << ">" << flush;
     /// TODO 如果线程退出
     while (true)
     {
+        // std::cout << "#" << std::flush;
         if (!recvMsg())
         {
             // std::cerr << "recvMsg failed!" << std::endl;
             clear();
-            return;
+            break;
         }
         if (!impl_->pb_head_)
         {
-            return;
+            break;
         }
 
         auto *msg = getMsg();
@@ -62,9 +66,13 @@ void XMsgEvent::readCB()
         {
             //cout << "【MSG】" << pb_head_->service_name() << " " << msg->size << " " << msg->type << endl;
             std::stringstream ss;
-            ss << "【RECV】 " << clientIP() << ":" << clientPort() << " " << impl_->pb_head_->DebugString();
-
-            LOGINFO(ss.str().c_str());
+            ss << "【RECV】" << getServerIP() << ":" << getServerPort() << "|" << XTools::XGetPortName(getServerPort())
+               << " " << getClientIP() << ":" << getClientPort() << " " << impl_->pb_head_->DebugString();
+            //cout << ss.str() << endl;
+            if (impl_->pb_head_->msgtype() != xmsg::MT_ADD_LOG_REQ)
+            {
+                LOGDEBUG(ss.str());
+            }
         }
 
 
@@ -72,29 +80,39 @@ void XMsgEvent::readCB()
         // LOGDEBUG(impl_->pb_head_->servername());
         readCB(impl_->pb_head_, msg);
         clear();
+        if (impl_->is_drop_)
+        {
+            setAutoDelete(true);
+            close();
+            return;
+        }
     }
+    // std::cout << "<" << 0 << ">" << std::flush;
 }
 
 void XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg)
 {
     /// 回调消息函数
-    auto iter = msg_callbacks.find(head->msgtype());
-    if (iter == msg_callbacks.end())
+    auto ptr = msg_callbacks.find(head->msgtype());
+    if (ptr == msg_callbacks.end())
     {
         clear();
-        LOGDEBUG("msg error func not set!");
+        std::stringstream ss;
+        ss << "msg error func not set!";
+        ss << head->msgtype();
+        LOGDEBUG(ss.str());
         return;
     }
-    auto func = iter->second;
+    auto func = ptr->second;
     (this->*func)(impl_->pb_head_, msg);
 }
 void XMsgEvent::regCB(const xmsg::MsgType &type, MsgCBFunc func)
 {
-    if (msg_callbacks.find(type) != msg_callbacks.end())
+    if (msg_callbacks.contains(type))
     {
         std::stringstream ss;
         ss << "regCB is error," << type << " have been set " << std::endl;
-        LOGERROR(ss.str().c_str());
+        LOGERROR(ss.str());
         return;
     }
 
@@ -149,14 +167,14 @@ bool XMsgEvent::recvMsg()
             std::stringstream ss;
             ss << "pb_head.ParseFromArray failed!" << impl_->head_.size;
 
-            LOGDEBUG(ss.str().c_str());
+            LOGDEBUG(ss.str());
             return false;
         }
 
         /// 空包数据
         if (impl_->pb_head_->msgsize() == 0)
         {
-            std::cout << "0" << std::flush;
+            // std::cout << "0" << std::flush;
             /// 消息类型
             impl_->msg_.type = impl_->pb_head_->msgtype();
             impl_->msg_.size = 0;
@@ -171,7 +189,7 @@ bool XMsgEvent::recvMsg()
             {
                 std::stringstream ss;
                 ss << "msg_.Alloc failed!msg_size=" << impl_->pb_head_->msgsize();
-                LOGDEBUG(ss.str().c_str());
+                LOGDEBUG(ss.str());
                 return false;
             }
         }
@@ -195,7 +213,7 @@ bool XMsgEvent::recvMsg()
 
     if (impl_->msg_.recved())
     {
-        std::cout << "msg_.recved()" << std::endl;
+        std::cout << "+" << std::flush;
     }
 
     return true;
@@ -222,8 +240,12 @@ auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
     if (head)
     {
         std::stringstream ss;
-        ss << "【SEND】 " << getServerIp() << ":" << getServerPort() << " " << head->DebugString();
-        LOGINFO(ss.str().c_str());
+        ss << "【SEND】" << getServerIP() << ":" << getServerPort() << " " << XTools::XGetPortName(getServerPort())
+           << " " << head->DebugString();
+        //cout << ss.str() << endl;
+        // 在记录日志会死循环
+        if (head->msgtype() != xmsg::MT_ADD_LOG_REQ)
+            LOGDEBUG(ss.str());
     }
 
     /// 1 发送消息头大小 4字节 暂时不考虑字节序问题
@@ -240,13 +262,15 @@ auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
         return false;
     }
 
-    /// 3 发送消息内容 （pb序列化） 业务proto
-    re = write(msg->data, msg->size);
-    if (!re)
+    /// 支持发送空包
+    if (msg->size > 0)
     {
-        return false;
+        re = write(msg->data, msg->size);
+        if (!re)
+        {
+            return false;
+        }
     }
-
     return true;
 }
 
@@ -267,7 +291,7 @@ bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *m
     return sendMsg(head, &xMsg);
 }
 
-bool XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg)
+auto XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool
 {
     if (!msg)
         return false;
@@ -278,7 +302,7 @@ bool XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Me
     return sendMsg(&head, msg);
 }
 
-void XMsgEvent::clear()
+auto XMsgEvent::clear() -> void
 {
     impl_->head_.clear();
     impl_->msg_.clear();

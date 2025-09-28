@@ -26,7 +26,7 @@ XServiceClient::PImpl::~PImpl()
 
 XServiceClient::XServiceClient()
 {
-    impl_ = std::make_shared<PImpl>(this);
+    impl_ = std::make_unique<PImpl>(this);
 }
 
 XServiceClient::~XServiceClient() = default;

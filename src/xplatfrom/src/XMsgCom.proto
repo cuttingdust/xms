@@ -18,6 +18,27 @@ message XMsgHeart
 	int64 count = 1;
 }
 
+enum XLogLevel
+{
+	XLOG_DEBUG = 0;
+	XLOG_INFO  = 1;
+	XLOG_ERROR = 2;
+	XLOG_FATAL = 3;
+}
+
+message XAddLogReq
+{
+	string    service_ip   = 1;
+	int32     service_port = 2;
+	string    service_name = 3;
+	bytes     log_txt      = 4;
+	int32     log_time     = 5;
+	XLogLevel log_level    = 6;
+	string    filename     = 7;
+	int32     line         = 8;
+}
+
+
 /// 用户注册 微服务架构的用户系统，只为了做单点登录，不涉及权限，权限有具体的业务处理
 /// 系统只有一个root用户
 /// MSG_ADD_USER
@@ -26,6 +47,13 @@ message XAddUserReq
 	string username = 1;	///< 用户名
 	string password = 2;	///< md5后的密码
 	string rolename = 3;	///< 角色名称，为了后期拓展角色权限
+}
+
+message XChangePasswordReq
+{
+	string username 	= 1;    ///<<< 用户名
+	string password 	= 2;	///<<< md5后的密码
+	string new_password = 3;	///<<< 修改的密码
 }
 
 

@@ -12,15 +12,23 @@
 #define XTOOLS_H
 
 #include "XPlatfrom_Global.h"
+#include "XLogClient.h"
 
 #include <string>
 #include <iostream>
 #include <mutex>
 
-#define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
-#define LOGDEBUG(msg)   LOG("DEBUG", msg)
-#define LOGINFO(msg)    LOG("INFO", msg)
-#define LOGERROR(msg)   LOG("ERROR", msg)
+namespace xmsg
+{
+    class XMsgHead;
+}
+
+class XMsg;
+
+// #define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
+// #define LOGDEBUG(msg)   LOG("DEBUG", msg)
+// #define LOGINFO(msg)    LOG("INFO", msg)
+// #define LOGERROR(msg)   LOG("ERROR", msg)
 
 
 class XPLATFROM_EXPORT XTools
@@ -76,20 +84,17 @@ public:
     /// \param fmt
     /// \return
     static auto XGetTime(int timestamp, std::string fmt = "%F %T") -> std::string;
+
+    static auto XGetPortName(unsigned short port) -> const char *;
+
+    static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
 };
 
 class XPLATFROM_EXPORT XMutex final
 {
 public:
-    explicit XMutex(std::mutex *mux)
-    {
-        mux_ = mux;
-        mux_->lock();
-    }
-    ~XMutex()
-    {
-        mux_->unlock();
-    }
+    explicit XMutex(std::mutex *mux);
+    ~XMutex();
 
 private:
     std::mutex *mux_ = nullptr;

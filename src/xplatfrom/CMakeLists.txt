@@ -33,6 +33,7 @@ set(PROTOC_EXPORT_CLASS
     XMsgHeart
     XAddUserReq
     XLoginRes
+    XAddLogReq
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

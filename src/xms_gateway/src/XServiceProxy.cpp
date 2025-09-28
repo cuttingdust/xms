@@ -80,7 +80,7 @@ void XServiceProxy::PImpl::threadFunc()
                 bool is_find = false;
                 for (auto c : client_map_[service_name])
                 {
-                    if (s.ip() == c->getServerIp() && s.port() == c->getServerPort())
+                    if (s.ip() == c->getServerIP() && s.port() == c->getServerPort())
                     {
                         is_find = true;
                         break;

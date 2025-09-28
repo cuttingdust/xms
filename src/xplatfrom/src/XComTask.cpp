@@ -1,4 +1,5 @@
 ﻿#include "XComTask.h"
+
 #include "XMsg.h"
 #include "XTools.h"
 #include "XSSL_CTX.h"
@@ -11,34 +12,34 @@
 #include <iostream>
 #include <thread>
 
-static void SReadCb(struct bufferevent *bev, void *ctx)
+static auto SReadCb(struct bufferevent *bev, void *ctx) -> void
 {
     auto task = static_cast<XComTask *>(ctx);
     task->readCB();
 }
 
-static void SWriteCb(struct bufferevent *bev, void *ctx)
+static auto SWriteCb(struct bufferevent *bev, void *ctx) -> void
 {
     auto task = static_cast<XComTask *>(ctx);
     task->writeCB();
 }
 
-static void SEventCb(struct bufferevent *bev, short events, void *ctx)
+static auto SEventCb(struct bufferevent *bev, short events, void *ctx) -> void
 {
     auto task = static_cast<XComTask *>(ctx);
     task->eventCB(events);
 }
 
-void STimerCB(evutil_socket_t s, short w, void *ctx)
+static auto STimerCB(evutil_socket_t s, short w, void *ctx) -> void
 {
     auto task = static_cast<XComTask *>(ctx);
     task->timerCB();
 }
 
-void SAutoConnectTimerCB(evutil_socket_t s, short w, void *ctx)
+static auto SAutoConnectTimerCB(evutil_socket_t s, short w, void *ctx) -> void
 {
     auto task = static_cast<XComTask *>(ctx);
-    task->AutoConnectTimerCB();
+    task->autoConnectTimerCB();
 }
 
 class XComTask::PImpl
@@ -54,9 +55,9 @@ public:
     auto initBev(int com_sock) -> bool;
 
 public:
-    XComTask           *owenr_        = nullptr;
-    struct bufferevent *bev_          = nullptr;
-    std::string         serverPath_   = "";
+    XComTask           *owenr_ = nullptr;
+    struct bufferevent *bev_   = nullptr;
+    std::string         serverPath_;
     char                serverIp_[16] = { 0 };
     int                 serverPort_   = -1;
     char                buffer_[1024] = { 0 };
@@ -222,22 +223,22 @@ auto XComTask::init() -> bool
     return connect();
 }
 
-void XComTask::setServerIp(const char *ip)
+auto XComTask::setServerIp(const char *ip) -> void
 {
     strncpy(impl_->serverIp_, ip, sizeof(impl_->serverIp_));
 }
 
-const char *XComTask::getServerIp() const
+auto XComTask::getServerIP() const -> const char *
 {
     return impl_->serverIp_;
 }
 
-void XComTask::setServerPort(int port)
+auto XComTask::setServerPort(int port) -> void
 {
     impl_->serverPort_ = port;
 }
 
-int XComTask::getServerPort() const
+auto XComTask::getServerPort() const -> int
 {
     return impl_->serverPort_;
 }
@@ -251,7 +252,7 @@ auto XComTask::setClientIP(const char *ip) -> void
     strncpy(impl_->client_ip_, ip, sizeof(impl_->client_ip_));
 }
 
-auto XComTask::clientIP() -> const char *
+auto XComTask::getClientIP() -> const char *
 {
     return impl_->client_ip_;
 }
@@ -261,27 +262,27 @@ auto XComTask::setClientPort(int port) -> void
     impl_->client_port_ = port;
 }
 
-auto XComTask::clientPort() const -> int
+auto XComTask::getClientPort() const -> int
 {
     return impl_->client_port_;
 }
 
-void XComTask::setServerRoot(const std::string path)
+auto XComTask::setServerRoot(const std::string path) -> void
 {
     impl_->serverPath_ = path;
 }
 
-void XComTask::setIsRecvMsg(bool isRecvMsg)
+auto XComTask::setIsRecvMsg(bool isRecvMsg) -> void
 {
     impl_->isRecvMsg = isRecvMsg;
 }
 
-void XComTask::setAutoDelete(bool bAuto)
+auto XComTask::setAutoDelete(bool bAuto) -> void
 {
     impl_->isAutoDelete = bAuto;
 }
 
-void XComTask::setAutoConnect(bool bAuto)
+auto XComTask::setAutoConnect(bool bAuto) -> void
 {
     impl_->isAutoConnect = bAuto;
     if (bAuto)
@@ -290,7 +291,7 @@ void XComTask::setAutoConnect(bool bAuto)
     }
 }
 
-bool XComTask::waitConnected(int timeout_sec)
+auto XComTask::waitConnected(int timeout_sec) -> bool
 {
     /// 10毫秒监听一次
     int count = timeout_sec * 100;
@@ -303,7 +304,7 @@ bool XComTask::waitConnected(int timeout_sec)
     return isConnected();
 }
 
-bool XComTask::autoConnect(int timeout_sec)
+auto XComTask::autoConnect(int timeout_sec) -> bool
 {
     /// 如果正在连接，则等待，如果没有，则开始连接
     if (isConnected())
@@ -313,27 +314,27 @@ bool XComTask::autoConnect(int timeout_sec)
     return waitConnected(timeout_sec);
 }
 
-void XComTask::setSSLContent(XSSL_CTX *ctx)
+auto XComTask::setSSLContent(XSSL_CTX *ctx) -> void
 {
     impl_->ssl_ctx_ = ctx;
 }
 
-XSSL_CTX *XComTask::getSSLContent() const
+auto XComTask::getSSLContent() const -> XSSL_CTX *
 {
     return impl_->ssl_ctx_;
 }
 
-void XComTask::setReadTimeMs(int ms)
+auto XComTask::setReadTimeMs(int ms) -> void
 {
     impl_->read_timeout_ms_ = ms;
 }
 
-void XComTask::setTimeMs(int ms)
+auto XComTask::setTimeMs(int ms) -> void
 {
     impl_->timer_ms_ = ms;
 }
 
-void XComTask::eventCB(short events)
+auto XComTask::eventCB(short events) -> void
 {
     if (events & BEV_EVENT_CONNECTED)
     {
@@ -371,12 +372,12 @@ void XComTask::eventCB(short events)
     }
 }
 
-void XComTask::connectCB()
+auto XComTask::connectCB() -> void
 {
     std::cout << "XComTask::connectCB" << std::endl;
 }
 
-int XComTask::read(void *data, int size)
+auto XComTask::read(void *data, int size) -> int
 {
     if (!impl_->bev_)
     {
@@ -387,12 +388,12 @@ int XComTask::read(void *data, int size)
     return re;
 }
 
-void XComTask::writeCB()
+auto XComTask::writeCB() -> void
 {
     std::cout << "XComTask::writeCB" << std::endl;
 }
 
-bool XComTask::write(const void *data, int size)
+auto XComTask::write(const void *data, int size) -> bool
 {
     XMutex xMtx(impl_->mtx_);
     if (!impl_->bev_ || !data || size <= 0)
@@ -407,7 +408,7 @@ bool XComTask::write(const void *data, int size)
     return true;
 }
 
-void XComTask::beginWriteCB()
+auto XComTask::beginWriteCB() -> void
 {
     if (!impl_->bev_)
         return;
@@ -415,7 +416,7 @@ void XComTask::beginWriteCB()
     bufferevent_trigger(impl_->bev_, EV_WRITE, 0);
 }
 
-void XComTask::close()
+auto XComTask::close() -> void
 {
     {
         XMutex xMtx(impl_->mtx_);
@@ -444,7 +445,7 @@ void XComTask::close()
     }
 }
 
-void XComTask::clearTimer()
+auto XComTask::clearTimer() -> void
 {
     if (impl_->auto_connect_timer_event_)
         event_free(impl_->auto_connect_timer_event_);
@@ -455,7 +456,7 @@ void XComTask::clearTimer()
     impl_->timer_event_ = nullptr;
 }
 
-void XComTask::setTimer(int ms)
+auto XComTask::setTimer(int ms) -> void
 {
     if (!base())
     {
@@ -475,12 +476,12 @@ void XComTask::setTimer(int ms)
     event_add(impl_->timer_event_, &tv);
 }
 
-void XComTask::timerCB()
+auto XComTask::timerCB() -> void
 {
     std::cout << "XComTask::timerCB" << std::endl;
 }
 
-void XComTask::setAutoConnectTimer(int ms)
+auto XComTask::setAutoConnectTimer(int ms) -> void
 {
     if (!base())
     {
@@ -506,7 +507,7 @@ void XComTask::setAutoConnectTimer(int ms)
     event_add(impl_->auto_connect_timer_event_, &tv);
 }
 
-void XComTask::AutoConnectTimerCB()
+auto XComTask::autoConnectTimerCB() -> void
 {
     std::cout << "." << std::flush;
     /// 如果正在连接，则等待，如果没有，则开始连接

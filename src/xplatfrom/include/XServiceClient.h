@@ -26,7 +26,7 @@ public:
 
 private:
     class PImpl;
-    std::shared_ptr<PImpl> impl_;
+    std::unique_ptr<PImpl> impl_;
 };
 
 

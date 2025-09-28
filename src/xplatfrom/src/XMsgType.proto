@@ -21,6 +21,10 @@ enum MsgType {						///<<< 枚举类型
 	MT_DEL_CONFIG_RES		= 16;	///<<< XMessageRes
 	MT_ADD_USER_REQ 		= 17;	///<<< XAddUserReq
 	MT_ADD_USER_RES 		= 18;	///<<< XMessageRes
+	MT_CHANGE_PASSWORD_REQ = 19; 	///<<< XChangePasswordReq
+	MT_CHANGE_PASSWORD_RES = 208;	///<<< XMessageRes
+	MT_ADD_LOG_REQ = 211;		  	///<<< 添加日志 不做响应 XAddLogReq
+	
 	MT_HEART_REQ			= 65534;///<<< heartRes
 	MT_MAX_TYPE				= 65535;
 }
