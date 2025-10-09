@@ -48,7 +48,7 @@ auto XLogDao::init() -> bool
         impl_->mysql_ = new LXMysql();
     if (!impl_->mysql_->init())
     {
-        LOGDEBUG("my_->Init() failed!");
+        std::cout << "my_->Init() failed!" << std::endl;
         return false;
     }
 
@@ -57,21 +57,20 @@ auto XLogDao::init() -> bool
 
     if (!impl_->mysql_->inputDBConfig())
     {
-        LOGDEBUG("my_->inputDBConfig failed!");
+        std::cout << "my_->inputDBConfig failed!" << std::endl;
         return false;
     }
-    LOGDEBUG("my_->inputDBConfig success!");
+    std::cout << "my_->inputDBConfig success!" << std::endl;
     return impl_->mysql_->query(std::format("SET NAMES {}", chart).c_str());
 }
 
 auto XLogDao::install() -> bool
 {
-    LOGDEBUG("XLogDao::install()");
-
+    std::cout << "XLogDao::install()" << std::endl;
     XMutex mux(&log_mutex);
     if (!impl_->mysql_)
     {
-        LOGERROR("mysql not init");
+        std::cout << "mysql not init" << std::endl;
         return false;
     }
 
@@ -93,7 +92,7 @@ auto XLogDao::install() -> bool
 
     if (!impl_->mysql_->createTable(table_name, fields, true))
     {
-        LOGINFO("CREATE TABLE xms_log failed!");
+        std::cout << "CREATE TABLE xms_log failed!" << std::endl;
         return false;
     }
     return true;

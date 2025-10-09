@@ -12,7 +12,7 @@
 #define XTOOLS_H
 
 #include "XPlatfrom_Global.h"
-#include "XLogClient.h"
+// #include "XLogClient.h"
 
 #include <string>
 #include <iostream>
@@ -25,10 +25,10 @@ namespace xmsg
 
 class XMsg;
 
-// #define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
-// #define LOGDEBUG(msg)   LOG("DEBUG", msg)
-// #define LOGINFO(msg)    LOG("INFO", msg)
-// #define LOGERROR(msg)   LOG("ERROR", msg)
+#define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
+#define LOGDEBUG(msg)   LOG("DEBUG", msg)
+#define LOGINFO(msg)    LOG("INFO", msg)
+#define LOGERROR(msg)   LOG("ERROR", msg)
 
 
 class XPLATFROM_EXPORT XTools
