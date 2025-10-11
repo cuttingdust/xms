@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>XLoginGUI</class>
+ <widget class="QDialog" name="XLoginGUI">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>600</width>
+    <height>380</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>LoginGUI</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(255, 255, 255);
+</string>
+  </property>
+  <widget class="QWidget" name="topwidget" native="true">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>601</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(238, 240, 246);</string>
+   </property>
+   <widget class="QLabel" name="logolabel">
+    <property name="geometry">
+     <rect>
+      <x>210</x>
+      <y>20</y>
+      <width>149</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-image: url(:/XMSDiskClientGui/Resources/top.png);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="closepushButton">
+    <property name="geometry">
+     <rect>
+      <x>562</x>
+      <y>10</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+QPushButton
+{
+
+border-image: url(:/XMSDiskClientGui/Resources/img/common/system/btn_sys_close.png)
+ 0 64 0 0 ; 
+}
+QPushButton::!hover{
+border-image: url(:/XMSDiskClientGui/Resources/img/common/system/btn_sys_close.png)
+ 0 64 0 0 ; 
+
+}
+
+QPushButton::hover{
+border-image: url(:/XMSDiskClientGui/Resources/img/common/system/btn_sys_close.png)
+ 0 0 0 64 ; 
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="autoExclusive">
+     <bool>false</bool>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>80</y>
+     <width>600</width>
+     <height>300</height>
+    </rect>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <widget class="QLabel" name="logolabel_2">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>60</y>
+      <width>181</width>
+      <height>191</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-image: url(:/XMSDiskClientGui/Resources/logo2.png);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="passuserlabel">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>10</y>
+      <width>251</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+font: 13pt &quot;黑体&quot;;</string>
+    </property>
+    <property name="text">
+     <string>账号密码登陆</string>
+    </property>
+   </widget>
+   <widget class="QFrame" name="user_frame">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>90</y>
+      <width>300</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">#user_frame::!hover{
+
+      border: 1px solid #c7c7c7;
+      border-radius: 2px;
+	  margin-top: 0ex
+
+}
+#user_frame::hover{
+      border: 1px solid #58a6ee;
+      border-radius: 2px;
+	  margin-top: 0ex
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Shadow::Raised</enum>
+    </property>
+    <widget class="QLineEdit" name="usernameEdit">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>5</y>
+       <width>251</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 12pt</string>
+     </property>
+     <property name="text">
+      <string>root</string>
+     </property>
+     <property name="frame">
+      <bool>false</bool>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="userlogo">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>12</y>
+       <width>16</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/XMSDiskClientGui/Resources/person.png);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="err_frame">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>40</y>
+      <width>301</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Shadow::Raised</enum>
+    </property>
+    <widget class="QLabel" name="err_logo">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>16</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">border-image: url(:/XMSDiskClientGui/Resources/icon_error_tip.png);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QLabel" name="err_msg">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>10</y>
+       <width>241</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(255, 0, 0);</string>
+     </property>
+     <property name="text">
+      <string>登录失败</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QFrame" name="pass_frame">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>160</y>
+      <width>300</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">
+
+#pass_frame::!hover{
+
+      border: 1px solid #c7c7c7;
+      border-radius: 2px;
+	  margin-top: 0ex
+
+}
+#pass_frame::hover{
+      border: 1px solid #58a6ee;
+      border-radius: 2px;
+	  margin-top: 0ex
+}</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Shadow::Raised</enum>
+    </property>
+    <widget class="QLineEdit" name="passwordEdit">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>5</y>
+       <width>251</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 12pt</string>
+     </property>
+     <property name="text">
+      <string>123456</string>
+     </property>
+     <property name="frame">
+      <bool>false</bool>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="passlog">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>12</y>
+       <width>18</width>
+       <height>18</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/XMSDiskClientGui/Resources/passwd.png);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>220</y>
+      <width>301</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+background-repeat: no-repeat;
+background-position:left;
+border-radius:4px;   
+color:rgb(255, 255, 255);
+font: 12pt &quot;黑体&quot;;
+}
+QPushButton::!hover{
+background-color: rgb(6, 168, 255);
+
+}
+
+QPushButton::hover{
+background-color: #059bec;
+}</string>
+    </property>
+    <property name="text">
+     <string>登陆</string>
+    </property>
+    <property name="default">
+     <bool>true</bool>
+    </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <tabstops>
+  <tabstop>usernameEdit</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>closepushButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="xdisk_client_gui.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>XLoginGUI</receiver>
+   <slot>Login()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>448</x>
+     <y>280</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>733</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>closepushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>XLoginGUI</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>582</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>699</x>
+     <y>51</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>Login()</slot>
+ </slots>
+</ui>

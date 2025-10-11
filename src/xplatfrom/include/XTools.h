@@ -12,7 +12,7 @@
 #define XTOOLS_H
 
 #include "XPlatfrom_Global.h"
-// #include "XLogClient.h"
+#include "XLogClient.h"
 
 #include <string>
 #include <iostream>
@@ -25,10 +25,10 @@ namespace xmsg
 
 class XMsg;
 
-#define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
-#define LOGDEBUG(msg)   LOG("DEBUG", msg)
-#define LOGINFO(msg)    LOG("INFO", msg)
-#define LOGERROR(msg)   LOG("ERROR", msg)
+// #define LOG(level, msg) std::cout << level << ":" << __FILE__ << ":" << __LINE__ << "\n" << msg << std::endl
+// #define LOGDEBUG(msg)   LOG("DEBUG", msg)
+// #define LOGINFO(msg)    LOG("INFO", msg)
+// #define LOGERROR(msg)   LOG("ERROR", msg)
 
 
 class XPLATFROM_EXPORT XTools
@@ -85,7 +85,16 @@ public:
     /// \return
     static auto XGetTime(int timestamp, std::string fmt = "%F %T") -> std::string;
 
-    static auto XGetPortName(unsigned short port) -> const char *;
+    static auto XGetNameByPort(unsigned short port) -> const char *;
+
+    /// \brief
+    /// windows C:\Windows\System32\drivers\etc
+    /// Linux /etc/hosts
+    /// 127.0.0.1 xms_gateway_server
+    /// 127.0.0.1 xms_register_server
+    /// \param host_name
+    /// \return
+    static auto XGetHostByName(const std::string &host_name) -> std::string;
 
     static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
 };

@@ -66,8 +66,9 @@ void XMsgEvent::readCB()
         {
             //cout << "【MSG】" << pb_head_->service_name() << " " << msg->size << " " << msg->type << endl;
             std::stringstream ss;
-            ss << "【RECV】" << getServerIP() << ":" << getServerPort() << "|" << XTools::XGetPortName(getServerPort())
-               << " " << getClientIP() << ":" << getClientPort() << " " << impl_->pb_head_->DebugString();
+            ss << "【RECV】" << getServerIP() << ":" << getServerPort() << "|"
+               << XTools::XGetNameByPort(getServerPort()) << " " << getClientIP() << ":" << getClientPort() << " "
+               << impl_->pb_head_->DebugString();
             //cout << ss.str() << endl;
             if (impl_->pb_head_->msgtype() != xmsg::MT_ADD_LOG_REQ)
             {
@@ -240,7 +241,7 @@ auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
     if (head)
     {
         std::stringstream ss;
-        ss << "【SEND】" << getServerIP() << ":" << getServerPort() << " " << XTools::XGetPortName(getServerPort())
+        ss << "【SEND】" << getServerIP() << ":" << getServerPort() << " " << XTools::XGetNameByPort(getServerPort())
            << " " << head->DebugString();
         //cout << ss.str() << endl;
         // 在记录日志会死循环

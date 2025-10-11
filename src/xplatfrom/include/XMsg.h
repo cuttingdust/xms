@@ -21,9 +21,9 @@
 #define API_GATEWAY_SSL_PORT    20011 /// API_SSL网关端口
 #define API_GATEWAY_SERVER_NAME "xms_gateway_server"
 //////////////////////////////////////////////////////////////////
-#define REGISTER_PORT            20018 /// 注册中心端口
-#define REGISTER_NAME            "reg"
-#define API_REGISTER_SERVER_NAME "xms_register_server"
+#define REGISTER_PORT        20018 /// 注册中心端口
+#define REGISTER_NAME        "reg"
+#define REGISTER_SERVER_NAME "xms_register_server"
 
 #define XLOG_NAME "xlog"
 #define XLOG_PORT 20030

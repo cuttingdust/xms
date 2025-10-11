@@ -79,11 +79,15 @@ macro(get_src_include)
 	
 	FILE(GLOB H_FILE_I ${CMAKE_CURRENT_LIST_DIR}/include/*.h)
     
+	# 图标资源
+	FILE(GLOB RC_FILE ${CMAKE_CURRENT_LIST_DIR}/src/*.rc)
+	
 	# 安装的时候 不暴露出去
     FILE(GLOB UI_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.ui)
     FILE(GLOB QRC_SOURCE_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.qrc)
 	FILE(GLOB PROTO_FILES ${CMAKE_CURRENT_LIST_DIR}/src/*.proto)
 
+	
     if(RC_FILE)
         source_group("Resource Files" FILES ${RC_FILE})
     endif()

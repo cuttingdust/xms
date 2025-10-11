@@ -2,6 +2,7 @@
 #include "XAuthServer.h"
 #include "XAuthHandle.h"
 
+#include <XTools.h>
 #include <XRegisterClient.h>
 
 #include <iostream>
@@ -10,10 +11,11 @@
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "zh_CN.UTF-8");
-    std::cout << "Auth Server" << std::endl;
+    std::cout << "=================Auth Server====================" << std::endl;
 
-    int server_port = AUTH_PORT;
-    RegisterClient->setServerIp("127.0.0.1");
+    int  server_port = AUTH_PORT;
+    auto ip          = XTools::XGetHostByName(REGISTER_SERVER_NAME);
+    RegisterClient->setServerIp(ip.c_str());
     RegisterClient->setServerPort(REGISTER_PORT);
     RegisterClient->registerServer(AUTH_NAME, server_port, 0);
     XAuthDao::get()->init();
@@ -26,6 +28,6 @@ int main(int argc, char *argv[])
     service.start();
 
     XAuthServer::wait();
-    getchar(); ///  等待输入，防止程序直接退出
+    getchar();
     return 0;
 }

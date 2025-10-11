@@ -11,6 +11,11 @@
 
 #include <filesystem>
 #include <iostream>
+#ifndef _WIN32
+#include <signal.h>
+#else
+#include <winsock2.h>
+#endif
 
 namespace fs = std::filesystem;
 
@@ -183,7 +188,7 @@ auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
     return time_buf;
 }
 
-auto XTools::XGetPortName(unsigned short port) -> const char *
+auto XTools::XGetNameByPort(unsigned short port) -> const char *
 {
     switch (port)
     {
@@ -212,6 +217,28 @@ auto XTools::XGetPortName(unsigned short port) -> const char *
             break;
     }
     return "";
+}
+
+auto XTools::XGetHostByName(const std::string &host_name) -> std::string
+{
+#ifdef _WIN32
+    static bool is_init = false;
+    if (!is_init)
+    {
+        is_init = true;
+        WSADATA wsa;
+        if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
+        {
+            return "";
+        }
+    }
+#endif
+    auto host = ::gethostbyname(host_name.c_str());
+    auto addr = host->h_addr_list;
+    if (!addr)
+        return "";
+    /// 只取第一个
+    return ::inet_ntoa(*reinterpret_cast<in_addr *>(*addr));
 }
 
 auto XTools::PrintMsg(xmsg::XMsgHead *head, XMsg *msg)
