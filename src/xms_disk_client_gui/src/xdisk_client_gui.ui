@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>XMSDiskClientGuiClass</class>
- <widget class="QWidget" name="XMSDiskClientGuiClass">
+ <class>XDiskClientGui</class>
+ <widget class="QWidget" name="XDiskClientGui">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -283,7 +283,7 @@ border:1px solid rgb(6, 168, 255);
       </rect>
      </property>
      <property name="orientation">
-      <enum>Qt::Vertical</enum>
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
     </widget>
     <widget class="QPushButton" name="delpushButton">
@@ -346,10 +346,10 @@ border:1px solid rgb(6, 168, 255);
       <string notr="true">background-color:#F0F0F0;</string>
      </property>
      <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
+      <enum>QFrame::Shape::StyledPanel</enum>
      </property>
      <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
+      <enum>QFrame::Shadow::Raised</enum>
      </property>
      <widget class="QFrame" name="line1frame_2">
       <property name="geometry">
@@ -364,10 +364,10 @@ border:1px solid rgb(6, 168, 255);
        <string notr="true">background-color:#F0F0F0;</string>
       </property>
       <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
+       <enum>QFrame::Shape::StyledPanel</enum>
       </property>
       <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
+       <enum>QFrame::Shadow::Raised</enum>
       </property>
      </widget>
     </widget>
@@ -464,7 +464,7 @@ font: 12pt &quot;黑体&quot;;</string>
      </rect>
     </property>
     <property name="contextMenuPolicy">
-     <enum>Qt::DefaultContextMenu</enum>
+     <enum>Qt::ContextMenuPolicy::DefaultContextMenu</enum>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: #F0F0F0</string>
@@ -517,16 +517,16 @@ background-color:#FFFFFF;
 </string>
      </property>
      <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAsNeeded</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
      </property>
      <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
      <property name="sizeAdjustPolicy">
-      <enum>QAbstractScrollArea::AdjustToContentsOnFirstShow</enum>
+      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContentsOnFirstShow</enum>
      </property>
      <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
+      <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
      </property>
      <property name="dragEnabled">
       <bool>true</bool>
@@ -535,19 +535,19 @@ background-color:#FFFFFF;
       <bool>true</bool>
      </property>
      <property name="selectionBehavior">
-      <enum>QAbstractItemView::SelectRows</enum>
+      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
      </property>
      <property name="textElideMode">
-      <enum>Qt::ElideLeft</enum>
+      <enum>Qt::TextElideMode::ElideLeft</enum>
      </property>
      <property name="verticalScrollMode">
-      <enum>QAbstractItemView::ScrollPerPixel</enum>
+      <enum>QAbstractItemView::ScrollMode::ScrollPerPixel</enum>
      </property>
      <property name="showGrid">
       <bool>false</bool>
      </property>
      <property name="gridStyle">
-      <enum>Qt::SolidLine</enum>
+      <enum>Qt::PenStyle::SolidLine</enum>
      </property>
      <property name="sortingEnabled">
       <bool>true</bool>
@@ -737,9 +737,6 @@ background-color:#FFFFFF;
       <property name="text">
        <string/>
       </property>
-      <property name="textAlignment">
-       <set>AlignCenter</set>
-      </property>
      </column>
      <column>
       <property name="text">
@@ -928,7 +925,7 @@ background-repeat: no-repeat;
        </rect>
       </property>
       <property name="orientation">
-       <enum>Qt::Vertical</enum>
+       <enum>Qt::Orientation::Vertical</enum>
       </property>
      </widget>
      <widget class="QPushButton" name="backButton">
@@ -1039,7 +1036,7 @@ background-repeat: no-repeat;
        <string>100</string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
     </widget>
@@ -1047,7 +1044,7 @@ background-repeat: no-repeat;
   </widget>
   <action name="upaction">
    <property name="icon">
-    <iconset resource="xmsdiskclientgui.qrc">
+    <iconset resource="xdisk_client_gui.qrc">
      <normaloff>:/XMSDiskClientGui/Resources/img/upload1.png</normaloff>
      <normalon>:/XMSDiskClientGui/Resources/upload.png</normalon>:/XMSDiskClientGui/Resources/img/upload1.png</iconset>
    </property>
@@ -1057,7 +1054,7 @@ background-repeat: no-repeat;
   </action>
   <action name="downaction">
    <property name="icon">
-    <iconset resource="xmsdiskclientgui.qrc">
+    <iconset resource="xdisk_client_gui.qrc">
      <normaloff>:/XMSDiskClientGui/Resources/img/down1.png</normaloff>:/XMSDiskClientGui/Resources/img/down1.png</iconset>
    </property>
    <property name="text">
@@ -1066,7 +1063,7 @@ background-repeat: no-repeat;
   </action>
   <action name="refreshaction">
    <property name="icon">
-    <iconset resource="xmsdiskclientgui.qrc">
+    <iconset resource="xdisk_client_gui.qrc">
      <normaloff>:/XMSDiskClientGui/Resources/img/refresh.png</normaloff>:/XMSDiskClientGui/Resources/img/refresh.png</iconset>
    </property>
    <property name="text">
@@ -1081,13 +1078,13 @@ background-repeat: no-repeat;
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="xmsdiskclientgui.qrc"/>
+  <include location="xdisk_client_gui.qrc"/>
  </resources>
  <connections>
   <connection>
    <sender>closepushButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1103,7 +1100,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>refreshaction</sender>
    <signal>triggered()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Refresh()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1119,7 +1116,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>checkallBox</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Checkall()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1135,7 +1132,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>taskpushButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>TaskTab()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1151,7 +1148,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>my_diskpushButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>MyTab()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1167,7 +1164,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>filetableWidget</sender>
    <signal>clicked(QModelIndex)</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>SelectFile(QModelIndex)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1183,7 +1180,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>upButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Upload()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1199,7 +1196,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>refreshButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Refresh()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1215,7 +1212,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>downpushButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Download()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1231,7 +1228,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>upaction</sender>
    <signal>triggered()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Upload()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1247,7 +1244,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>downaction</sender>
    <signal>triggered()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Download()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1263,7 +1260,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>delpushButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Delete()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1279,7 +1276,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>filetableWidget</sender>
    <signal>cellDoubleClicked(int,int)</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>DoubleClicked(int,int)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1295,7 +1292,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>backButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Back()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1311,7 +1308,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>pathpushButton</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>Root()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1327,7 +1324,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>action_new_dir</sender>
    <signal>triggered()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>NewDir()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1343,7 +1340,7 @@ background-repeat: no-repeat;
   <connection>
    <sender>file_enc</sender>
    <signal>clicked()</signal>
-   <receiver>XMSDiskClientGuiClass</receiver>
+   <receiver>XDiskClientGui</receiver>
    <slot>FileEnc()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -56,8 +56,9 @@ void XLoginGui::mousePressEvent(QMouseEvent *e)
     QWidget::mousePressEvent(e);
 }
 
-void XLoginGui::mouseReleaseEvent(QMouseEvent *event)
+void XLoginGui::mouseReleaseEvent(QMouseEvent *e)
 {
+    Q_UNUSED(e);
     impl_->curPos_ = { 0, 0 };
 }
 
