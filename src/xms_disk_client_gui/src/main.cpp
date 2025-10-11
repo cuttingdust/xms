@@ -1,6 +1,6 @@
 ﻿#include "XLoginGui.h"
-#include "XTools.h"
 
+#include <XTools.h>
 #include <XAuthClient.h>
 
 #include <QtWidgets/QApplication>
@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
     auto ip = XTools::XGetHostByName(API_GATEWAY_SERVER_NAME);
     XAuthClient::get()->setServerIp(ip.c_str());
-    XAuthClient::get()->setServerPort(AUTH_PORT);
+    XAuthClient::get()->setServerPort(API_GATEWAY_PORT); /// 客户端转发给api_gateway
     XAuthClient::regMsgCallback();
     XAuthClient::get()->startConnect();
 

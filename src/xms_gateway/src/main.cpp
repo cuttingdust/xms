@@ -1,6 +1,7 @@
 ﻿#include "XConfigClient.h"
 #include "XRouteServer.h"
 #include "XServiceProxy.h"
+#include "XTools.h"
 
 #include <XRegisterClient.h>
 #include <XThreadPool.h>
@@ -16,7 +17,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
         server_port = atoi(argv[1]);
     std::cout << "server port is " << server_port << std::endl;
-    std::string register_ip = "127.0.0.1";
+    std::string register_ip = XTools::XGetHostByName(REGISTER_SERVER_NAME);
     if (argc > 2)
         register_ip = argv[2];
     int register_port = REGISTER_PORT;
@@ -42,22 +43,22 @@ int main(int argc, char *argv[])
     /// 连接配置中心，获取路由配置
     /// 等待配置获取成功
 
-    auto confs = XRegisterClient::get()->getServices(CONFIG_NAME, 10);
-    std::cout << "=================================================" << std::endl;
-    std::cout << confs.DebugString() << std::endl;
-    /// 配置中心IP获取失败，读取本地配置
-    if (confs.services_size() <= 0)
-    {
-        std::cout << "find config service failed!" << std::endl;
-    }
-    else
-    {
-        /// 只取第一个配置中心
-        auto                        conf = confs.services()[0];
-        static xmsg::XGatewayConfig cur_conf;
-        if (XConfigClient::get()->startGetConf(conf.ip().c_str(), conf.port(), 0, server_port, &cur_conf))
-            std::cout << "连接配置中心成功" << cur_conf.DebugString() << std::endl;
-    }
+    // auto confs = XRegisterClient::get()->getServices(CONFIG_NAME, 10);
+    // std::cout << "=================================================" << std::endl;
+    // std::cout << confs.DebugString() << std::endl;
+    // /// 配置中心IP获取失败，读取本地配置
+    // if (confs.services_size() <= 0)
+    // {
+    //     std::cout << "find config service failed!" << std::endl;
+    // }
+    // else
+    // {
+    //     /// 只取第一个配置中心
+    //     auto                        conf = confs.services()[0];
+    //     static xmsg::XGatewayConfig cur_conf;
+    //     if (XConfigClient::get()->startGetConf(conf.ip().c_str(), conf.port(), 0, server_port, &cur_conf))
+    //         std::cout << "连接配置中心成功" << cur_conf.DebugString() << std::endl;
+    // }
 
     XRouteServer service;
     service.setServerPort(server_port);

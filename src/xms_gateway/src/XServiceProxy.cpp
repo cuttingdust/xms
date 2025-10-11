@@ -200,7 +200,7 @@ bool XServiceProxy::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev)
     {
         std::stringstream ss;
         ss << service_name << "client_list not find!!! ";
-        LOGDEBUG(ss.str().c_str());
+        LOGDEBUG(ss.str());
         return false;
     }
 

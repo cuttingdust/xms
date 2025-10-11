@@ -43,7 +43,12 @@ auto XAuthClient::loginReq(std::string username, std::string password) -> void
         XMutex mux(&impl_->logins_mutex_);
         impl_->login_map_.erase(username);
     }
-    sendMsg(xmsg::MT_LOGIN_REQ, &req);
+
+    xmsg::XMsgHead head;
+    head.set_servername(AUTH_NAME);
+    head.set_msgtype(xmsg::MT_LOGIN_REQ);
+
+    sendMsg(&head, &req);
 }
 
 auto XAuthClient::addUserReq(xmsg::XAddUserReq *user) -> void
@@ -53,7 +58,7 @@ auto XAuthClient::addUserReq(xmsg::XAddUserReq *user) -> void
     sendMsg(xmsg::MT_ADD_USER_REQ, user);
 }
 
-bool XAuthClient::getLoginInfo(std::string username, xmsg::XLoginRes *out_info, int timeout_ms)
+auto XAuthClient::getLoginInfo(std::string username, xmsg::XLoginRes *out_info, int timeout_ms) -> bool
 {
     if (!out_info)
         return false;
@@ -89,7 +94,7 @@ auto XAuthClient::regMsgCallback() -> void
     regCB(xmsg::MT_ADD_USER_RES, static_cast<MsgCBFunc>(&XAuthClient::addUserRes));
 }
 
-void XAuthClient::addUserRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XAuthClient::addUserRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     xmsg::XMessageRes res;
     if (!res.ParseFromArray(msg->data, msg->size))
@@ -104,7 +109,7 @@ void XAuthClient::addUserRes(xmsg::XMsgHead *head, XMsg *msg)
     std::cout << "Adduser success!" << std::endl;
 }
 
-void XAuthClient::loginRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XAuthClient::loginRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     xmsg::XLoginRes res;
     if (!res.ParseFromArray(msg->data, msg->size))

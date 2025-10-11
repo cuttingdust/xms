@@ -34,9 +34,9 @@ public:
     static auto regMsgCallback() -> void;
 
 private:
-    void addUserRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto addUserRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-    void loginRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto loginRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
 private:
     class PImpl;

@@ -32,7 +32,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     if (service_name.empty())
     {
         std::string error = "service_name is empty!";
-        LOGDEBUG(error.c_str());
+        LOGDEBUG(error);
         res.set_return_(xmsg::XMessageRes::XR_ERROR);
         res.set_msg(error);
         sendMsg(xmsg::MT_REGISTER_RES, &res);
@@ -51,7 +51,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
         std::stringstream ss;
         //string error = "service_port is error!";
         ss << "service_port is error!" << service_port;
-        LOGDEBUG(ss.str().c_str());
+        LOGDEBUG(ss.str());
         res.set_return_(xmsg::XMessageRes::XR_ERROR);
         res.set_msg(ss.str());
         sendMsg(xmsg::MT_REGISTER_RES, &res);
@@ -61,7 +61,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     /// 接收用户注册信息正常
     std::stringstream ss;
     ss << "接收到用户注册信息:" << service_name << "|" << service_ip << ":" << service_port;
-    LOGINFO(ss.str().c_str());
+    LOGINFO(ss.str());
 
 
     /// 存储用户注册信息，如果已经注册需要更新
@@ -102,7 +102,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
         ser->set_name(service_name);
         std::stringstream ss;
         ss << service_name << "|" << service_ip << ":" << service_port << "新的微服务注册成功！";
-        LOGDEBUG(ss.str().c_str());
+        LOGDEBUG(ss.str());
     }
 
     res.set_return_(xmsg::XMessageRes::XR_OK);
@@ -123,7 +123,7 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     {
         std::stringstream ss;
         ss << "req.ParseFromArray failed!";
-        LOGDEBUG(ss.str().c_str());
+        LOGDEBUG(ss.str());
         res.mutable_res()->set_msg(ss.str().c_str());
         sendMsg(xmsg::MT_GET_SERVICE_RES, &res);
         return;
@@ -133,7 +133,7 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     std::string       service_name = req.name();
     std::stringstream ss;
     ss << "GetServiceReq : service name " << service_name;
-    LOGDEBUG(ss.str().c_str());
+    LOGDEBUG(ss.str());
     xmsg::XServiceMap *send_map = &res;
 
     ///发送全部微服务数据

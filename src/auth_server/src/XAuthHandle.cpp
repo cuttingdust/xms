@@ -7,7 +7,7 @@ XAuthHandle::XAuthHandle() = default;
 
 XAuthHandle::~XAuthHandle() = default;
 
-void XAuthHandle::loginReq(xmsg::XMsgHead *head, XMsg *msg)
+auto XAuthHandle::loginReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     int timeout_sec = 1800;
 
