@@ -26,5 +26,4 @@ int main(int argc, char *argv[])
     XDiskClientGui main_gui;
     main_gui.show();
     return a.exec();
-    return 0;
 }
