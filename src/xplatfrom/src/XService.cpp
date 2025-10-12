@@ -60,7 +60,7 @@ XService::XService()
 
 XService::~XService() = default;
 
-void XService::setServerPort(int port)
+auto XService::setServerPort(int port) -> void
 {
     impl_->server_port_ = port;
 }
@@ -96,7 +96,7 @@ auto XService::init() -> bool
     return true;
 }
 
-void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
+auto XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen) -> void
 {
     /// 创建客户端处理对象
     auto handle = createHandle();
@@ -117,7 +117,7 @@ void XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
     impl_->thread_client_pool_->dispatch(handle);
 }
 
-bool XService::start()
+auto XService::start() -> bool
 {
     impl_->thread_listen_pool_->init(1);
     impl_->thread_client_pool_->init(impl_->thread_count_);
@@ -125,12 +125,12 @@ bool XService::start()
     return true;
 }
 
-void XService::setSSLContent(XSSL_CTX *ctx)
+auto XService::setSSLContent(XSSL_CTX *ctx) -> void
 {
     impl_->ssl_ctx_ = ctx;
 }
 
-XSSL_CTX *XService::getSSLContent() const
+auto XService::getSSLContent() const -> XSSL_CTX *
 {
     return impl_->ssl_ctx_;
 }

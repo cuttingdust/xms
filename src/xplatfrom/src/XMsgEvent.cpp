@@ -139,7 +139,7 @@ bool XMsgEvent::recvMsg()
         {
             std::stringstream ss;
             ss << "head_.Alloc failed!" << impl_->head_.size;
-            LOGDEBUG(ss.str().c_str());
+            LOGDEBUG(ss.str());
             return false;
         }
     }
@@ -175,7 +175,7 @@ bool XMsgEvent::recvMsg()
         /// 空包数据
         if (impl_->pb_head_->msgsize() == 0)
         {
-            // std::cout << "0" << std::flush;
+            std::cout << "0" << std::flush;
             /// 消息类型
             impl_->msg_.type = impl_->pb_head_->msgtype();
             impl_->msg_.size = 0;

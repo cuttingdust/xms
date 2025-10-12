@@ -24,21 +24,23 @@ public:
 public:
     /// \brief 清理消息回调
     /// \param ev
-    void delEvent(XMsgEvent *ev);
+    auto delEvent(XMsgEvent *ev) -> void;
 
     /// \brief 负载均衡找到客户端连接 进行数据发送
     /// \param head 消息头 含路由信息
     /// \param msg
     /// \param ev
     /// \return
-    bool sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev);
+    auto sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool;
 
     /// \brief 开启自动重连的线程
-    void start();
+    auto start() -> void;
+
+    auto stop() -> void;
 
     /// \brief 初始化微服务列表(注册中心获取),建立连接
     /// \return
-    bool init();
+    auto init() -> bool;
 
 private:
     XServiceProxy();

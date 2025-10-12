@@ -24,7 +24,7 @@ class XPLATFROM_EXPORT XComTask : public XTask
 {
 public:
     XComTask();
-    virtual ~XComTask();
+    ~XComTask() override;
 
 public:
     /// \brief 初始化bufferevent，客户端建立连接
@@ -61,12 +61,18 @@ public:
     /// \brief 设置客户端IP
     /// \param ip
     auto setClientIP(const char* ip) -> void;
-    auto getClientIP() -> const char*;
+    auto getClientIP() const -> char*;
 
     /// \brief 设置客户端端口
     /// \param port
     auto setClientPort(int port) -> void;
     auto getClientPort() const -> int;
+
+    auto setLocalIP(const char* ip) -> void;
+    auto getLocalIP() const -> char*;
+
+    auto setLocalPort(int port) -> void;
+    auto getLocalPort() const -> int;
 
     auto setIsRecvMsg(bool isRecvMsg) -> void;
 

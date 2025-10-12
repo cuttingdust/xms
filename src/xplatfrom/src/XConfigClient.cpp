@@ -51,8 +51,6 @@ public:
 
 public:
     XConfigClient                              *owenr_         = nullptr;
-    char                                        local_ip_[16]  = { 0 };   /// 本地微服务的ip
-    int                                         local_port_    = 0;       /// 本地微服务的端口
     google::protobuf::compiler::Importer       *importer_      = nullptr; /// 动态解析proto文件
     google::protobuf::compiler::DiskSourceTree *source_tree_   = nullptr; /// 解析文件的管理对象
     google::protobuf::Message                  *message_       = nullptr; /// 根据proto文件动态创建的的message
@@ -76,9 +74,7 @@ XConfigClient::XConfigClient()
     impl_ = std::make_unique<PImpl>(this);
 }
 
-XConfigClient::~XConfigClient()
-{
-}
+XConfigClient::~XConfigClient() = default;
 
 auto XConfigClient::init() -> bool
 {
@@ -89,13 +85,13 @@ auto XConfigClient::init() -> bool
     return true;
 }
 
-void XConfigClient::sendConfig(xmsg::XConfig *conf)
+auto XConfigClient::sendConfig(xmsg::XConfig *conf) -> void
 {
     LOGDEBUG("发送配置");
     sendMsg(xmsg::MT_SAVE_CONFIG_REQ, conf);
 }
 
-void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("接收到上传配置的反馈");
     xmsg::XMessageRes res;
@@ -120,7 +116,7 @@ void XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     LOGDEBUG(ss.str());
 }
 
-void XConfigClient::loadConfig(const char *ip, int port)
+auto XConfigClient::loadConfig(const char *ip, int port) -> void
 {
     LOGDEBUG("获取配置请求");
     if (port < 0 || port > 65535)
@@ -136,7 +132,7 @@ void XConfigClient::loadConfig(const char *ip, int port)
     sendMsg(xmsg::MT_LOAD_CONFIG_REQ, &req);
 }
 
-void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("获取配置响应");
     xmsg::XConfig conf;
@@ -145,7 +141,7 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
         LOGDEBUG("LoadConfigRes conf.ParseFromArray failed!");
         return;
     }
-    LOGDEBUG(conf.DebugString().c_str());
+    LOGDEBUG(conf.DebugString());
 
     /// key ip_port
     std::stringstream key;
@@ -160,17 +156,21 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     // config_cv.notify_one();
     //////////////////////////////////////////////////////////////////
 
-    /// 没有本地配置
-    if (impl_->local_port_ <= 0 || !cur_service_conf)
-        return;
-
     std::stringstream local_key;
-    std::string       ip = impl_->local_ip_;
-    if (ip.empty())
+    std::string       local_ip   = getLocalIP();
+    auto              local_port = getLocalPort();
+
+    /// 没有本地配置
+    if (local_port <= 0 || !cur_service_conf)
     {
-        ip = conf.service_ip();
+        return;
     }
-    local_key << ip << "_" << impl_->local_port_;
+
+    if (local_ip.empty())
+    {
+        local_ip = conf.service_ip();
+    }
+    local_key << local_ip << "_" << local_port;
 
     if (key.str() != local_key.str())
     {
@@ -181,12 +181,12 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
     {
         return;
     }
-
+    LOGDEBUG(cur_service_conf->DebugString());
 
     /// 存储到本地文件
     /// 文件名 [port]_conf.cache  20030_conf.cache
     std::stringstream ss;
-    ss << impl_->local_port_ << "_conf.cache";
+    ss << local_port << "_conf.cache";
     std::ofstream ofs;
     ofs.open(ss.str(), std::ios::binary);
     if (!ofs.is_open())
@@ -199,7 +199,7 @@ void XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg)
 }
 
 ///获取配置列表（已缓存）中的配置，会复制一份到out_conf
-bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms)
+auto XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms) -> bool
 {
     /// 十毫秒判断一次
     int               count = timeout_ms / 10;
@@ -245,8 +245,8 @@ bool XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf,
 //     return true;
 // }
 
-google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name, const std::string &class_name,
-                                                    std::string &out_proto_code)
+auto XConfigClient::loadProto(const std::string &file_name, const std::string &class_name, std::string &out_proto_code)
+        -> google::protobuf::Message *
 {
     if (impl_->importer_)
     {
@@ -272,7 +272,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     LOGDEBUG(file_desc->DebugString());
     std::stringstream ss;
     ss << file_name << "proto 文件加载成功";
-    LOGDEBUG(ss.str().c_str());
+    LOGDEBUG(ss.str());
 
 
     /// 获取类型描述符
@@ -283,7 +283,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         if (file_desc->message_type_count() <= 0)
         {
             LOGDEBUG("proto文件中没有message");
-            return NULL;
+            return nullptr;
         }
         /// 取第一个类型
         message_desc = file_desc->message_type(0);
@@ -317,7 +317,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         {
             std::string log = "proto文件中没有指定的message ";
             log += class_name_pack;
-            LOGDEBUG(log.c_str());
+            LOGDEBUG(log);
             return nullptr;
         }
     }
@@ -341,7 +341,7 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
     ///     string root = 1;
     /// }
     /////////////////////////////////////////
-    // syntax="proto3";	//版本号
+    /// syntax="proto3";	//版本号
 
     google::protobuf::FileDescriptorProto proto;
     file_desc->CopyTo(&proto);
@@ -371,14 +371,14 @@ google::protobuf::Message *XConfigClient::loadProto(const std::string &file_name
         enum_desc[field->enum_type()->name()] = field->enum_type();
     }
 
-    //message XDirConfig
+    /// message XDirConfig
     out_proto_code += message_desc->DebugString();
 
     return impl_->message_;
 }
 
 
-void XConfigClient::regMsgCallback()
+auto XConfigClient::regMsgCallback() -> void
 {
     regCB(xmsg::MT_SAVE_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::sendConfigRes));
     regCB(xmsg::MT_LOAD_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadConfigRes));
@@ -386,31 +386,40 @@ void XConfigClient::regMsgCallback()
     regCB(xmsg::MT_DEL_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::deleteConfigRes));
 }
 
-void XConfigClient::wait()
+auto XConfigClient::wait() -> void
 {
     XThreadPool::wait();
 }
 
-bool XConfigClient::startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
-                                 google::protobuf::Message *conf_message, int timeout_sec)
+auto XConfigClient::startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
+                                 google::protobuf::Message *conf_message, int timeout_sec) -> bool
 {
     regMsgCallback();
     setServerIp(server_ip);
     setServerPort(server_port);
     if (local_ip)
-        strncpy(impl_->local_ip_, local_ip, 16);
-    impl_->local_port_ = local_port;
+    {
+        setLocalIP(local_ip);
+    }
+    if (local_port)
+    {
+        setLocalPort(local_port);
+    }
 
     setCurServiceMessage(conf_message);
 
     startConnect();
     if (!waitConnected(timeout_sec))
     {
-        std::cout << "connting config center failed..." << std::endl;
+        std::cout << "connecting config center failed..." << std::endl;
         return false;
     }
-    if (impl_->local_port_ > 0)
-        loadConfig(impl_->local_ip_, impl_->local_port_);
+
+    if (local_ip && local_port > 0)
+    {
+        loadConfig(local_ip, local_port);
+    }
+
 
     /// 设定获取配置的定时时间（毫秒）
     setTimer(3000);
@@ -423,10 +432,15 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
     /// 注册消息回调函数
     regMsgCallback();
 
-    /// _CRT_SECURE_NO_WARNINGS
+
     if (local_ip)
-        strncpy(impl_->local_ip_, local_ip, 16);
-    impl_->local_port_ = local_port;
+    {
+        setLocalIP(local_ip);
+    }
+    if (local_port)
+    {
+        setLocalPort(local_port);
+    }
 
     /// 设置当前配置类型
     setCurServiceMessage(conf_message);
@@ -437,7 +451,7 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
 
     /// 读取本地缓存
     std::stringstream ss;
-    ss << impl_->local_port_ << "_conf.cache";
+    ss << getLocalPort() << "_conf.cache";
     std::ifstream ifs;
     ifs.open(ss.str(), std::ios::binary);
     if (!ifs.is_open())
@@ -457,11 +471,14 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
     return true;
 }
 
-std::string XConfigClient::GetString(const char *key)
+auto XConfigClient::GetString(const char *key) -> std::string
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
+    {
         return "";
+    }
+
     /// 获取字段
     auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
     if (!field)
@@ -471,7 +488,7 @@ std::string XConfigClient::GetString(const char *key)
     return cur_service_conf->GetReflection()->GetString(*cur_service_conf, field);
 }
 
-int XConfigClient::GetInt(const char *key)
+auto XConfigClient::GetInt(const char *key) -> int
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
@@ -484,11 +501,14 @@ int XConfigClient::GetInt(const char *key)
     return cur_service_conf->GetReflection()->GetInt32(*cur_service_conf, field);
 }
 
-bool XConfigClient::GetBool(const char *key)
+auto XConfigClient::GetBool(const char *key) -> bool
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
+    {
         return false;
+    }
+
     /// 获取字段
     auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
     if (!field)
@@ -498,27 +518,30 @@ bool XConfigClient::GetBool(const char *key)
     return cur_service_conf->GetReflection()->GetBool(*cur_service_conf, field);
 }
 
-void XConfigClient::timerCB() // NOLINT(clang-diagnostic-invalid-utf8)
+auto XConfigClient::timerCB() -> void
 {
     if (impl_->configTimerCB_)
     {
         impl_->configTimerCB_();
     }
 
+    auto local_port = getLocalPort();
+    auto local_ip   = getLocalIP();
+
     /// 发出获取配置的请求
-    if (impl_->local_port_ > 0)
+    if (local_ip && local_port > 0)
     {
-        loadConfig(impl_->local_ip_, impl_->local_port_);
+        loadConfig(local_ip, local_port);
     }
 }
 
-void XConfigClient::setCurServiceMessage(google::protobuf::Message *message)
+auto XConfigClient::setCurServiceMessage(google::protobuf::Message *message) -> void
 {
     XMutex mux(&cur_service_conf_mutex);
     cur_service_conf = message;
 }
 
-void XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("Response to get config list.");
     XMutex mux(&all_config_mutex);
@@ -566,7 +589,7 @@ xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int time
     return confs;
 }
 
-void XConfigClient::deleteConfig(const char *ip, int port)
+auto XConfigClient::deleteConfig(const char *ip, int port) -> void
 {
     if (!ip || strlen(ip) == 0 || port < 0 || port > 65535)
     {
@@ -581,7 +604,7 @@ void XConfigClient::deleteConfig(const char *ip, int port)
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
-void XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("接收到删除配置的反馈");
     xmsg::XMessageRes res;

@@ -20,13 +20,13 @@ public:
     ~XServiceProxyClient() override;
 
 public:
-    bool sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev);
+    auto sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool;
 
-    void delEvent(XMsgEvent *ev);
+    auto delEvent(XMsgEvent *ev) -> void;
 
-    void regEvent(XMsgEvent *ev);
+    auto regEvent(XMsgEvent *ev) -> void;
 
-    void readCB(xmsg::XMsgHead *head, XMsg *msg) override;
+    auto readCB(xmsg::XMsgHead *head, XMsg *msg) -> void override;
 
 private:
     class PImpl;

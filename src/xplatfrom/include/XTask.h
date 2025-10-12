@@ -14,6 +14,7 @@
 class XTask
 {
 public:
+    virtual ~XTask()            = default;
     virtual auto init() -> bool = 0;
 
     auto base() const -> struct event_base *

@@ -33,14 +33,15 @@ XServiceProxy::PImpl::PImpl(XServiceProxy *owenr) : owenr_(owenr)
 
 XServiceProxy::PImpl::~PImpl() = default;
 
-void XServiceProxy::PImpl::threadFunc()
+auto XServiceProxy::PImpl::threadFunc() -> void
 {
     /// 自动重连
     while (!is_exit_)
     {
         /// 从注册中心获取 微服务的列表更新
         /// 发送请求到注册中心
-        XRegisterClient::get()->getServiceReq(NULL);
+        XRegisterClient::get()->getServiceReq(nullptr);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         auto service_map = XRegisterClient::get()->getAllService();
         if (!service_map)
         {
@@ -56,11 +57,13 @@ void XServiceProxy::PImpl::threadFunc()
             continue;
         }
 
+        LOGINFO("\n=============================\n" + service_map->DebugString());
+
         /// 遍历所有的微服务名称列表
-        for (auto [service_name, service_map] : smap)
+        for (const auto &[service_name, service_map] : smap)
         {
             /// 遍历单个微服务
-            for (auto s : service_map.services())
+            for (const auto &s : service_map.services())
             {
                 /// 不连接自己
                 if (service_name == API_GATEWAY_NAME)
@@ -101,7 +104,7 @@ void XServiceProxy::PImpl::threadFunc()
 
         /// 从注册中心获取 微服务的列表更新
         /// 定时全部重新获取
-        for (const auto &[service_name, proxyClient] : client_map_)
+        for (const auto &proxyClient : client_map_ | std::views::values)
         {
             for (const auto c : proxyClient)
             {
@@ -118,13 +121,17 @@ void XServiceProxy::PImpl::threadFunc()
     }
 }
 
-void XServiceProxy::start()
+auto XServiceProxy::start() -> void
 {
     std::thread th(&PImpl::threadFunc, impl_.get());
     th.detach();
 }
 
-bool XServiceProxy::init()
+auto XServiceProxy::stop() -> void
+{
+}
+
+auto XServiceProxy::init() -> bool
 {
     // /// 1 从注册中心获取微服务列表
     // xmsg::XServiceMap               service_map;
@@ -171,7 +178,7 @@ bool XServiceProxy::init()
 }
 
 /// 清理消息回调
-void XServiceProxy::delEvent(XMsgEvent *ev)
+auto XServiceProxy::delEvent(XMsgEvent *ev) -> void
 {
     if (!ev)
         return;
@@ -186,7 +193,7 @@ void XServiceProxy::delEvent(XMsgEvent *ev)
     call->second->delEvent(ev);
 }
 
-bool XServiceProxy::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev)
+auto XServiceProxy::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool
 {
     if (!head || !msg)
         return false;

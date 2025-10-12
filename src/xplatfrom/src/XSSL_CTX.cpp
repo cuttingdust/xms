@@ -8,14 +8,15 @@ static int SSLVerifyCB(int preverify_ok, X509_STORE_CTX *ctx)
 {
     if (preverify_ok == 1)
     {
-        std::cout << "SSLVerifyCB: preverify_ok = " << preverify_ok << std::endl;
-        return 1;
+        std::cout << "SSL cert validate failed!" << std::endl;
     }
     else
     {
-        std::cout << "SSLVerifyCB: preverify_ok = " << preverify_ok << std::endl;
-        return 0;
+        std::cout << "SSL cert validate success!" << std::endl;
     }
+
+    /// 可以做进一步验证，比如验证证书中的域名是否正确
+    return preverify_ok;
 }
 
 
@@ -28,7 +29,7 @@ public:
 public:
     /// \brief 验证对方证书
     /// \param ca_crt
-    void setVerify(const char *ca_crt);
+    auto setVerify(const char *ca_crt) -> void;
 
 public:
     XSSL_CTX *owenr_   = nullptr;
@@ -43,10 +44,12 @@ XSSL_CTX::PImpl::PImpl(XSSL_CTX *owenr) : owenr_(owenr)
     SSL_load_error_strings();
 }
 
-void XSSL_CTX::PImpl::setVerify(const char *ca_crt)
+auto XSSL_CTX::PImpl::setVerify(const char *ca_crt) -> void
 {
-    if (!ca_crt || !ssl_ctx_)
+    if (!ca_crt || !ssl_ctx_ || strlen(ca_crt) == 0)
+    {
         return;
+    }
 
     /// 设置验证对方证书
     SSL_CTX_set_verify(ssl_ctx_, SSL_VERIFY_PEER, SSLVerifyCB);

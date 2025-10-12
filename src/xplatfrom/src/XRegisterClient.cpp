@@ -36,7 +36,7 @@ XRegisterClient::XRegisterClient()
 
 XRegisterClient::~XRegisterClient() = default;
 
-void XRegisterClient::connectCB()
+auto XRegisterClient::connectCB() -> void
 {
     /// 发送注册消息
     LOGDEBUG("XRegisterClient::connectCB: connected start send MT_REGISTER_REQ ");
@@ -47,7 +47,7 @@ void XRegisterClient::connectCB()
     sendMsg(xmsg::MT_REGISTER_REQ, &req);
 }
 
-void XRegisterClient::timerCB()
+auto XRegisterClient::timerCB() -> void
 {
     /// 定时器，用于发送心跳
     static long long count = 0;
@@ -57,7 +57,7 @@ void XRegisterClient::timerCB()
     sendMsg(xmsg::MT_HEART_REQ, &req);
 }
 
-void XRegisterClient::registerServer(const char *service_name, int port, const char *ip)
+auto XRegisterClient::registerServer(const char *service_name, int port, const char *ip) -> void
 {
     /// 注册消息回调函数
     regMsgCallback();
@@ -78,9 +78,11 @@ void XRegisterClient::registerServer(const char *service_name, int port, const c
 
     /// 把任务加入到线程池中
     startConnect();
+
+    loadLocalCache();
 }
 
-void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("XRegisterClient::registerRes");
     xmsg::XMessageRes res;
@@ -96,10 +98,10 @@ void XRegisterClient::registerRes(xmsg::XMsgHead *head, XMsg *msg)
     }
     std::stringstream ss;
     ss << "XRegisterClient::registerRes failed!!! " << res.msg();
-    LOGDEBUG(ss.str().c_str());
+    LOGDEBUG(ss.str());
 }
 
-void XRegisterClient::getServiceReq(const char *service_name)
+auto XRegisterClient::getServiceReq(const char *service_name) -> void
 {
     LOGDEBUG("XRegisterClient::getServiceReq");
     xmsg::XGetServiceReq req;
@@ -116,7 +118,7 @@ void XRegisterClient::getServiceReq(const char *service_name)
     sendMsg(xmsg::MT_GET_SERVICE_REQ, &req);
 }
 
-void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
+auto XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     LOGDEBUG("XRegisterClient::getServiceRes");
     XMutex mutex(&service_map_mutex);
@@ -195,10 +197,10 @@ void XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg)
     /// 全部 刷新所有缓存数据
 }
 
-xmsg::XServiceMap *XRegisterClient::getAllService()
+auto XRegisterClient::getAllService() -> xmsg::XServiceMap *
 {
     XMutex mutex(&service_map_mutex);
-    loadLocalCache();
+    // loadLocalCache();
     if (!service_map)
     {
         return nullptr;
@@ -215,11 +217,11 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
 {
     xmsg::XServiceMap::XServiceList result;
     /// 10ms判断一次
-    int totoal_count = timeout_sec * 100;
-    int count        = 0;
+    int total_count = timeout_sec * 100;
+    int count       = 0;
 
     /// 1 等待连接成功
-    while (count < totoal_count)
+    while (count < total_count)
     {
         //cout << "@" << flush;
         if (isConnected())
@@ -244,7 +246,7 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
     getServiceReq(service_name);
 
     /// 3 等待微服务列表消息反馈（有可能拿到上一次的配置）
-    while (count < totoal_count)
+    while (count < total_count)
     {
         std::cout << "." << std::flush;
         XMutex mutex(&service_map_mutex);
@@ -302,7 +304,7 @@ auto XRegisterClient::loadLocalCache() -> bool
         std::stringstream log;
         log << "Load local register data failed!";
         log << ss.str();
-        LOGDEBUG(log.str().c_str());
+        LOGDEBUG(log.str());
         return false;
     }
     service_map->ParseFromIstream(&ifs);

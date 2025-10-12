@@ -1,13 +1,40 @@
 ﻿#include "XConfigClient.h"
 #include "XRouteServer.h"
 #include "XServiceProxy.h"
-#include "XTools.h"
 
+#include <XTools.h>
 #include <XRegisterClient.h>
 #include <XThreadPool.h>
 #include <XMsgCom.pb.h>
 
 #include <iostream>
+
+void ConfigTimer()
+{
+    static std::string conf_ip   = "";
+    static int         conf_port = 0;
+    /////////////////////////////////////////////////////////////////
+    /// 读取配置项
+    std::cout << "config root = " << ConfigClient->GetString("root") << std::endl;
+
+    if (conf_port <= 0)
+    {
+        /// 从注册中心获取配置中心的IP
+        auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
+        std::cout << confs.DebugString();
+        if (confs.services_size() <= 0)
+            return;
+        auto conf = confs.services()[0];
+
+        if (conf.ip().empty() || conf.port() <= 0)
+            return;
+        conf_ip   = conf.ip();
+        conf_port = conf.port();
+        ConfigClient->setServerIp(conf_ip.c_str());
+        ConfigClient->setServerPort(conf_port);
+        ConfigClient->connect();
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +66,13 @@ int main(int argc, char *argv[])
 
     /// 开启自动重连
     XServiceProxy::get()->start();
+
+    static xmsg::XGatewayConfig cur_conf;
+    if (XConfigClient::get()->startGetConf(0, server_port, &cur_conf, ConfigTimer))
+    {
+        std::cout << "初始化配置中心成功" << cur_conf.DebugString() << std::endl;
+    }
+
 
     /// 连接配置中心，获取路由配置
     /// 等待配置获取成功

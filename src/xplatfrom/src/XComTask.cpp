@@ -58,15 +58,17 @@ public:
     XComTask           *owenr_ = nullptr;
     struct bufferevent *bev_   = nullptr;
     std::string         serverPath_;
-    char                serverIp_[16] = { 0 };
-    int                 serverPort_   = -1;
-    char                buffer_[1024] = { 0 };
+    char                server_ip_[16] = { 0 };
+    int                 server_port_   = -1;
+    char                buffer_[1024]  = { 0 };
     XMsg                msg_;
     bool                isRecvMsg      = true;  ///< 是否接受消息
     bool                isAutoDelete   = true;  ///< 是否自动删除
     bool                isAutoConnect  = false; ///< 是否自动连接
     char                client_ip_[16] = { 0 };
     int                 client_port_   = -1;
+    char                local_ip_[16]  = { 0 }; ///< 本地微服务的ip
+    int                 local_port_    = 0;     ///< 本地微服务的端口
 
     /// 客户单的连接状态
     /// 1 未处理  => 开始连接 （加入到线程池处理）
@@ -87,7 +89,7 @@ public:
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
 {
-    mtx_ = new std::mutex();
+    mtx_ = new std::mutex;
 }
 
 XComTask::PImpl::~PImpl()
@@ -163,8 +165,8 @@ auto XComTask::connect() const -> bool
     sockaddr_in sin;
     memset(&sin, 0, sizeof(sin));
     sin.sin_family = AF_INET;
-    sin.sin_port   = htons(impl_->serverPort_);
-    evutil_inet_pton(AF_INET, impl_->serverIp_, &sin.sin_addr.s_addr);
+    sin.sin_port   = htons(impl_->server_port_);
+    evutil_inet_pton(AF_INET, impl_->server_ip_, &sin.sin_addr.s_addr);
     XMutex xMtx(impl_->mtx_);
     impl_->is_connected_  = false;
     impl_->is_connecting_ = false;
@@ -213,7 +215,7 @@ auto XComTask::init() -> bool
     // bufferevent_set_timeouts(impl_->bev_, &tv, &tv);
 
     /// 连接服务器
-    if (impl_->serverIp_[0] == '\0')
+    if (impl_->server_ip_[0] == '\0')
     {
         return true;
     }
@@ -225,22 +227,27 @@ auto XComTask::init() -> bool
 
 auto XComTask::setServerIp(const char *ip) -> void
 {
-    strncpy(impl_->serverIp_, ip, sizeof(impl_->serverIp_));
+    if (!ip)
+    {
+        return;
+    }
+
+    strncpy(impl_->server_ip_, ip, sizeof(impl_->server_ip_));
 }
 
 auto XComTask::getServerIP() const -> const char *
 {
-    return impl_->serverIp_;
+    return impl_->server_ip_;
 }
 
 auto XComTask::setServerPort(int port) -> void
 {
-    impl_->serverPort_ = port;
+    impl_->server_port_ = port;
 }
 
 auto XComTask::getServerPort() const -> int
 {
-    return impl_->serverPort_;
+    return impl_->server_port_;
 }
 
 auto XComTask::setClientIP(const char *ip) -> void
@@ -252,7 +259,7 @@ auto XComTask::setClientIP(const char *ip) -> void
     strncpy(impl_->client_ip_, ip, sizeof(impl_->client_ip_));
 }
 
-auto XComTask::getClientIP() -> const char *
+auto XComTask::getClientIP() const -> char *
 {
     return impl_->client_ip_;
 }
@@ -265,6 +272,31 @@ auto XComTask::setClientPort(int port) -> void
 auto XComTask::getClientPort() const -> int
 {
     return impl_->client_port_;
+}
+
+auto XComTask::setLocalIP(const char *ip) -> void
+{
+    /// _CRT_SECURE_NO_WARNINGS
+    if (!ip)
+    {
+        return;
+    }
+    strncpy(impl_->local_ip_, ip, sizeof(impl_->local_ip_));
+}
+
+auto XComTask::getLocalIP() const -> char *
+{
+    return impl_->local_ip_;
+}
+
+auto XComTask::setLocalPort(int port) -> void
+{
+    impl_->local_port_ = port;
+}
+
+auto XComTask::getLocalPort() const -> int
+{
+    return impl_->local_port_;
 }
 
 auto XComTask::setServerRoot(const std::string path) -> void
@@ -308,9 +340,15 @@ auto XComTask::autoConnect(int timeout_sec) -> bool
 {
     /// 如果正在连接，则等待，如果没有，则开始连接
     if (isConnected())
+    {
         return true;
+    }
+
     if (!isConnecting())
+    {
         connect();
+    }
+
     return waitConnected(timeout_sec);
 }
 
@@ -336,12 +374,15 @@ auto XComTask::setTimeMs(int ms) -> void
 
 auto XComTask::eventCB(short events) -> void
 {
+    std::stringstream ss;
+    ss << "SEventCB:" << events;
+
     if (events & BEV_EVENT_CONNECTED)
     {
-        std::cout << "BEV_EVENT_CONNECTED" << std::endl;
+        // std::cout << "BEV_EVENT_CONNECTED" << std::endl;
         std::stringstream ss;
-        ss << "connnect server " << impl_->serverIp_ << ":" << impl_->serverPort_ << " success!";
-        LOGINFO(ss.str().c_str());
+        ss << "connnect server " << impl_->server_ip_ << ":" << impl_->server_port_ << " success!";
+        LOGINFO(ss.str());
 
         /// 连接成功后发送消息
         impl_->is_connected_  = true;
@@ -354,20 +395,57 @@ auto XComTask::eventCB(short events) -> void
             xssl.printCipher();
             xssl.printCert();
         }
+        /// 获取本地地址
+        int sock = bufferevent_getfd(impl_->bev_);
+        /*if (sock > 0)
+        {
+            sockaddr_in sin;
+            memset(&sin, 0, sizeof(sin));
+            int len = sizeof(sin);
+            getsockname(sock, (sockaddr*)&sin, &len);
+            char buf[16] = { 0 };
+            evutil_inet_ntop(AF_INET, &sin.sin_addr.s_addr, buf, sizeof(buf));
+            cout << "client ip is " << buf << endl;
+        }*/
 
         connectCB();
     }
 
     /// 退出要处理缓冲内容
-    if (events & (BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT))
+    if (events & BEV_EVENT_ERROR)
     {
-        std::cout << "BEV_EVENT_ERROR | BEV_EVENT_TIMEOUT" << std::endl;
+        auto ssl = bufferevent_openssl_get_ssl(impl_->bev_);
+        if (ssl)
+        {
+            XSSL xssl;
+            xssl.set_ssl(ssl);
+            xssl.printCert();
+        }
+
+        std::cout << "BEV_EVENT_ERROR" << std::endl;
+        int sock = bufferevent_getfd(impl_->bev_);
+        int err  = evutil_socket_geterror(sock);
+        //LOGDEBUG(server_ip());
+        //std::stringstream log;
+        ss << getServerIP() << ":" << getServerPort() << " ";
+        ss << getLocalIP() << evutil_socket_error_to_string(err);
+        //LOGDEBUG(log.str().c_str());
+        LOGINFO(ss.str());
+
+        close();
+    }
+
+    if (events & BEV_EVENT_TIMEOUT)
+    {
+        ss << "BEV_EVENT_TIMEOUT";
+        LOGINFO(ss.str());
         close();
     }
 
     if (events & BEV_EVENT_EOF)
     {
         std::cout << "BEV_EVENT_EOF" << std::endl;
+        LOGINFO(ss.str());
         close();
     }
 }
@@ -509,10 +587,15 @@ auto XComTask::setAutoConnectTimer(int ms) -> void
 
 auto XComTask::autoConnectTimerCB() -> void
 {
-    std::cout << "." << std::flush;
     /// 如果正在连接，则等待，如果没有，则开始连接
     if (isConnected())
+    {
         return;
+    }
+
     if (!isConnecting())
+    {
         connect();
+        std::cout << "." << std::flush;
+    }
 }

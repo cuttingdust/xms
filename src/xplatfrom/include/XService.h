@@ -26,21 +26,20 @@ public:
 
     /// \brief 服务器监听端口
     /// \param port
-    void setServerPort(int port);
+    auto setServerPort(int port) -> void;
 
     /// \brief 服务初始化，由线程池调用
     /// \return
     auto init() -> bool override;
 
-    void listenCB(int client_socket, struct sockaddr *addr, int socketlen);
+    auto listenCB(int client_socket, struct sockaddr *addr, int socketlen) -> void;
 
     /// \brief 开始服务运行， 接受连接任务加入到线程池
     /// \return
-    bool start();
+    auto start() -> bool;
 
-    void setSSLContent(XSSL_CTX *ctx);
-
-    XSSL_CTX *getSSLContent() const;
+    auto setSSLContent(XSSL_CTX *ctx) -> void;
+    auto getSSLContent() const -> XSSL_CTX *;
 
 private:
     class PImpl;

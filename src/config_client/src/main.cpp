@@ -71,6 +71,11 @@ int main(int argc, char *argv[])
         /// 存储配置项
         std::string proto;
         auto        message = ConfigClient->loadProto("XDirConfig.proto", "XDirConfig", proto);
+        if (!message)
+        {
+            std::cerr << " ConfigClient->loadProto XDirConfig.proto failed!" << std::endl;
+            return -1;
+        }
         /// 通过反射设置值
         auto ref   = message->GetReflection();
         auto field = message->GetDescriptor()->FindFieldByName("root");

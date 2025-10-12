@@ -36,19 +36,19 @@ public:
 
     /// \brief 发送配置
     /// \param conf
-    void sendConfig(xmsg::XConfig *conf);
+    auto sendConfig(xmsg::XConfig *conf) -> void;
 
     /// \brief 接收到保存配置的消息
     /// \param head
     /// \param msg
-    void sendConfigRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto sendConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     /// \brief 获取配置请求 IP如果为NULL 则取连接配置中心的地址
     /// \param ip
     /// \param port
-    void loadConfig(const char *ip, int port);
+    auto loadConfig(const char *ip, int port) -> void;
 
-    void loadConfigRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto loadConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     /// \brief
     /// \param ip
@@ -56,19 +56,19 @@ public:
     /// \param out_conf
     /// \param timeout_ms
     /// \return
-    bool getConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms = 100);
+    auto getConfig(const char *ip, int port, xmsg::XConfig *out_conf, int timeout_ms = 100) -> bool;
 
     /// \brief 载入proto文件 线程不安全
     /// \param file_name  文件路径
     /// \param class_name  配置的类型
     /// \param out_proto_code 读取到的代码，包含空间和版本
     /// \return
-    google::protobuf::Message *loadProto(const std::string &file_name, const std::string &class_name,
-                                         std::string &out_proto_code);
+    auto loadProto(const std::string &file_name, const std::string &class_name, std::string &out_proto_code)
+            -> google::protobuf::Message *;
 
-    static void regMsgCallback();
+    static auto regMsgCallback() -> void;
 
-    void wait();
+    auto wait() -> void;
 
     /// \brief 连接配置中心，开始定时器获取配置
     /// \param server_ip
@@ -78,26 +78,26 @@ public:
     /// \param conf_message
     /// \param timeout_sec
     /// \return
-    bool startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
-                      google::protobuf::Message *conf_message, int timeout_sec = 10);
+    auto startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
+                      google::protobuf::Message *conf_message, int timeout_sec = 10) -> bool;
 
-    bool startGetConf(const char *local_ip, int local_port, google::protobuf::Message *conf_message,
-                      ConfigTimerCBFunc func);
+    auto startGetConf(const char *local_ip, int local_port, google::protobuf::Message *conf_message,
+                      ConfigTimerCBFunc func) -> bool;
 
 
     /// \brief 获取下载的本地参数
     /// \return
-    std::string GetString(const char *key);
-    int         GetInt(const char *key);
-    bool        GetBool(const char *key);
+    auto GetString(const char *key) -> std::string;
+    auto GetInt(const char *key) -> int;
+    auto GetBool(const char *key) -> bool;
 
-    void timerCB() override;
+    auto timerCB() -> void override;
 
     /// \brief 设置当前配置的对象
     /// \param message
-    void setCurServiceMessage(google::protobuf::Message *message);
+    auto setCurServiceMessage(google::protobuf::Message *message) -> void;
 
-    void loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     /// \brief 获取全部配置列表
     /// 1 断开连接自动重连
@@ -111,9 +111,9 @@ public:
     /// \brief 发出删除配置请求
     /// \param ip
     /// \param port
-    void deleteConfig(const char *ip, int port);
+    auto deleteConfig(const char *ip, int port) -> void;
 
-    void deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg);
+    auto deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
 public:
     ConfigResCBFunc sendConfigResCB = nullptr;

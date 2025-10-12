@@ -52,7 +52,7 @@ public:
     char         *data     = 0;                        ///< 数据存放（protobuf的序列化后的数据）
     int           recvSize = 0;                        ///< 已经接收的数据大小
 public:
-    bool alloc(int s)
+    auto alloc(int s) -> bool
     {
         if (s <= 0 || s > MAX_MSG_SIZE)
             return false;
@@ -67,14 +67,17 @@ public:
     }
 
     /// 判断数据是否接收完成
-    bool recved()
+    auto recved() const -> bool
     {
         if (size < 0)
+        {
             return false;
+        }
+
         return (recvSize == size);
     }
 
-    void clear()
+    auto clear() -> void
     {
         delete data;
         memset(this, 0, sizeof(XMsg));

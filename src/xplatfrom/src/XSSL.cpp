@@ -85,6 +85,7 @@ auto XSSL::accept() const -> bool
         return false;
     }
     std::cout << "SSL_accept success!" << std::endl;
+    printCipher();
     return true;
 }
 

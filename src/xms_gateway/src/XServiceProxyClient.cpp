@@ -32,20 +32,20 @@ XServiceProxyClient::XServiceProxyClient()
 
 XServiceProxyClient::~XServiceProxyClient() = default;
 
-bool XServiceProxyClient::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev)
+auto XServiceProxyClient::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool
 {
     regEvent(ev);
     head->set_msgid(reinterpret_cast<long long>(ev));
     return XMsgEvent::sendMsg(head, msg);
 }
 
-void XServiceProxyClient::regEvent(XMsgEvent *ev)
+auto XServiceProxyClient::regEvent(XMsgEvent *ev) -> void
 {
     XMutex mux(&impl_->callback_task_mutex_);
     impl_->callback_task_[reinterpret_cast<long long>(ev)] = ev;
 }
 
-void XServiceProxyClient::readCB(xmsg::XMsgHead *head, XMsg *msg)
+auto XServiceProxyClient::readCB(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     if (!head || !msg)
     {
@@ -66,7 +66,7 @@ void XServiceProxyClient::readCB(xmsg::XMsgHead *head, XMsg *msg)
     router->second->sendMsg(head, msg);
 }
 
-void XServiceProxyClient::delEvent(XMsgEvent *ev)
+auto XServiceProxyClient::delEvent(XMsgEvent *ev) -> void
 {
     XMutex mux(&impl_->callback_task_mutex_);
     impl_->callback_task_.erase(reinterpret_cast<long long>(ev));
