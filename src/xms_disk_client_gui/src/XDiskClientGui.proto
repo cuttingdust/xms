@@ -1,0 +1,95 @@
+﻿syntax="proto3";	/// 语法版本
+package xdisk;		/// 包名(命名空间)
+
+/// 消息列表 任务列表 文件列表
+enum XFileMsgType
+{
+	XFMT_FILE_MSG_NONE 			= 0;		
+	XFMT_GET_DIR_REQ 			= 1001;		///< XGetDirReq
+	XFMT_GET_DIR_RES 			= 1002;		///< XFileInfoList 失败走统一的失败通道
+	XFMT_UPLOAD_FILE_REQ 		= 1003;		///< 1发送上传文件指令 XFileInfo 包含全文、断点续传及的md5(考虑秒杀) 每个客户端一次只转递一个文件，多个文件建立不同的连接
+	XFMT_UPLOAD_FILE_RES 		= 1004;		///< XMessageRes 2确认可以接收文件（验证权限和空间大小）
+	XFMT_SEND_SLICE_REQ 		= 1005;		///< XFileSlice 3 发送文件片 
+	// XFMT_SEND_SLICE_DATA 		= 1006;		///< 数据片，消息内容就是具体的文件
+	XFMT_SEND_SLICE_RES 		= 1007;		///< XFileSlice 包含文件信息 4文件片接收成功或者失败（验证接收文件片大小和校验，失败返回原因） 
+	XFMT_UPLOAD_FILE_END_REQ 	= 1008;		///< XFileInfo 5 
+	XFMT_UPLOAD_FILE_END_RES 	= 1009;		///< XMessageRes 6 文件接收成功或者失败（写入缓存中所有内容，验证文件接收总大小和md5，失败返回原因）
+	XFMT_DOWNLOAD_FILE_REQ 		= 1010;		///< 客户端发起下载请求 XFileInfo 包含文件名和远程路径、偏移位置（用于断点续传）
+	XFMT_DOWNLOAD_FILE_RES 		= 1011;		///< 服务端端回应下载请求 XFileInfo 包含文件大小和MD5校验
+	XFMT_DOWNLOAD_FILE_BEGTIN 	= 10012;	///< 客户端开始接收文件
+	XFMT_DOWNLOAD_SLICE_REQ 	= 1012;		///< 服务端发送文件片
+	XFMT_DOWNLOAD_SLICE_RES 	= 1013;		///< 客户单校验文件片成功 
+	XFMT_DELETE_FILE_REQ 		= 1014;		///<  XFileSlice 
+	XFMT_DELETE_FILE_RES 		= 1015;		///< XMessageRes
+	XFMT_NEW_DIR_REQ			= 1016;		///< 创建目录 XGetDirReq
+	XFMT_NEW_DIR_RES 			= 1017;		///< XMessageRes
+	XFMT_GET_DISK_INFO_REQ 		= 1018;		///< XMessageRes
+	XFMT_GET_DISK_INFO_RES 		= 1019;		///< XDiskInfo
+}
+
+
+message XDiskInfo
+{
+	int64 avail 	= 1;	///< 用户可用空间（字节）
+	int64 total	 	= 2;	///< 磁盘空间，普通用户10G
+	int64 free 		= 3;	///< 磁盘剩余空间 普通用户不设置
+	int64 dir_size 	= 4;	///< 用户目录占用空间大小
+}
+
+message XGetDirReq
+{
+	bytes root = 1;
+}
+
+/// 文件片 按次序写入
+message XFileSlice
+{
+	XFileInfo 	file 	= 1;
+	int64 		size 	= 2;	///< 文件片大小 字节
+	int64 		offset 	= 3;	///< 文件偏移量，从0开始 字节数
+	bytes 		md5 	= 4;	///< 文件片md5
+	bool 		is_ok 	= 5;	///< 是否校验成功 是否发送成功
+}
+
+/// 文件信息，新添加的文件在文件列表中暂时不显示
+message XFileInfo
+{
+    bytes 	filename = 1;
+    bytes 	filedir 	= 2;		///< 文件路径，不包含文件名
+    int64 	filesize 	= 3;		///< byte 如果是加密文件 这是实际存储大小，源文件大小在ori_size
+    string 	filetime 	= 4;		///< 2020-01-20 18:30
+    bool 	is_dir 		= 5;		///< 是否目录
+	bytes 	md5 		= 6;		///< 文件校验  
+	bytes 	local_path 	= 7;		///< 用于上传任务
+	int64 	net_size 	= 8;		///< 已经接收或者发送的文件大小 字节数
+	bool 	is_enc 		= 9;		///< 是否加密 第一版秘钥本地用户输入
+	int64 	ori_size 	= 10;		///< 加密文件的源文件大小
+	bytes 	password 	= 11;		///< 用于传递任务，不传递消息
+}
+
+/*
+message XFileInfoTaskMap
+{
+	map<int32,XFileInfo> task_map = 1;
+}*/
+
+//. 服务端用 文件列表
+message XFileInfoList
+{
+	repeated XFileInfo files = 4;
+}
+
+message XFileTask
+{
+	int32 		index 		= 1;
+	string 		tasktime 	= 6;
+	bool 		is_complete = 7;	///< 任务是否完成
+	bool		is_sec 		= 8;	///< 是否秒传
+	XFileInfo 	file 		= 9;
+}
+
+message XFileTaskList
+{
+	repeated XFileTask uploads 	 = 1;	///< 上传任务
+	repeated XFileTask downloads = 2;	///< 下载任务
+}

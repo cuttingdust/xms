@@ -18,11 +18,11 @@ int main(int argc, char *argv[])
     XAuthClient::get()->startConnect();
 
     QApplication a(argc, argv);
-    XLoginGui    gui;
-    if (gui.exec() != QDialog::Accepted)
-    {
-        return -1;
-    }
+    // XLoginGui    gui;
+    // if (gui.exec() != QDialog::Accepted)
+    // {
+    //     return -1;
+    // }
     XDiskClientGui main_gui;
     main_gui.show();
     return a.exec();
