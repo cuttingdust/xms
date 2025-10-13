@@ -105,6 +105,7 @@ add_subdirectory(auth_server)
 add_subdirectory(auth_client)
 add_subdirectory(log_server)
 add_subdirectory(xms_disk_client_gui)
+add_subdirectory(xms_dir_service)
 
 watchdog(register_server 3)
 watchdog(config_server 3)

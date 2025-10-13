@@ -106,6 +106,7 @@ macro(get_src_include)
     endif()
 	
 	if(PROTO_FILES)
+		message(STATUS "PROTO_FILES = ${PROTO_FILES}")
 		source_group("Resource Files" FILES ${PROTO_FILES})
 		if(PROTOC_EXECUTABLE)
         execute_process(
@@ -410,10 +411,17 @@ function(add_include_to_header header_file include_file)
     # 构建包含的内容
     set(include_statement "#pragma once\n#include \"${include_file}\"\n")
 
-    # 将新内容写入文件
-    file(WRITE "${header_file}" "${include_statement}${original_content}")
+     # 检查是否已经包含该文件
+    string(FIND "${original_content}" "${include_statement}" include_found)
 
-    message(STATUS "Added include for ${include_file} to ${header_file}")
+    # 如果没有找到包含语句，则添加
+    if(include_found EQUAL -1)
+        # 将新内容写入文件
+        file(WRITE "${header_file}" "${include_statement}${original_content}")
+        message(STATUS "Added include for ${include_file} to ${header_file}")
+    else()
+        message(STATUS "Include for ${include_file} already exists in ${header_file}")
+    endif()
 endfunction()
 
 function(add_include_to_headers header_list include_file)

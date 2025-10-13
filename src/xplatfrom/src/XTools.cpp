@@ -11,6 +11,8 @@
 
 #include <filesystem>
 #include <iostream>
+#include <iomanip>
+#include <optional>
 #ifndef _WIN32
 #include <signal.h>
 #else
@@ -122,7 +124,7 @@ unsigned char *XMD5(const unsigned char *d, unsigned long n, unsigned char *md)
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-std::string XTools::GetDirData(std::string path)
+auto XTools::GetDirData(const std::string &path) -> std::string
 {
     std::string data = "";
     try
@@ -161,7 +163,7 @@ std::string XTools::GetDirData(std::string path)
     return data;
 }
 
-std::string XTools::XMD5_base64(const unsigned char *d, unsigned long n)
+auto XTools::XMD5_base64(const unsigned char *d, unsigned long n) -> std::string
 {
     unsigned char buf[16] = { 0 };
     XMD5(d, n, buf);
@@ -170,12 +172,54 @@ std::string XTools::XMD5_base64(const unsigned char *d, unsigned long n)
     return base64;
 }
 
-char *XTools::XMD5_base64(const unsigned char *d, unsigned long n, char *md)
+auto XTools::XMD5_base64(const unsigned char *d, unsigned long n, char *md) -> char *
 {
     unsigned char buf[16] = { 0 };
     XMD5(d, n, buf);
     Base64Encode(buf, 16, md);
     return md;
+}
+
+auto XTools::GetDirList(const std::string &path) -> std::list<XToolFileInfo>
+{
+    std::list<XToolFileInfo> file_list;
+
+    try
+    {
+        for (const auto &entry : std::filesystem::directory_iterator(path))
+        {
+            XToolFileInfo file_info;
+            file_info.file_name = entry.path().filename().string();
+            file_info.file_size = entry.file_size();
+            file_info.is_dir    = entry.is_directory();
+
+            /// 获取文件的最后修改时间
+            auto ftime = std::filesystem::last_write_time(entry);
+            auto sctp  = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+                    ftime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now());
+            std::time_t time = std::chrono::system_clock::to_time_t(sctp);
+
+            /// 格式化时间
+            std::tm            tm = *std::gmtime(&time);
+            std::ostringstream oss;
+            oss << std::put_time(&tm, "%F %R");
+            file_info.time_str = oss.str();
+
+            file_list.push_back(file_info);
+        }
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+        std::cerr << "Error while listing directory: " << e.what() << std::endl;
+        return file_list;
+    }
+    catch (...)
+    {
+        std::cerr << "Unknown error occurred." << std::endl;
+        return file_list;
+    }
+
+    return file_list;
 }
 
 auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string

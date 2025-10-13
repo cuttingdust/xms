@@ -38,8 +38,9 @@
 #define UPLOAD_NAME   "upload"
 #define DOWNLOAD_PORT 20200
 #define DOWNLOAD_NAME "download"
-#define DIR_PORT      20300
-#define DIR_NAME      "dir"
+
+#define DIR_PORT 20300
+#define DIR_NAME "dir"
 
 #define MAX_MSG_SIZE 8192 /// 头部消息的最大字节数
 

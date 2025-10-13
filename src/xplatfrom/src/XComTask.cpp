@@ -60,8 +60,8 @@ public:
     std::string         serverPath_;
     char                server_ip_[16] = { 0 };
     int                 server_port_   = -1;
-    char                buffer_[1024]  = { 0 };
-    XMsg                msg_;
+    char                buffer_[1024]  = { 0 }; ///< 缓冲
+    XMsg                msg_;                   ///< 消息
     bool                isRecvMsg      = true;  ///< 是否接受消息
     bool                isAutoDelete   = true;  ///< 是否自动删除
     bool                isAutoConnect  = false; ///< 是否自动连接
@@ -249,6 +249,7 @@ auto XComTask::getServerPort() const -> int
 {
     return impl_->server_port_;
 }
+
 
 auto XComTask::setClientIP(const char *ip) -> void
 {

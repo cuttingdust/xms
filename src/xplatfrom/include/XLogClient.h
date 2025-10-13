@@ -34,10 +34,6 @@ private:
     ~XLogClient() override;
 
 public:
-    auto setServiceName(const std::string &serviceName) -> void;
-    auto getServiceName() const -> std::string;
-
-public:
     auto addLog(const xmsg::XAddLogReq *req) -> void;
 
     auto setLogLevel(const xmsg::XLogLevel &log_level) -> void;

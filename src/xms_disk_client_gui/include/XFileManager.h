@@ -22,8 +22,20 @@ class XFileManager : public QObject
 {
     Q_OBJECT
 public:
+    static XFileManager* Instance();
+
+protected:
     XFileManager();
     ~XFileManager() override;
+
+public:
+    /// \brief 设置父类
+    /// \param parent
+    auto setParent(XFileManager* parent) -> void;
+
+    /// \brief 设置目录
+    /// \param root
+    auto setRoot(const std::string& root) -> void;
 
 public:
     /// \brief 获取目录

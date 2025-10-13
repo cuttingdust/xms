@@ -22,7 +22,11 @@ public:
 
 public:
     /// \brief 将任务加入到线程池中，进行连接
-    virtual void startConnect();
+    virtual auto startConnect() -> void;
+
+public:
+    auto setServiceName(const std::string &serviceName) -> void;
+    auto getServiceName() const -> std::string;
 
 private:
     class PImpl;

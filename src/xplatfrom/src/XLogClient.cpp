@@ -28,7 +28,6 @@ public:
     XLogClient                 *owenr_     = nullptr;
     xmsg::XLogLevel             log_level_ = xmsg::XLOG_INFO;
     std::ofstream               log_ofs_;
-    std::string                 service_name_;
     std::mutex                  logs_mutex_;
     std::list<xmsg::XAddLogReq> logs_;
 };
@@ -49,16 +48,6 @@ XLogClient::XLogClient()
 }
 
 XLogClient::~XLogClient() = default;
-
-auto XLogClient::setServiceName(const std::string &serviceName) -> void
-{
-    impl_->service_name_ = serviceName;
-}
-
-auto XLogClient::getServiceName() const -> std::string
-{
-    return impl_->service_name_;
-}
 
 auto XLogClient::addLog(const xmsg::XAddLogReq *req) -> void
 {

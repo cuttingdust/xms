@@ -11,7 +11,12 @@
 #ifndef XDISKCLIENTGUI_H
 #define XDISKCLIENTGUI_H
 
+#include <XDiskCom.pb.h>
+
 #include <QtWidgets/QWidget>
+
+
+class XFileManager;
 
 namespace Ui
 {
@@ -22,8 +27,12 @@ class XDiskClientGui : public QWidget
 {
     Q_OBJECT
 public:
-    explicit XDiskClientGui();
+    explicit XDiskClientGui(XFileManager *xfm, QWidget *parent = Q_NULLPTR);
     ~XDiskClientGui() override;
+
+public slots:
+    void refresh();
+    void refreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
 
 protected:
     void mouseMoveEvent(QMouseEvent *e) override;

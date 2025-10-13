@@ -211,10 +211,10 @@ message XGatewayConfig
 /// 鉴权微服务配置
 message XAuthConfig
 {
-	int32 token_timeout_sec = 1;	///< 登录token
-	string db_ip            = 1;	///< 数据库ip 默认 127.0.0.1
-	string dp_user          = 2;	///< 数据库用户 默认 root
-	string dp_pass          = 3;	///< 数据库密码  后面考虑要加密存储 默认为空
-	string dp_type          = 4;	///< 数据库类型，暂时只支持mysql，后面考虑加redis
-	string dp_name          = 5;	///< 数据库的名称 	默认 xms
+	int32  token_timeout_sec = 1;	///< 登录token
+	string db_ip             = 2;	///< 数据库ip 默认 127.0.0.1
+	string dp_user           = 3;	///< 数据库用户 默认 root
+	string dp_pass           = 4;	///< 数据库密码  后面考虑要加密存储 默认为空
+	string dp_type           = 5;	///< 数据库类型，暂时只支持mysql，后面考虑加redis
+	string dp_name           = 6;	///< 数据库的名称 	默认 xms
 }

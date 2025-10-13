@@ -34,6 +34,10 @@ set(PROTOC_EXPORT_CLASS
     XAddUserReq
     XLoginRes
     XAddLogReq
+    ###########
+    XFileInfoList
+    XGetDirReq
+
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

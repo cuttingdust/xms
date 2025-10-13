@@ -31,15 +31,25 @@ class XMsg;
 // #define LOGERROR(msg)   LOG("ERROR", msg)
 
 
+struct XPLATFROM_EXPORT XToolFileInfo
+{
+    std::string file_name  = "";
+    long long   file_size  = 0;
+    bool        is_dir     = false;
+    long long   time_write = 0;
+    std::string time_str   = ""; /// 2020-03-15 20:00:15
+};
+
 class XPLATFROM_EXPORT XTools
 {
 public:
-    static auto GetDirData(std::string path) -> std::string;
+    static auto GetDirData(const std::string &path) -> std::string;
 
     static auto XMD5_base64(const unsigned char *d, unsigned long n) -> std::string;
 
     static auto XMD5_base64(const unsigned char *d, unsigned long n, char *md) -> char *;
 
+    static auto GetDirList(const std::string &path) -> std::list<XToolFileInfo>;
 
     /// \brief
     ///
