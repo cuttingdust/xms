@@ -222,6 +222,117 @@ auto XTools::GetDirList(const std::string &path) -> std::list<XToolFileInfo>
     return file_list;
 }
 
+auto XTools::XGetIconFilename(const std::string &filename, bool is_dir) -> std::string
+{
+    std::string iconpath = "Other";
+    /// 文件类型
+    std::string filetype = "";
+    int         pos      = filename.find_last_of('.');
+    if (pos > 0)
+    {
+        filetype = filename.substr(pos + 1);
+    }
+    /// 转换为小写 ，第三个参数是输出
+    std::ranges::transform(filetype, filetype.begin(), ::tolower);
+
+    if (is_dir)
+    {
+        iconpath = "Folder";
+    }
+    else if (filetype == "jpg" || filetype == "png" || filetype == "gif")
+    {
+        iconpath = "Img";
+    }
+    else if (filetype == "doc" || filetype == "docx" || filetype == "wps")
+    {
+        iconpath = "Doc";
+    }
+    else if (filetype == "rar" || filetype == "zip" || filetype == "7z" || filetype == "gzip")
+    {
+        iconpath = "Rar";
+    }
+    else if (filetype == "ppt" || filetype == "pptx")
+    {
+        iconpath = "Ppt";
+    }
+    else if (filetype == "xls" || filetype == "xlsx")
+    {
+        iconpath = "Xls";
+    }
+    else if (filetype == "pdf")
+    {
+        iconpath = "Pdf";
+    }
+    else if (filetype == "doc" || filetype == "docx" || filetype == "wps")
+    {
+        iconpath = "Doc";
+    }
+    else if (filetype == "avi" || filetype == "mp4" || filetype == "mov" || filetype == "wmv")
+    {
+        iconpath = "Video";
+    }
+    else if (filetype == "mp3" || filetype == "pcm" || filetype == "wav" || filetype == "wma")
+    {
+        iconpath = "Music";
+    }
+    else
+    {
+        iconpath = "Other";
+    }
+    return iconpath;
+}
+
+auto XTools::XGetSizeString(long long size) -> std::string
+{
+    std::string filesize_str = "";
+    if (size > 1024 * 1024 * 1024) /// GB
+    {
+        double    gb_size = (double)size / (double)(1024 * 1024 * 1024);
+        long long tmp     = gb_size * 100;
+
+        std::stringstream ss;
+        ss << tmp / 100;
+        if (tmp % 100 > 0)
+            ss << "." << tmp % 100;
+        ss << "GB";
+        filesize_str = ss.str();
+    }
+    else if (size > 1024 * 1024) /// MB
+    {
+        double    gb_size = (double)size / (double)(1024 * 1024);
+        long long tmp     = gb_size * 100;
+
+        std::stringstream ss;
+        ss << tmp / 100;
+        if (tmp % 100 > 0)
+            ss << "." << tmp % 100;
+        ss << "MB";
+        filesize_str = ss.str();
+    }
+    else if (size > 1024) /// KB
+    {
+        float             gb_size = (float)size / (float)(1024);
+        long long         tmp     = gb_size * 100;
+        std::stringstream ss;
+        ss << tmp / 100;
+        if (tmp % 100 > 0)
+            ss << "." << tmp % 100;
+        ss << "KB";
+        filesize_str = ss.str();
+    }
+    else //B
+    {
+        float     gb_size = size / (float)(1024);
+        long long tmp     = gb_size * 100;
+
+        std::stringstream ss;
+        ss << size;
+        ss << "B";
+        filesize_str = ss.str();
+    }
+    return filesize_str;
+}
+
 auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
 {
     char   time_buf[128] = { 0 };

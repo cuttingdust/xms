@@ -6,6 +6,8 @@
 
 int main(int argc, char *argv[])
 {
+    setlocale(LC_ALL, "zh_CN.UTF-8");
+
     std::cout << "hello world" << std::endl;
     XDirHandle::regMsgCallback();
     XDirService xdir;

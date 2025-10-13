@@ -11,6 +11,7 @@
 #ifndef XTOOLS_H
 #define XTOOLS_H
 
+#include "XDiskCom.pb.h"
 #include "XPlatfrom_Global.h"
 #include "XLogClient.h"
 
@@ -51,7 +52,12 @@ public:
 
     static auto GetDirList(const std::string &path) -> std::list<XToolFileInfo>;
 
+    static auto XGetIconFilename(const std::string &filename, bool is_dir) -> std::string;
+
+    static auto XGetSizeString(long long size) -> std::string;
+
     /// \brief
+    ///
     ///
     /// %a 星期几的简写
     /// %A 星期几的全称

@@ -13,7 +13,7 @@
 
 #include <XDiskCom.pb.h>
 
-#include <QtWidgets/QWidget>
+#include <QtWidgets/QMainWindow>
 
 
 class XFileManager;
@@ -31,13 +31,16 @@ public:
     ~XDiskClientGui() override;
 
 public slots:
-    void refresh();
-    void refreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
+    void Refresh();
+    void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
+    void Checkall();
 
 protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
     void mouseMoveEvent(QMouseEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;
     void mouseReleaseEvent(QMouseEvent *e) override;
+    // void resizeEvent(QResizeEvent *event) override;
 
 private:
     Ui::XDiskClientGui *ui = nullptr;
