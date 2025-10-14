@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     XMSFileManager xfm;
     // auto           ip = XTools::XGetHostByName(API_GATEWAY_SERVER_NAME);
-    // XAuthClient::get()->setServerIp(ip.c_str());
+    // XAuthClient::get()->setServerIP(ip.c_str());
     // XAuthClient::get()->setServerPort(API_GATEWAY_PORT); /// 客户端转发给api_gateway
     // XAuthClient::regMsgCallback();
     // XAuthClient::get()->startConnect();

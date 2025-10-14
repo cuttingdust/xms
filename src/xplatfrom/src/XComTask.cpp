@@ -225,7 +225,7 @@ auto XComTask::init() -> bool
     return connect();
 }
 
-auto XComTask::setServerIp(const char *ip) -> void
+auto XComTask::setServerIP(const char *ip) -> void
 {
     if (!ip)
     {

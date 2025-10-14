@@ -137,7 +137,7 @@ auto XLogClient::timerCB() -> void
 auto XLogClient::startLog() -> bool
 {
     if (strlen(getServerIP()) == 0)
-        setServerIp("127.0.0.1");
+        setServerIP("127.0.0.1");
     if (getServerPort() <= 0)
         setServerPort(XLOG_PORT);
 

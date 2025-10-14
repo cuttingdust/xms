@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
         register_port = atoi(argv[3]);
 
     /// 设置注册中心的IP和端口
-    XRegisterClient::get()->setServerIp(register_ip.c_str());
+    XRegisterClient::get()->setServerIP(register_ip.c_str());
     XRegisterClient::get()->setServerPort(register_port);
     /// 注册到注册中心
     XRegisterClient::get()->registerServer("dir", server_port, nullptr);
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         /// 只取第一个配置中心
         auto conf = conf_s.services()[0];
         // XConfigClient::get()->regMsgCallback();
-        // XConfigClient::get()->setServerIp(conf.ip().c_str());
+        // XConfigClient::get()->setServerIP(conf.ip().c_str());
         // XConfigClient::get()->setServerPort(conf.port());
         // XConfigClient::get()->startConnect();
         // if (!XConfigClient::get()->waitConnected(10))

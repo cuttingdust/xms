@@ -395,7 +395,7 @@ auto XConfigClient::startGetConf(const char *server_ip, int server_port, const c
                                  google::protobuf::Message *conf_message, int timeout_sec) -> bool
 {
     regMsgCallback();
-    setServerIp(server_ip);
+    setServerIP(server_ip);
     setServerPort(server_port);
     if (local_ip)
     {

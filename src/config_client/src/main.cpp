@@ -25,7 +25,7 @@ void ConfigTimer()
             return;
         conf_ip   = conf.ip();
         conf_port = conf.port();
-        ConfigClient->setServerIp(conf_ip.c_str());
+        ConfigClient->setServerIP(conf_ip.c_str());
         ConfigClient->setServerPort(conf_port);
         ConfigClient->connect();
     }
@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     int client_port = 4000;
 
     /// 设置注册中心的IP和端口
-    RegisterClient->setServerIp("127.0.0.1");
+    RegisterClient->setServerIP("127.0.0.1");
     RegisterClient->setServerPort(REGISTER_PORT);
     RegisterClient->registerServer("test_config", client_port, 0);
     // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     //////////////////////////////////////////////////////////////////
 
     // XConfigClient::get()->regMsgCallback();
-    // XConfigClient::get()->setServerIp("127.0.0.1");
+    // XConfigClient::get()->setServerIP("127.0.0.1");
     // XConfigClient::get()->setServerPort(CONFIG_PORT);
     // XConfigClient::get()->startConnect();
     // if (!XConfigClient::get()->waitConnected(10))

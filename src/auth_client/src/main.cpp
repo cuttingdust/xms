@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
     XAuthClient::regMsgCallback();
 
     XAuthClient client;
-    client.setServerIp("127.0.0.1");
+    client.setServerIP("127.0.0.1");
     client.setServerPort(AUTH_PORT);
     client.startConnect();
     client.waitConnected(3);

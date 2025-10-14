@@ -25,7 +25,7 @@ XMSFileManager::XMSFileManager()
     XFileManager::setParent(this);
 
     XGetDirClient::regMsgCallback();
-    XGetDirClient::get()->setServerIp("127.0.0.1");
+    XGetDirClient::get()->setServerIP("127.0.0.1");
     XGetDirClient::get()->setServerPort(DIR_PORT);
     XGetDirClient::get()->startConnect();
     std::this_thread::sleep_for(std::chrono::milliseconds(200));

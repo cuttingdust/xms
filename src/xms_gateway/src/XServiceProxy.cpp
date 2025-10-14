@@ -93,7 +93,7 @@ auto XServiceProxy::PImpl::threadFunc() -> void
                     continue;
 
                 auto proxy = new XServiceProxyClient();
-                proxy->setServerIp(s.ip().c_str());
+                proxy->setServerIP(s.ip().c_str());
                 proxy->setServerPort(s.port());
                 proxy->setAutoDelete(false);
                 proxy->startConnect();
@@ -166,7 +166,7 @@ auto XServiceProxy::init() -> bool
     //     for (const auto &s : server_list.services())
     //     {
     //         auto proxy = new XServiceProxyClient();
-    //         proxy->setServerIp(s.ip().c_str());
+    //         proxy->setServerIP(s.ip().c_str());
     //         proxy->setServerPort(s.port());
     //         proxy->startConnect();
     //         impl_->client_map_[server_name].push_back(proxy);

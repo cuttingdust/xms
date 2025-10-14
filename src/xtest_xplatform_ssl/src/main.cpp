@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
 
     /// 测试SSL客户端
     XMySSLClient client;
-    client.setServerIp(IP);
+    client.setServerIP(IP);
     client.setServerPort(PORT);
     XSSL_CTX ctx;
     ctx.initClient();

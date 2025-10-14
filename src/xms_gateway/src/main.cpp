@@ -30,7 +30,7 @@ void ConfigTimer()
             return;
         conf_ip   = conf.ip();
         conf_port = conf.port();
-        ConfigClient->setServerIp(conf_ip.c_str());
+        ConfigClient->setServerIP(conf_ip.c_str());
         ConfigClient->setServerPort(conf_port);
         ConfigClient->connect();
     }
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         register_port = atoi(argv[3]);
 
     /// 设置注册中心的IP和端口
-    XRegisterClient::get()->setServerIp(register_ip.c_str());
+    XRegisterClient::get()->setServerIP(register_ip.c_str());
     XRegisterClient::get()->setServerPort(register_port);
 
     /// 注册到注册中心

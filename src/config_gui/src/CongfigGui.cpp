@@ -95,7 +95,7 @@ void CongfigGui::updateUI()
 
 
     /// 关闭之前的连接，重新建立连接
-    XConfigClient::get()->setServerIp(server_ip.c_str());
+    XConfigClient::get()->setServerIP(server_ip.c_str());
     XConfigClient::get()->setServerPort(server_port);
     XConfigClient::get()->setAutoDelete(false);
     XConfigClient::get()->close();

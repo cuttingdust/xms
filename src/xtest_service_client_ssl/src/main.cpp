@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     XSSL_CTX     ctx;
     ctx.initClient();
     client->setSSLContent(&ctx);
-    client->setServerIp("127.0.0.1");
+    client->setServerIP("127.0.0.1");
     client->setServerPort(API_GATEWAY_PORT);
     client->startConnect();
 

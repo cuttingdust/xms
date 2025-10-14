@@ -48,7 +48,7 @@ public:
 public:
     /// \brief 设置服务器ip
     /// \param ip
-    auto setServerIp(const char* ip) -> void;
+    auto setServerIP(const char* ip) -> void;
     auto getServerIP() const -> const char*;
 
     /// \brief 设置服务器端口

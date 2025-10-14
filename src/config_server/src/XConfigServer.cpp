@@ -34,7 +34,7 @@ void XConfigServer::main(int argc, char *argv[])
     /// 设置服务器监听端口
     this->setServerPort(service_port);
 
-    XRegisterClient::get()->setServerIp(register_ip.c_str());
+    XRegisterClient::get()->setServerIP(register_ip.c_str());
     XRegisterClient::get()->setServerPort(register_port);
 
     /// 向注册中心注册

@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     XTestClient::regMsgCallback();
 
     XTestClient *client = new XTestClient;
-    client->setServerIp("127.0.0.1");
+    client->setServerIP("127.0.0.1");
     client->setServerPort(API_GATEWAY_PORT);
     client->startConnect();
 

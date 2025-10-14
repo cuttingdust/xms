@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     int  server_port = AUTH_PORT;
     auto ip          = XTools::XGetHostByName(REGISTER_SERVER_NAME);
-    RegisterClient->setServerIp(ip.c_str());
+    RegisterClient->setServerIP(ip.c_str());
     RegisterClient->setServerPort(REGISTER_PORT);
     RegisterClient->registerServer(AUTH_NAME, server_port, 0);
     XAuthDao::get()->init();

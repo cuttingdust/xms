@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
         port = atoi(argv[2]);
     }
 
-    XRegisterClient::get()->setServerIp(ip.c_str());
+    XRegisterClient::get()->setServerIP(ip.c_str());
     XRegisterClient::get()->setServerPort(port);
     XRegisterClient::get()->registerServer("test", 20020, 0);
     XRegisterClient::get()->waitConnected(3);
