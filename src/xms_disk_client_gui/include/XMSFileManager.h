@@ -20,6 +20,8 @@ public:
     ~XMSFileManager() override;
 
 public:
+    auto initFileManager(std::string server_ip, int server_port) -> void override;
+
     auto getDir(const std::string &root) -> void override;
 
 private:

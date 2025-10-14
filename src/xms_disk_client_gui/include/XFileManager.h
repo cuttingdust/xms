@@ -13,6 +13,11 @@
 
 #include <QtCore/QObject>
 
+namespace xmsg
+{
+    class XLoginRes;
+}
+
 namespace xdisk
 {
     class XFileInfoList;
@@ -38,9 +43,23 @@ public:
     auto setRoot(const std::string& root) -> void;
 
 public:
+    /// \brief 初始化管理器
+    /// \param server_ip
+    /// \param server_port
+    virtual auto initFileManager(std::string server_ip, int server_port) -> void = 0;
+
+    /// \brief 设置登录信息
+    /// \param login
+    virtual auto setLogin(xmsg::XLoginRes login) -> void;
+
+    /// \brief 得到登录信息
+    /// \return
+    virtual auto getLogin() const -> xmsg::XLoginRes;
+
     /// \brief 获取目录
     /// \param root
     virtual auto getDir(const std::string& root) -> void = 0;
+
 
 signals:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);

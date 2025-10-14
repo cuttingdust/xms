@@ -18,6 +18,7 @@ int main(int argc, char *argv[])
     RegisterClient->setServerIP(ip.c_str());
     RegisterClient->setServerPort(REGISTER_PORT);
     RegisterClient->registerServer(AUTH_NAME, server_port, 0);
+
     XAuthDao::get()->init();
     XAuthDao::get()->install();
 

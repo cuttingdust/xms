@@ -25,6 +25,9 @@ public:
     explicit XLoginGui(QWidget *parent = Q_NULLPTR, Qt::WindowFlags flags = Qt::WindowFlags());
     ~XLoginGui() override;
 
+public:
+    [[nodiscard]] auto getUserName() const -> std::string;
+
 protected:
     void mouseMoveEvent(QMouseEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;

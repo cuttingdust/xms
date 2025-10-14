@@ -59,16 +59,28 @@ auto XRegisterClient::timerCB() -> void
 
 auto XRegisterClient::registerServer(const char *service_name, int port, const char *ip) -> void
 {
-    /// 注册消息回调函数
     regMsgCallback();
     /// 发送消息到服务器
     /// 服务器连接是否成功？
     /// 注册中心的IP，注册中心的端口
+
     if (service_name)
+    {
         strcpy(impl_->service_name_, service_name);
+    }
+
     if (ip)
+    {
         strcpy(impl_->service_ip_, ip);
+    }
+
     impl_->service_port_ = port;
+
+    if (getServerPort() <= 0)
+    {
+        setServerPort(REGISTER_PORT);
+    }
+
 
     /// 设置自动重连
     setAutoConnect(true);

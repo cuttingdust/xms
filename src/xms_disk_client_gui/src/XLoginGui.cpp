@@ -15,8 +15,9 @@ public:
     ~PImpl() = default;
 
 public:
-    XLoginGui *owenr_  = nullptr;
-    QPoint     curPos_ = { 0, 0 };
+    XLoginGui  *owenr_  = nullptr;
+    QPoint      curPos_ = { 0, 0 };
+    std::string username_;
 };
 
 XLoginGui::PImpl::PImpl(XLoginGui *owenr) : owenr_(owenr)
@@ -35,6 +36,11 @@ XLoginGui::XLoginGui(QWidget *parent, Qt::WindowFlags flags) : QDialog(parent, f
 }
 
 XLoginGui::~XLoginGui() = default;
+
+auto XLoginGui::getUserName() const -> std::string
+{
+    return impl_->username_;
+}
 
 void XLoginGui::mouseMoveEvent(QMouseEvent *e)
 {
@@ -77,6 +83,7 @@ void XLoginGui::Login()
     xmsg::XLoginRes res;
     if (XAuthClient::get()->getLoginInfo(username, &res, 2000))
     {
+        impl_->username_ = username;
         ui->err_msg->setText("登录成功！");
         QDialog::accept();
         return;

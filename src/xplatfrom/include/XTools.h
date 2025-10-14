@@ -101,8 +101,9 @@ public:
     /// \return
     static auto XGetTime(int timestamp, std::string fmt = "%F %T") -> std::string;
 
-    static auto XGetNameByPort(unsigned short port) -> const char *;
+    static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
 
+public:
     /// \brief
     /// windows C:\Windows\System32\drivers\etc
     /// Linux /etc/hosts
@@ -112,7 +113,9 @@ public:
     /// \return
     static auto XGetHostByName(const std::string &host_name) -> std::string;
 
-    static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
+    static auto XGetPortByName(const std::string &host_name) -> int;
+
+    static auto XGetNameByPort(unsigned short port) -> const char *;
 };
 
 class XPLATFROM_EXPORT XMutex final

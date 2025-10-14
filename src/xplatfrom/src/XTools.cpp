@@ -396,6 +396,22 @@ auto XTools::XGetHostByName(const std::string &host_name) -> std::string
     return ::inet_ntoa(*reinterpret_cast<in_addr *>(*addr));
 }
 
+auto XTools::XGetPortByName(const std::string &host_name) -> int
+{
+    static const std::unordered_map<std::string, int> port_map = { { API_GATEWAY_NAME, API_GATEWAY_PORT },
+                                                                   { API_GATEWAY_SERVER_NAME, API_GATEWAY_PORT },
+                                                                   { REGISTER_NAME, REGISTER_PORT },
+                                                                   { CONFIG_NAME, CONFIG_PORT },
+                                                                   { AUTH_NAME, AUTH_PORT },
+                                                                   { XLOG_NAME, XLOG_PORT },
+                                                                   { DOWNLOAD_NAME, DOWNLOAD_PORT },
+                                                                   { DIR_NAME, DIR_PORT },
+                                                                   { UPLOAD_NAME, UPLOAD_PORT } };
+
+    auto it = port_map.find(host_name);
+    return (it != port_map.end()) ? it->second : -1;
+}
+
 auto XTools::PrintMsg(xmsg::XMsgHead *head, XMsg *msg)
 {
     std::stringstream ss;
