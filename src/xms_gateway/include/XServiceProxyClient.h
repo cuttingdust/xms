@@ -16,6 +16,9 @@
 class XServiceProxyClient : public XServiceClient
 {
 public:
+    static auto create(std::string service_name) -> XServiceProxyClient *;
+
+protected:
     XServiceProxyClient();
     ~XServiceProxyClient() override;
 

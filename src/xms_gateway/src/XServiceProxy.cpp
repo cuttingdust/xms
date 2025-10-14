@@ -92,7 +92,7 @@ auto XServiceProxy::PImpl::threadFunc() -> void
                 if (is_find)
                     continue;
 
-                auto proxy = new XServiceProxyClient();
+                auto proxy = XServiceProxyClient::create(service_name);
                 proxy->setServerIP(s.ip().c_str());
                 proxy->setServerPort(s.port());
                 proxy->setAutoDelete(false);

@@ -141,12 +141,14 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     if (!service_map)
     {
         service_map = new xmsg::XServiceMap();
+
     }
 
     ///返回全部
     if (req.type() == xmsg::XServiceType::XT_ALL)
     {
         send_map = service_map;
+        send_map->set_type(xmsg::XServiceType::XT_ALL);
     }
     else ///返回单种
     {

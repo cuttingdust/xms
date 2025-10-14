@@ -60,6 +60,10 @@ public:
     /// \param root
     virtual auto getDir(const std::string& root) -> void = 0;
 
+    /// \brief 新建目录
+    /// \param root
+    virtual auto newDir(const std::string& root) -> void = 0;
+
 
 signals:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);

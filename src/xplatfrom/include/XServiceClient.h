@@ -21,12 +21,21 @@ public:
     ~XServiceClient() override;
 
 public:
-    /// \brief 将任务加入到线程池中，进行连接
-    virtual auto startConnect() -> void;
+    virtual auto setLogin(xmsg::XLoginRes *login) -> void;
+
+    virtual auto setServiceName(const std::string &serviceName) -> void;
+
+    virtual auto getServiceName() const -> std::string;
+
+    auto setHead(xmsg::XMsgHead *head) -> xmsg::XMsgHead *;
+
+    auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool override;
+
+    auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool override;
 
 public:
-    auto setServiceName(const std::string &serviceName) -> void;
-    auto getServiceName() const -> std::string;
+    /// \brief 将任务加入到线程池中，进行连接
+    virtual auto startConnect() -> void;
 
 private:
     class PImpl;

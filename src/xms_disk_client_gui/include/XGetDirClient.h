@@ -32,6 +32,10 @@ public:
 
     auto getDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
+    auto newDirReq(std::string path) -> void;
+
+    auto newDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
     static auto regMsgCallback() -> void;
 
 private:

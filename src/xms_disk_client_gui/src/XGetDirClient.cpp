@@ -17,6 +17,7 @@ public:
 
 XGetDirClient::PImpl::PImpl(XGetDirClient *owenr) : owenr_(owenr)
 {
+    owenr_->setServiceName(DIR_NAME);
 }
 
 auto XGetDirClient::get() -> XGetDirClient *
@@ -36,10 +37,12 @@ auto XGetDirClient::getDirReq(xdisk::XGetDirReq req) -> void
 {
     impl_->cur_dir_ = req.root();
 
-    xmsg::XMsgHead head;
-    head.set_msgtype(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_REQ));
-    head.set_servername(DIR_NAME);
-    sendMsg(&head, &req);
+    // xmsg::XMsgHead head;
+    // head.set_msgtype(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_REQ));
+    // head.set_servername(DIR_NAME);
+    // sendMsg(&head, &req);
+
+    sendMsg(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_REQ), &req);
 }
 
 auto XGetDirClient::getDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
@@ -54,7 +57,23 @@ auto XGetDirClient::getDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     XFileManager::Instance()->RefreshData(file_list, impl_->cur_dir_);
 }
 
+auto XGetDirClient::newDirReq(std::string path) -> void
+{
+    xdisk::XGetDirReq req;
+    req.set_root(path);
+    sendMsg(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_REQ), &req);
+}
+
+auto XGetDirClient::newDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
+{
+    xdisk::XGetDirReq req;
+    req.set_root(impl_->cur_dir_);
+
+    getDirReq(req);
+}
+
 auto XGetDirClient::regMsgCallback() -> void
 {
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_RES), static_cast<MsgCBFunc>(&XGetDirClient::getDirRes));
+    regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_RES), static_cast<MsgCBFunc>(&XGetDirClient::newDirRes));
 }

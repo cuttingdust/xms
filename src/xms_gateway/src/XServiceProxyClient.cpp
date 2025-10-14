@@ -1,6 +1,8 @@
 ﻿#include "XServiceProxyClient.h"
 
-#include "XTools.h"
+#include "XAuthProxy.h"
+
+#include <XTools.h>
 
 #include <mutex>
 
@@ -24,6 +26,15 @@ XServiceProxyClient::PImpl::PImpl(XServiceProxyClient *owenr) : owenr_(owenr)
 {
 }
 
+
+auto XServiceProxyClient::create(std::string service_name) -> XServiceProxyClient *
+{
+    if (service_name == AUTH_NAME)
+    {
+        return new XAuthProxy;
+    }
+    return new XServiceProxyClient();
+}
 
 XServiceProxyClient::XServiceProxyClient()
 {

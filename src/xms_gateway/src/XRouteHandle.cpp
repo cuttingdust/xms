@@ -1,5 +1,6 @@
 ﻿#include "XRouteHandle.h"
 
+#include "XAuthProxy.h"
 #include "XServiceProxy.h"
 
 #include <XTools.h>
@@ -12,6 +13,13 @@ void XRouteHandle::readCB(xmsg::XMsgHead *head, XMsg *msg)
 {
     /// 转发消息
     LOGDEBUG("XRouteHandle::readCB");
+    std::string token = head->token();
+    std::string user  = head->username();
+    if (head->msgtype() != xmsg::MT_LOGIN_REQ && !XAuthProxy::checkToken(head))
+    {
+        return;
+    }
+
     XServiceProxy::get()->sendMsg(head, msg, this);
 }
 

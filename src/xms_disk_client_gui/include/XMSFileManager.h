@@ -24,6 +24,8 @@ public:
 
     auto getDir(const std::string &root) -> void override;
 
+    auto newDir(const std::string &path) -> void override;
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;
