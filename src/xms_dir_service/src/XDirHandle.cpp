@@ -47,7 +47,31 @@ auto XDirHandle::getDirReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     sendMsg(head, &file_list);
 }
 
+auto XDirHandle::newDirReq(xmsg::XMsgHead *head, XMsg *msg) -> void
+{
+    std::string path = DIR_ROOT;
+    path += head->username();
+    //path += "root";
+    path += "/";
+    xdisk::XGetDirReq req;
+    if (!req.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("XDirHandle::GetDirReq failed!");
+        return;
+    }
+    path += req.root();
+
+    XTools::NewDir(path);
+
+    xmsg::XMessageRes res;
+    res.set_return_(xmsg::XMessageRes::XR_OK);
+    res.set_msg("OK");
+    head->set_msgtype(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_RES));
+    sendMsg(head, &res);
+}
+
 auto XDirHandle::regMsgCallback() -> void
 {
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_REQ), static_cast<MsgCBFunc>(&XDirHandle::getDirReq));
+    regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_REQ), static_cast<MsgCBFunc>(&XDirHandle::newDirReq));
 }

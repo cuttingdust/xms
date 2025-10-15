@@ -22,6 +22,8 @@ public:
 public:
     auto getDirReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
+    auto newDirReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
     static auto regMsgCallback() -> void;
 };
 

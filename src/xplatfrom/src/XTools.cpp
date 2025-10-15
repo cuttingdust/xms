@@ -333,6 +333,34 @@ auto XTools::XGetSizeString(long long size) -> std::string
     return filesize_str;
 }
 
+auto XTools::NewDir(const std::string &path) -> void
+{
+    fs::path dirPath(path);
+
+    try
+    {
+        ///  创建目录（包括所有不存在的父目录）
+        if (fs::create_directories(dirPath))
+        {
+            LOGINFO("目录创建成功: " + path);
+        }
+        else
+        {
+            LOGINFO("目录已存在: " + path);
+        }
+    }
+    catch (const std::filesystem::filesystem_error &e)
+    {
+        LOGERROR("文件系统错误: " + std::string(e.what()));
+    }
+    catch (const std::exception &e)
+    {
+        LOGERROR("其他错误: " + std::string(e.what()));
+    }
+
+    return;
+}
+
 auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
 {
     char   time_buf[128] = { 0 };

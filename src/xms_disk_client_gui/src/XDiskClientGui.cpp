@@ -7,6 +7,8 @@
 
 
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QMenu>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMessageBox>
 #include <QtGui/QMouseEvent>
 
@@ -119,9 +121,31 @@ void XDiskClientGui::Checkall()
     }
 }
 
-bool XDiskClientGui::eventFilter(QObject *watched, QEvent *event)
+void XDiskClientGui::NewDir()
 {
-    return false;
+    QDialog dialog;
+    dialog.setWindowFlags(Qt::FramelessWindowHint);    /// 去除原窗口边框
+    dialog.setAttribute(Qt::WA_TranslucentBackground); /// 隐藏背景，用于圆角
+    dialog.resize(400, 50);
+    QLineEdit edit(&dialog);
+    edit.resize(300, 40);
+    QPushButton ok(&dialog);
+    ok.move(305, 0);
+    ok.setText("确定");
+    QPushButton cancel(&dialog);
+    cancel.setText("取消");
+    cancel.move(305, 22);
+    connect(&cancel, SIGNAL(clicked()), &dialog, SLOT(reject()));
+    connect(&ok, SIGNAL(clicked()), &dialog, SLOT(accept()));
+
+    auto re = dialog.exec();
+    if (re == QDialog::Rejected)
+        return;
+    std::string dir = edit.text().toStdString();
+    if (dir.empty())
+        return;
+
+    impl_->xfm_->newDir(dir);
 }
 
 void XDiskClientGui::mouseMoveEvent(QMouseEvent *e)
@@ -146,7 +170,12 @@ void XDiskClientGui::mouseReleaseEvent(QMouseEvent *e)
     impl_->curPos_ = { 0, 0 };
 }
 
-// void XDiskClientGui::resizeEvent(QResizeEvent *event)
-// {
-//     ui->filelistwidget->resize(event->size());
-// }
+void XDiskClientGui::contextMenuEvent(QContextMenuEvent *event)
+{
+    QMenu context;
+    context.addAction(ui->action_new_dir);
+    context.addAction(ui->upaction);
+    context.addAction(ui->downaction);
+    context.addAction(ui->refreshaction);
+    context.exec(QCursor::pos());
+}

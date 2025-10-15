@@ -50,14 +50,7 @@ public:
 
     static auto XMD5_base64(const unsigned char *d, unsigned long n, char *md) -> char *;
 
-    static auto GetDirList(const std::string &path) -> std::list<XToolFileInfo>;
-
-    static auto XGetIconFilename(const std::string &filename, bool is_dir) -> std::string;
-
-    static auto XGetSizeString(long long size) -> std::string;
-
     /// \brief
-    ///
     ///
     /// %a 星期几的简写
     /// %A 星期几的全称
@@ -102,6 +95,15 @@ public:
     static auto XGetTime(int timestamp, std::string fmt = "%F %T") -> std::string;
 
     static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
+
+public:
+    static auto GetDirList(const std::string &path) -> std::list<XToolFileInfo>;
+
+    static auto XGetIconFilename(const std::string &filename, bool is_dir) -> std::string;
+
+    static auto XGetSizeString(long long size) -> std::string;
+
+    static auto NewDir(const std::string &path) -> void;
 
 public:
     /// \brief
