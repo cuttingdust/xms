@@ -13,6 +13,11 @@
 
 namespace xdisk
 {
+    class XFileInfo;
+}
+
+namespace xdisk
+{
     class XGetDirReq;
 }
 
@@ -35,6 +40,10 @@ public:
     auto newDirReq(std::string path) -> void;
 
     auto newDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
+    auto deleteFileReq(const xdisk::XFileInfo &file) -> void;
+
+    auto deleteFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     static auto regMsgCallback() -> void;
 

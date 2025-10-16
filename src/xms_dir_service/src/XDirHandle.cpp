@@ -70,8 +70,39 @@ auto XDirHandle::newDirReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     sendMsg(head, &res);
 }
 
+auto XDirHandle::deleteFileReq(xmsg::XMsgHead *head, XMsg *msg) -> void
+{
+    /// 根目录 + 用户名 + 相对目录
+    std::string path = DIR_ROOT;
+    path += head->username();
+    //path += "root";
+    path += "/";
+
+    xdisk::XFileInfo req;
+    if (!req.ParseFromArray(msg->data, msg->size))
+    {
+        LOGDEBUG("XDirHandle::DeleteFileReq failed!");
+        return;
+    }
+    if (!req.filedir().empty())
+    {
+        path += req.filedir();
+        path += "/";
+    }
+
+    path += req.filename();
+    XTools::DelFile(path);
+
+    xmsg::XMessageRes res;
+    res.set_return_(xmsg::XMessageRes::XR_OK);
+    res.set_msg("OK");
+    head->set_msgtype(static_cast<xmsg::MsgType>(xdisk::XFMT_DELETE_FILE_RES));
+    sendMsg(head, &res);
+}
+
 auto XDirHandle::regMsgCallback() -> void
 {
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_REQ), static_cast<MsgCBFunc>(&XDirHandle::getDirReq));
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_REQ), static_cast<MsgCBFunc>(&XDirHandle::newDirReq));
+    regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_DELETE_FILE_REQ), static_cast<MsgCBFunc>(&XDirHandle::deleteFileReq));
 }

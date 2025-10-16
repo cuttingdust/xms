@@ -209,6 +209,50 @@ void XDiskClientGui::Back()
     impl_->xfm_->getDir(impl_->remote_dir_);
 }
 
+void XDiskClientGui::Delete()
+{
+    auto tab = ui->filetableWidget;
+    int  row = -1;
+    for (int i = 0; i < tab->rowCount(); i++)
+    {
+        const auto w = tab->cellWidget(i, 0);
+        if (!w)
+        {
+            continue;
+        }
+
+        auto check = (QCheckBox *)w->layout()->itemAt(0)->widget();
+        if (!check)
+        {
+            continue;
+        }
+
+        if (check->isChecked())
+        {
+            row = i;
+            break;
+        }
+    }
+    if (row < 0)
+    {
+        QMessageBox::information(this, "", "请选择删除文件");
+        return;
+    }
+    auto re = QMessageBox::information(this, "", "您确认删除文件吗？", QMessageBox::Ok | QMessageBox::Cancel);
+    if (re & QMessageBox::Cancel)
+    {
+        return;
+    }
+
+    auto        item     = tab->item(row, 1);
+    std::string filename = item->text().toStdString();
+
+    xdisk::XFileInfo file;
+    file.set_filename(filename);
+    file.set_filedir(impl_->remote_dir_);
+    impl_->xfm_->deleteFile(file);
+}
+
 void XDiskClientGui::mouseMoveEvent(QMouseEvent *e)
 {
     if ((e->buttons() & Qt::LeftButton) && e->pos().y() < ui->topwidget->height())

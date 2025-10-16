@@ -361,6 +361,40 @@ auto XTools::NewDir(const std::string &path) -> void
     return;
 }
 
+auto XTools::DelFile(const std::string &path) -> void
+{
+    fs::path filePath(path);
+
+    try
+    {
+        /// 检查文件是否存在
+        if (fs::exists(filePath))
+        {
+            /// 删除文件
+            if (fs::remove_all(filePath))
+            {
+                LOGINFO("文件删除成功: " + path);
+            }
+            else
+            {
+                LOGINFO("文件删除失败: " + path);
+            }
+        }
+        else
+        {
+            LOGINFO("文件不存在: " + path);
+        }
+    }
+    catch (const fs::filesystem_error &e)
+    {
+        LOGERROR("文件系统错误: " + std::string(e.what()));
+    }
+    catch (const std::exception &e)
+    {
+        LOGERROR("其他错误: " + std::string(e.what()));
+    }
+}
+
 auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
 {
     char   time_buf[128] = { 0 };

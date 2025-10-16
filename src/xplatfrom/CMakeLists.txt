@@ -35,6 +35,7 @@ set(PROTOC_EXPORT_CLASS
     XLoginRes
     XAddLogReq
     ###########
+    XFileInfo
     XFileInfoList
     XGetDirReq
 

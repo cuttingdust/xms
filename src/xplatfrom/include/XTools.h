@@ -105,6 +105,8 @@ public:
 
     static auto NewDir(const std::string &path) -> void;
 
+    static auto DelFile(const std::string &path) -> void;
+
 public:
     /// \brief
     /// windows C:\Windows\System32\drivers\etc

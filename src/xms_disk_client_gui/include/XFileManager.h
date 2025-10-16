@@ -20,8 +20,9 @@ namespace xmsg
 
 namespace xdisk
 {
+    class XFileInfo;
     class XFileInfoList;
-}
+} // namespace xdisk
 
 class XFileManager : public QObject
 {
@@ -64,6 +65,9 @@ public:
     /// \param root
     virtual auto newDir(const std::string& root) -> void = 0;
 
+    /// \brief 删除目录
+    /// \param file
+    virtual auto deleteFile(const xdisk::XFileInfo& file) -> void = 0;
 
 signals:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);

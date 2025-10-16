@@ -64,3 +64,8 @@ auto XMSFileManager::newDir(const std::string &path) -> void
 {
     XGetDirClient::get()->newDirReq(path);
 }
+
+auto XMSFileManager::deleteFile(const xdisk::XFileInfo &file) -> void
+{
+    XGetDirClient::get()->deleteFileReq(file);
+}

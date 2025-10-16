@@ -72,8 +72,22 @@ auto XGetDirClient::newDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     getDirReq(req);
 }
 
+auto XGetDirClient::deleteFileReq(const xdisk::XFileInfo &file) -> void
+{
+    sendMsg(static_cast<xmsg::MsgType>(xdisk::XFMT_DELETE_FILE_REQ), &file);
+}
+
+auto XGetDirClient::deleteFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void
+{
+    xdisk::XGetDirReq req;
+    req.set_root(impl_->cur_dir_);
+    getDirReq(req);
+}
+
 auto XGetDirClient::regMsgCallback() -> void
 {
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_RES), static_cast<MsgCBFunc>(&XGetDirClient::getDirRes));
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_RES), static_cast<MsgCBFunc>(&XGetDirClient::newDirRes));
+    regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_DELETE_FILE_RES),
+          static_cast<MsgCBFunc>(&XGetDirClient::deleteFileRes));
 }

@@ -39,6 +39,7 @@ public slots:
     void DoubleClicked(int row, int col);
     void Root();
     void Back();
+    void Delete();
 
 protected:
     void mouseMoveEvent(QMouseEvent *e) override;

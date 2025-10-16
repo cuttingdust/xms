@@ -13,6 +13,11 @@
 
 #include "XFileManager.h"
 
+namespace xdisk
+{
+    class XFileInfo;
+}
+
 class XMSFileManager final : public XFileManager
 {
 public:
@@ -25,6 +30,8 @@ public:
     auto getDir(const std::string &root) -> void override;
 
     auto newDir(const std::string &path) -> void override;
+
+    auto deleteFile(const xdisk::XFileInfo &file) -> void override;
 
 private:
     class PImpl;

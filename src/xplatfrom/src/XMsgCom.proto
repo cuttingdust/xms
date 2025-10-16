@@ -10,6 +10,8 @@ message XMsgHead
 	string		token		= 3;	///< 令牌 如果是登录消息则为空
 	string		serverName	= 4;	///< 微服务的名称 用于路由
 	int64		msgID		= 5;	
+	string      username	= 6;	///< 用户名称
+	string 		rolename	= 7;	///< 用户角色
 }
 
 /// 心跳
