@@ -36,6 +36,10 @@ public slots:
     void Checkall();
     void NewDir();
 
+    void DoubleClicked(int row, int col);
+    void Root();
+    void Back();
+
 protected:
     void mouseMoveEvent(QMouseEvent *e) override;
     void mousePressEvent(QMouseEvent *e) override;

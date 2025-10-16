@@ -24,6 +24,7 @@ public:
     XDiskClientGui *owenr_  = nullptr;
     QPoint          curPos_ = { 0, 0 }; ///< 鼠标的位置
     XFileManager   *xfm_    = nullptr;
+    std::string     remote_dir_;
 };
 
 XDiskClientGui::PImpl::PImpl(XFileManager *xfm, XDiskClientGui *owenr) : owenr_(owenr), xfm_(xfm)
@@ -65,14 +66,32 @@ void XDiskClientGui::Refresh()
         return;
     }
 
-    impl_->xfm_->getDir("");
+    impl_->xfm_->getDir(impl_->remote_dir_);
 }
 
 void XDiskClientGui::RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir)
 {
+    QString view_dir = "";
+    QString dir_str  = QString::fromStdString(cur_dir);
+    auto    dir_list = dir_str.split("/");
+    for (const auto &d : dir_list)
+    {
+        auto dir = d.trimmed();
+        if (dir.isEmpty())
+        {
+            continue;
+        }
+        view_dir += dir;
+        view_dir += "> ";
+    }
+    ui->dir_label->setText(view_dir);
+    /// TODO 路径可以组装 然后点击某一个路径跳转
+
     auto tab = ui->filetableWidget;
     while (tab->rowCount() > 0)
+    {
         tab->removeRow(0);
+    }
     for (const auto &file : file_list.files())
     {
         tab->insertRow(0);
@@ -104,6 +123,7 @@ void XDiskClientGui::RefreshData(xdisk::XFileInfoList file_list, std::string cur
             tab->setItem(0, 3, new QTableWidgetItem(XTools::XGetSizeString(file.filesize()).c_str()));
         }
     }
+    impl_->remote_dir_ = cur_dir;
 }
 
 void XDiskClientGui::Checkall()
@@ -111,12 +131,18 @@ void XDiskClientGui::Checkall()
     auto tab = ui->filetableWidget;
     for (int i = 0; i < tab->rowCount(); i++)
     {
-        auto w = tab->cellWidget(i, 0);
+        const auto w = tab->cellWidget(i, 0);
         if (!w)
+        {
             continue;
-        auto check = dynamic_cast<QCheckBox *>(w->layout()->itemAt(0)->widget());
+        }
+
+        const auto check = dynamic_cast<QCheckBox *>(w->layout()->itemAt(0)->widget());
         if (!check)
+        {
             continue;
+        }
+
         check->setChecked(ui->checkallBox->isChecked());
     }
 }
@@ -140,12 +166,47 @@ void XDiskClientGui::NewDir()
 
     auto re = dialog.exec();
     if (re == QDialog::Rejected)
+    {
         return;
+    }
+
     std::string dir = edit.text().toStdString();
     if (dir.empty())
+    {
         return;
+    }
 
-    impl_->xfm_->newDir(dir);
+    impl_->xfm_->newDir(impl_->remote_dir_ + "/" + dir);
+}
+
+void XDiskClientGui::DoubleClicked(int row, int col)
+{
+    auto        item     = ui->filetableWidget->item(row, 1);
+    QString     dir      = item->text();
+    std::string filename = dir.toStdString();
+    impl_->xfm_->getDir(impl_->remote_dir_ + "/" + filename);
+}
+
+void XDiskClientGui::Root()
+{
+    impl_->xfm_->getDir("");
+}
+
+void XDiskClientGui::Back()
+{
+    if (impl_->remote_dir_.empty() || impl_->remote_dir_ == "/")
+    {
+        return;
+    }
+
+    std::string tmp = impl_->remote_dir_;
+    if (tmp[tmp.size() - 1] == '/')
+    {
+        tmp = tmp.substr(0, tmp.size() - 1);
+    }
+    int index          = tmp.find_last_of('/');
+    impl_->remote_dir_ = tmp.substr(0, index);
+    impl_->xfm_->getDir(impl_->remote_dir_);
 }
 
 void XDiskClientGui::mouseMoveEvent(QMouseEvent *e)
