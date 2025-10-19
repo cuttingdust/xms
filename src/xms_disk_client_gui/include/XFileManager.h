@@ -20,6 +20,7 @@ namespace xmsg
 
 namespace xdisk
 {
+    class XDiskInfo;
     class XFileInfo;
     class XFileInfoList;
 } // namespace xdisk
@@ -71,6 +72,8 @@ public:
 
 signals:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
+
+    void RefreshDiskInfo(xdisk::XDiskInfo info);
 
 private:
     class PImpl;

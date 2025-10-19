@@ -26,6 +26,8 @@ public:
 
     auto deleteFileReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
+    auto getDiskInfoReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
     static auto regMsgCallback() -> void;
 };
 

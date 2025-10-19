@@ -18,12 +18,12 @@ int main(int argc, char *argv[])
     client.startConnect();
     client.waitConnected(3);
     xmsg::XAddUserReq adduser;
-    adduser.set_username("root");
-    adduser.set_password("123456");
-    adduser.set_rolename("root");
+    adduser.set_username("guest");
+    adduser.set_password("12345678");
+    adduser.set_rolename("guest");
     client.addUserReq(&adduser);
 
-    client.loginReq("root", "123456");
+    client.loginReq("guest", "12345678");
     XThreadPool::wait();
 
     return 0;

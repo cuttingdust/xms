@@ -11,15 +11,15 @@
 #ifndef XGETDIRCLIENT_H
 #define XGETDIRCLIENT_H
 
-namespace xdisk
-{
-    class XFileInfo;
-}
+/// 定时从任务列表获取任务
+/// 需要考虑登录，是否放在XServiceClient中
+/// 要加入鉴权的内容
 
 namespace xdisk
 {
+    class XFileInfo;
     class XGetDirReq;
-}
+} // namespace xdisk
 
 #include <XServiceClient.h>
 
@@ -44,6 +44,10 @@ public:
     auto deleteFileReq(const xdisk::XFileInfo &file) -> void;
 
     auto deleteFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
+    auto getDiskInfoReq() -> void;
+
+    auto getDiskInfoRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     static auto regMsgCallback() -> void;
 

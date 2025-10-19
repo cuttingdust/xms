@@ -55,6 +55,8 @@ auto XGetDirClient::getDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     }
     std::cout << file_list.DebugString();
     XFileManager::Instance()->RefreshData(file_list, impl_->cur_dir_);
+
+    getDiskInfoReq();
 }
 
 auto XGetDirClient::newDirReq(std::string path) -> void
@@ -84,10 +86,30 @@ auto XGetDirClient::deleteFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     getDirReq(req);
 }
 
+auto XGetDirClient::getDiskInfoReq() -> void
+{
+    xmsg::XMessageRes req;
+    req.set_msg("GET");
+    sendMsg(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DISK_INFO_REQ), &req);
+}
+
+auto XGetDirClient::getDiskInfoRes(xmsg::XMsgHead *head, XMsg *msg) -> void
+{
+    xdisk::XDiskInfo res;
+    if (!res.ParseFromArray(msg->data, msg->size))
+    {
+        std::cout << "XGetDirClient::GetDiskInfoRes failed!" << std::endl;
+        return;
+    }
+    XFileManager::Instance()->RefreshDiskInfo(res);
+}
+
 auto XGetDirClient::regMsgCallback() -> void
 {
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DIR_RES), static_cast<MsgCBFunc>(&XGetDirClient::getDirRes));
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_NEW_DIR_RES), static_cast<MsgCBFunc>(&XGetDirClient::newDirRes));
     regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_DELETE_FILE_RES),
           static_cast<MsgCBFunc>(&XGetDirClient::deleteFileRes));
+    regCB(static_cast<xmsg::MsgType>(xdisk::XFMT_GET_DISK_INFO_RES),
+          static_cast<MsgCBFunc>(&XGetDirClient::getDiskInfoRes));
 }

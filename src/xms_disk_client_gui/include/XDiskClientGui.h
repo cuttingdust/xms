@@ -40,6 +40,7 @@ public slots:
     void Root();
     void Back();
     void Delete();
+    void RefreshDiskInfo(xdisk::XDiskInfo info);
 
 protected:
     void mouseMoveEvent(QMouseEvent *e) override;

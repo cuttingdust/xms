@@ -46,6 +46,8 @@ class XPLATFROM_EXPORT XTools
 public:
     static auto GetDirData(const std::string &path) -> std::string;
 
+    static auto GetDirSize(const std::string &path) -> long long;
+
     static auto XMD5_base64(const unsigned char *d, unsigned long n) -> std::string;
 
     static auto XMD5_base64(const unsigned char *d, unsigned long n, char *md) -> char *;
@@ -101,11 +103,14 @@ public:
 
     static auto XGetIconFilename(const std::string &filename, bool is_dir) -> std::string;
 
-    static auto XGetSizeString(long long size) -> std::string;
+    static auto GetSizeString(long long size) -> std::string;
 
     static auto NewDir(const std::string &path) -> void;
 
     static auto DelFile(const std::string &path) -> void;
+
+    static auto GetDiskSize(const char *dir, unsigned long long *avail, unsigned long long *total,
+                            unsigned long long *free) -> bool;
 
 public:
     /// \brief

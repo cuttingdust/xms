@@ -46,6 +46,9 @@ XDiskClientGui::XDiskClientGui(XFileManager *xfm, QWidget *parent) : QWidget(par
     connect(xfm, SIGNAL(RefreshData(xdisk::XFileInfoList, std::string)), this,
             SLOT(RefreshData(xdisk::XFileInfoList, std::string)));
 
+    qRegisterMetaType<xdisk::XDiskInfo>("xdisk::XDiskInfo");
+    connect(xfm, SIGNAL(RefreshDiskInfo(xdisk::XDiskInfo)), this, SLOT(RefreshDiskInfo(xdisk::XDiskInfo)));
+
     auto tab = ui->filetableWidget;
     tab->setColumnWidth(0, 40);
     tab->setColumnWidth(1, 300);
@@ -55,9 +58,7 @@ XDiskClientGui::XDiskClientGui(XFileManager *xfm, QWidget *parent) : QWidget(par
     this->Refresh();
 }
 
-XDiskClientGui::~XDiskClientGui()
-{
-}
+XDiskClientGui::~XDiskClientGui() = default;
 
 void XDiskClientGui::Refresh()
 {
@@ -71,6 +72,8 @@ void XDiskClientGui::Refresh()
 
 void XDiskClientGui::RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir)
 {
+    ui->username_label->setText(impl_->xfm_->getLogin().username().c_str());
+
     QString view_dir = "";
     QString dir_str  = QString::fromStdString(cur_dir);
     auto    dir_list = dir_str.split("/");
@@ -120,7 +123,7 @@ void XDiskClientGui::RefreshData(xdisk::XFileInfoList file_list, std::string cur
         if (!file.is_dir())
         {
             /// 大小
-            tab->setItem(0, 3, new QTableWidgetItem(XTools::XGetSizeString(file.filesize()).c_str()));
+            tab->setItem(0, 3, new QTableWidgetItem(XTools::GetSizeString(file.filesize()).c_str()));
         }
     }
     impl_->remote_dir_ = cur_dir;
@@ -251,6 +254,17 @@ void XDiskClientGui::Delete()
     file.set_filename(filename);
     file.set_filedir(impl_->remote_dir_);
     impl_->xfm_->deleteFile(file);
+}
+
+void XDiskClientGui::RefreshDiskInfo(xdisk::XDiskInfo info)
+{
+    ///  121MB/10GB
+    std::string size_str = XTools::GetSizeString(info.dir_size());
+    size_str += "/";
+    size_str += XTools::GetSizeString(info.total());
+    ui->disk_info_text->setText(size_str.c_str());
+    ui->disk_info_bar->setMaximum(info.total());
+    ui->disk_info_bar->setValue(info.dir_size());
 }
 
 void XDiskClientGui::mouseMoveEvent(QMouseEvent *e)

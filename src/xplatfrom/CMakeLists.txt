@@ -38,7 +38,7 @@ set(PROTOC_EXPORT_CLASS
     XFileInfo
     XFileInfoList
     XGetDirReq
-
+    XDiskInfo
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

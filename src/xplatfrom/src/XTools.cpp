@@ -163,6 +163,28 @@ auto XTools::GetDirData(const std::string &path) -> std::string
     return data;
 }
 
+auto XTools::GetDirSize(const std::string &path) -> long long
+{
+    long long totalSize = 0;
+
+    fs::path dirPath(path);
+    if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
+    {
+        LOGERROR("路径不存在或不是一个目录: " + path);
+        return totalSize;
+    }
+
+    for (const auto &entry : fs::recursive_directory_iterator(dirPath))
+    {
+        if (std::filesystem::is_regular_file(entry))
+        {
+            totalSize += fs::file_size(entry);
+        }
+    }
+
+    return totalSize;
+}
+
 auto XTools::XMD5_base64(const unsigned char *d, unsigned long n) -> std::string
 {
     unsigned char buf[16] = { 0 };
@@ -282,7 +304,7 @@ auto XTools::XGetIconFilename(const std::string &filename, bool is_dir) -> std::
     return iconpath;
 }
 
-auto XTools::XGetSizeString(long long size) -> std::string
+auto XTools::GetSizeString(long long size) -> std::string
 {
     std::string filesize_str = "";
     if (size > 1024 * 1024 * 1024) /// GB
@@ -393,6 +415,37 @@ auto XTools::DelFile(const std::string &path) -> void
     {
         LOGERROR("其他错误: " + std::string(e.what()));
     }
+}
+
+auto XTools::GetDiskSize(const char *dir, unsigned long long *avail, unsigned long long *total,
+                         unsigned long long *free) -> bool
+{
+    fs::path path(dir);
+
+    if (!fs::exists(path) || !fs::is_directory(path))
+    {
+        return false;
+    }
+
+    /// 获取磁盘空间信息
+    auto space_info = fs::space(path);
+
+    /// 解引用指针并设置可用、总和空闲空间的值
+    if (avail)
+    {
+        *avail = space_info.available; /// 可用空间
+    }
+
+    if (total)
+    {
+        *total = space_info.capacity; /// 总空间
+    }
+
+    if (free)
+    {
+        *free = space_info.free; /// 空闲空
+    }
+    return true;
 }
 
 auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
