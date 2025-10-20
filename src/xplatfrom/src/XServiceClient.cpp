@@ -107,3 +107,8 @@ auto XServiceClient::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Messa
 {
     return XMsgEvent::sendMsg(head, msg);
 }
+
+auto XServiceClient::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
+{
+    return XMsgEvent::sendMsg(head, msg);
+}

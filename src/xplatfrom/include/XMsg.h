@@ -42,7 +42,8 @@
 #define DIR_PORT 20300
 #define DIR_NAME "dir"
 
-#define MAX_MSG_SIZE 8192 /// 头部消息的最大字节数
+// #define MAX_MSG_SIZE 8192 ///< 头部消息的最大字节数
+#define MAX_MSG_SIZE 100000000 ///< 一个包最大100M
 
 /// 所有的函数做内联
 class XMsg

@@ -33,6 +33,8 @@ public:
 
     auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool override;
 
+    auto sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool override;
+
 public:
     /// \brief 将任务加入到线程池中，进行连接
     virtual auto startConnect() -> void;

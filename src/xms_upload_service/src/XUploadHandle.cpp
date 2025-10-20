@@ -84,8 +84,19 @@ auto XUploadHandle::uploadFileReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 
 auto XUploadHandle::sendSliceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
+    xmsg::XMessageRes res;
+    head->set_msgtype(static_cast<xmsg::MsgType>(xdisk::XFMT_SEND_SLICE_RES));
+    impl_->ofs_.write(msg->data, msg->size);
+
+    res.set_return_(xmsg::XMessageRes::XR_OK);
+    res.set_msg("OK");
+    sendMsg(head, &res);
 }
 
 auto XUploadHandle::uploadFileEndReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
+    xmsg::XMessageRes res;
+    impl_->ofs_.close();
+
+    head->set_msgtype(static_cast<xmsg::MsgType>(xdisk::XFMT_UPLOAD_FILE_END_RES));
 }
