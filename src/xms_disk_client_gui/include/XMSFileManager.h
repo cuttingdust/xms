@@ -33,6 +33,8 @@ public:
 
     auto deleteFile(const xdisk::XFileInfo &file) -> void override;
 
+    auto uploadFile(const xdisk::XFileInfo &file) -> void override;
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;

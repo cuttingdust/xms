@@ -4,7 +4,6 @@
 
 #include <thread>
 #include <XSSL_CTX.h>
-#include <XThreadPool.h>
 
 #define IP   "127.0.0.1"
 #define PORT 20300
@@ -32,7 +31,7 @@ int main(int argc, char *argv[])
     client.setSSLContent(&ctx);
     client.startConnect();
 
-    XThreadPool::wait();
+    XMySSLService::wait();
 
     return 0;
 }

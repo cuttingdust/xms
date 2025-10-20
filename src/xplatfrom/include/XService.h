@@ -38,7 +38,10 @@ public:
     /// \return
     auto start() -> bool;
 
+    static auto wait() -> void;
+
     auto setSSLContent(XSSL_CTX *ctx) -> void;
+
     auto getSSLContent() const -> XSSL_CTX *;
 
 private:

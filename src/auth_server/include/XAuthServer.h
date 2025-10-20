@@ -21,8 +21,6 @@ public:
 
 public:
     auto createHandle() -> XServiceHandle * override;
-
-    static auto wait() -> void;
 };
 
 

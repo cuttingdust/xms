@@ -47,7 +47,8 @@ public:
     /// \param service_name  微服务名称
     /// \param port          微服务接口
     /// \param ip            微服务IP 如果传递NULL，则采用客户端连接地址
-    auto registerServer(const char *service_name, int port, const char *ip) -> void;
+    /// \param is_find       是否可以为外网发现
+    auto registerServer(const char *service_name, int port, const char *ip, bool is_find = false) -> void;
 
     /// \brief 接收服务的注册响应
     /// \param head

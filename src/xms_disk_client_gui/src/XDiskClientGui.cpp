@@ -5,6 +5,8 @@
 #include "XFileManager.h"
 #include "XTools.h"
 
+#include <QFileDialog>
+
 
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QMenu>
@@ -180,6 +182,33 @@ void XDiskClientGui::NewDir()
     }
 
     impl_->xfm_->newDir(impl_->remote_dir_ + "/" + dir);
+}
+
+void XDiskClientGui::Upload()
+{
+    /// 用户选择一个文件
+    QString filepath = QFileDialog::getOpenFileName(this, "请选择上传文件");
+    if (filepath.isEmpty())
+    {
+        return;
+    }
+
+    qDebug() << "filepath:" << filepath << Qt::endl;
+
+    QFileInfo fileinfo;
+    fileinfo = QFileInfo(filepath);
+    qDebug() << fileinfo.filePath() << Qt::endl;
+    qDebug() << fileinfo.fileName() << Qt::endl;
+    qDebug() << fileinfo.canonicalFilePath() << Qt::endl;
+    qDebug() << fileinfo.absoluteFilePath() << Qt::endl;
+    std::string      file_real_path = filepath.toStdString();
+    std::string      filename       = fileinfo.fileName().toStdString();
+    std::string      filedir        = file_real_path.substr(0, file_real_path.size() - filename.size());
+    xdisk::XFileInfo task;
+    task.set_filename(filename);
+    task.set_filedir(impl_->remote_dir_);
+    task.set_local_path(file_real_path);
+    impl_->xfm_->uploadFile(task);
 }
 
 void XDiskClientGui::DoubleClicked(int row, int col)

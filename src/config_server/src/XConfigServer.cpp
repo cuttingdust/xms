@@ -45,8 +45,3 @@ XServiceHandle *XConfigServer::createHandle()
 {
     return new XConfigHandle();
 }
-
-void XConfigServer::wait()
-{
-    XThreadPool::wait();
-}

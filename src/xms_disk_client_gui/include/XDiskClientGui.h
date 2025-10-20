@@ -35,6 +35,7 @@ public slots:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
     void Checkall();
     void NewDir();
+    void Upload();
 
     void DoubleClicked(int row, int col);
     void Root();

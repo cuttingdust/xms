@@ -15,7 +15,9 @@
 #include <XServiceClient.h>
 
 typedef void (*ConfigResCBFunc)(bool is_ok, const char *msg);
+typedef void (*GetConfigResCBFunc)(xmsg::XConfig);
 typedef void (*ConfigTimerCBFunc)();
+
 
 #define ConfigClient XConfigClient::get()
 class XPLATFROM_EXPORT XConfigClient : public XServiceClient
@@ -68,8 +70,6 @@ public:
 
     static auto regMsgCallback() -> void;
 
-    auto wait() -> void;
-
     /// \brief 连接配置中心，开始定时器获取配置
     /// \param server_ip
     /// \param server_port
@@ -106,7 +106,7 @@ public:
     /// \param page_count
     /// \param timeout_sec
     /// \return
-    xmsg::XConfigList getAllConfig(int page, int page_count, int timeout_sec);
+    auto getAllConfig(int page, int page_count, int timeout_sec) -> xmsg::XConfigList;
 
     /// \brief 发出删除配置请求
     /// \param ip
@@ -115,8 +115,13 @@ public:
 
     auto deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-public:
-    ConfigResCBFunc sendConfigResCB = nullptr;
+    /// \brief 设置发送配置后的回调
+    /// \param callBack
+    auto setSendConfigCallBack(const ConfigResCBFunc &callBack) -> void;
+
+    /// \brief 设置导入配置后的回调
+    /// \param callBack
+    auto setLoadConfigCallBack(const GetConfigResCBFunc &callBack) -> void;
 
 private:
     class PImpl;

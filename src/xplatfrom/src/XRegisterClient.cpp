@@ -57,7 +57,7 @@ auto XRegisterClient::timerCB() -> void
     sendMsg(xmsg::MT_HEART_REQ, &req);
 }
 
-auto XRegisterClient::registerServer(const char *service_name, int port, const char *ip) -> void
+auto XRegisterClient::registerServer(const char *service_name, int port, const char *ip, bool is_find) -> void
 {
     regMsgCallback();
     /// 发送消息到服务器

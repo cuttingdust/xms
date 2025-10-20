@@ -50,11 +50,13 @@ public:
     ~PImpl() = default;
 
 public:
-    XConfigClient                              *owenr_         = nullptr;
-    google::protobuf::compiler::Importer       *importer_      = nullptr; /// 动态解析proto文件
-    google::protobuf::compiler::DiskSourceTree *source_tree_   = nullptr; /// 解析文件的管理对象
-    google::protobuf::Message                  *message_       = nullptr; /// 根据proto文件动态创建的的message
-    ConfigTimerCBFunc                           configTimerCB_ = nullptr;
+    XConfigClient                              *owenr_           = nullptr;
+    google::protobuf::compiler::Importer       *importer_        = nullptr; ///< 动态解析proto文件
+    google::protobuf::compiler::DiskSourceTree *source_tree_     = nullptr; ///< 解析文件的管理对象
+    google::protobuf::Message                  *message_         = nullptr; ///< 根据proto文件动态创建的的message
+    ConfigTimerCBFunc                           configTimerCB_   = nullptr;
+    ConfigResCBFunc                             sendConfigResCB_ = nullptr; ///< 发送配置后的回调
+    GetConfigResCBFunc                          loadConfigResCB  = nullptr; ///< 加载配置后的回调
 };
 
 XConfigClient::PImpl::PImpl(XConfigClient *owenr) : owenr_(owenr)
@@ -98,22 +100,29 @@ auto XConfigClient::sendConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     if (!res.ParseFromArray(msg->data, msg->size))
     {
         LOGDEBUG("ParseFromArray failed!");
-        if (sendConfigResCB)
-            sendConfigResCB(false, "ParseFromArray failed!");
+        if (impl_->sendConfigResCB_)
+        {
+            impl_->sendConfigResCB_(false, "ParseFromArray failed!");
+        }
+
         return;
     }
     if (res.return_() == xmsg::XMessageRes::XR_OK)
     {
         LOGDEBUG("上传配置成功!");
-        if (sendConfigResCB)
-            sendConfigResCB(true, "上传配置成功!");
+        if (impl_->sendConfigResCB_)
+        {
+            impl_->sendConfigResCB_(true, "上传配置成功!");
+        }
         return;
     }
     std::stringstream ss;
     ss << "上传配置失败:" << res.msg();
-    if (sendConfigResCB)
-        sendConfigResCB(false, ss.str().c_str());
-    LOGDEBUG(ss.str());
+    if (impl_->sendConfigResCB_)
+    {
+        impl_->sendConfigResCB_(false, ss.str().c_str());
+        LOGDEBUG(ss.str());
+    }
 }
 
 auto XConfigClient::loadConfig(const char *ip, int port) -> void
@@ -126,8 +135,14 @@ auto XConfigClient::loadConfig(const char *ip, int port) -> void
     }
     xmsg::XLoadConfigReq req;
     if (ip) /// IP如果为NULL 则取连接配置中心的地址
+    {
         req.set_service_ip(ip);
-    req.set_service_port(port);
+    }
+    if (port > 0)
+    {
+        req.set_service_port(port);
+    }
+
     /// 发送消息到服务端
     sendMsg(xmsg::MT_LOAD_CONFIG_REQ, &req);
 }
@@ -142,6 +157,12 @@ auto XConfigClient::loadConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
         return;
     }
     LOGDEBUG(conf.DebugString());
+
+    if (impl_->loadConfigResCB)
+    {
+        impl_->loadConfigResCB(conf);
+    }
+
 
     /// key ip_port
     std::stringstream key;
@@ -216,6 +237,7 @@ auto XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf,
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
             continue;
         }
+
         /// 复制配置
         out_conf->CopyFrom(conf->second);
         return true;
@@ -248,12 +270,7 @@ auto XConfigClient::getConfig(const char *ip, int port, xmsg::XConfig *out_conf,
 auto XConfigClient::loadProto(const std::string &file_name, const std::string &class_name, std::string &out_proto_code)
         -> google::protobuf::Message *
 {
-    if (impl_->importer_)
-    {
-        delete impl_->importer_;
-        impl_->importer_ = nullptr;
-    }
-
+    delete impl_->importer_;
     impl_->importer_ = new google::protobuf::compiler::Importer(impl_->source_tree_, &config_error);
     if (!impl_->importer_)
     {
@@ -366,7 +383,10 @@ auto XConfigClient::loadProto(const std::string &file_name, const std::string &c
         }
         /// 如果是枚举类型
         if (enum_desc.contains(field->enum_type()->name())) /// 已经添加过的类型
+        {
             continue;
+        }
+
         out_proto_code += field->enum_type()->DebugString() + "\n";
         enum_desc[field->enum_type()->name()] = field->enum_type();
     }
@@ -384,11 +404,6 @@ auto XConfigClient::regMsgCallback() -> void
     regCB(xmsg::MT_LOAD_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadConfigRes));
     regCB(xmsg::MT_LOAD_ALL_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::loadAllConfigRes));
     regCB(xmsg::MT_DEL_CONFIG_RES, static_cast<MsgCBFunc>(&XConfigClient::deleteConfigRes));
-}
-
-auto XConfigClient::wait() -> void
-{
-    XThreadPool::wait();
 }
 
 auto XConfigClient::startGetConf(const char *server_ip, int server_port, const char *local_ip, int local_port,
@@ -461,7 +476,10 @@ bool XConfigClient::startGetConf(const char *local_ip, int local_port, google::p
     else
     {
         if (conf_message)
+        {
             cur_service_conf->ParseFromIstream(&ifs);
+        }
+
         ifs.close();
     }
 
@@ -492,7 +510,10 @@ auto XConfigClient::GetInt(const char *key) -> int
 {
     XMutex mux(&cur_service_conf_mutex);
     if (!cur_service_conf)
+    {
         return 0;
+    }
+
     auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
     if (!field)
     {
@@ -508,6 +529,10 @@ auto XConfigClient::GetBool(const char *key) -> bool
     {
         return false;
     }
+
+    std::cout << "begin *****************************************" << std::endl;
+    std::cout << cur_service_conf->DebugString() << std::endl;
+    std::cout << "end *****************************************" << std::endl;
 
     /// 获取字段
     auto field = cur_service_conf->GetDescriptor()->FindFieldByName(key);
@@ -543,14 +568,14 @@ auto XConfigClient::setCurServiceMessage(google::protobuf::Message *message) -> 
 
 auto XConfigClient::loadAllConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
-    LOGDEBUG("Response to get config list.");
+    LOGDEBUG("响应获取配置列表 ");
     XMutex mux(&all_config_mutex);
     if (!all_config)
         all_config = new xmsg::XConfigList();
     all_config->ParseFromArray(msg->data, msg->size);
 }
 
-xmsg::XConfigList XConfigClient::getAllConfig(int page, int page_count, int timeout_sec)
+auto XConfigClient::getAllConfig(int page, int page_count, int timeout_sec) -> xmsg::XConfigList
 {
     ///清理历史数据
     {
@@ -601,7 +626,7 @@ auto XConfigClient::deleteConfig(const char *ip, int port) -> void
     req.set_service_port(port);
     /// 发送消息到服务端
     sendMsg(xmsg::MT_DEL_CONFIG_REQ, &req);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 auto XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
@@ -619,4 +644,14 @@ auto XConfigClient::deleteConfigRes(xmsg::XMsgHead *head, XMsg *msg) -> void
         return;
     }
     LOGDEBUG("删除配置失败!");
+}
+
+auto XConfigClient::setSendConfigCallBack(const ConfigResCBFunc &callBack) -> void
+{
+    impl_->sendConfigResCB_ = callBack;
+}
+
+auto XConfigClient::setLoadConfigCallBack(const GetConfigResCBFunc &callBack) -> void
+{
+    impl_->loadConfigResCB = callBack;
 }

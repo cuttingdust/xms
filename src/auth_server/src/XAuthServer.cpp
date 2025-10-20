@@ -13,8 +13,3 @@ auto XAuthServer::createHandle() -> XServiceHandle *
 {
     return new XAuthHandle;
 }
-
-auto XAuthServer::wait() -> void
-{
-    XThreadPool::wait();
-}

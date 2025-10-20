@@ -1,9 +1,7 @@
 ﻿#include "XDirHandle.h"
 #include "XDirService.h"
 
-
 #include <XTools.h>
-#include <XThreadPool.h>
 #include <XRegisterClient.h>
 
 int main(int argc, char *argv[])
@@ -18,6 +16,6 @@ int main(int argc, char *argv[])
     XDirService xdir;
     xdir.setServerPort(DIR_PORT);
     xdir.start();
-    XThreadPool::wait();
+    xdir.wait();
     return 0;
 }

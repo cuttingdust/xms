@@ -70,6 +70,10 @@ public:
     /// \param file
     virtual auto deleteFile(const xdisk::XFileInfo& file) -> void = 0;
 
+    /// \brief 开始上传文件
+    /// \param file
+    virtual auto uploadFile(const xdisk::XFileInfo& file) -> void = 0;
+
 signals:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
 

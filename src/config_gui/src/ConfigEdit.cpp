@@ -47,8 +47,8 @@ ConfigEdit::ConfigEdit(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)
     impl_ = std::make_unique<PImpl>(this);
 
     connect(this, &ConfigEdit::signalMessageCB, this, &ConfigEdit::slotMessageCB);
-    XConfigClient::get()->sendConfigResCB = ConfigMessageCB;
-    impl_->config_row_count_              = ui->formLayout->rowCount();
+    XConfigClient::get()->setSendConfigCallBack(ConfigMessageCB);
+    impl_->config_row_count_ = ui->formLayout->rowCount();
     // impl_->config_                        = new xmsg::XConfig();
 }
 

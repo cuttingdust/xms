@@ -1,5 +1,4 @@
 ﻿#include "XAuthClient.h"
-#include "XThreadPool.h"
 
 #include <thread>
 #include <iostream>
@@ -24,7 +23,7 @@ int main(int argc, char *argv[])
     client.addUserReq(&adduser);
 
     client.loginReq("guest", "12345678");
-    XThreadPool::wait();
+    client.wait();
 
     return 0;
 }

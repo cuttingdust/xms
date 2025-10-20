@@ -4,8 +4,6 @@
 
 #include <XTools.h>
 #include <XRegisterClient.h>
-#include <XThreadPool.h>
-#include <XMsgCom.pb.h>
 
 #include <iostream>
 
@@ -97,6 +95,6 @@ int main(int argc, char *argv[])
     XRouteServer service;
     service.setServerPort(server_port);
     service.start();
-    XThreadPool::wait();
+    service.wait();
     return 0;
 }

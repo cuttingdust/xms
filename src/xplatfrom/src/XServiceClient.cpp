@@ -55,6 +55,11 @@ auto XServiceClient::startConnect() -> void
     setAutoDelete(false);
 }
 
+auto XServiceClient::wait() -> void
+{
+    XThreadPool::wait();
+}
+
 auto XServiceClient::setServiceName(const std::string &serviceName) -> void
 {
     impl_->service_name_ = serviceName;

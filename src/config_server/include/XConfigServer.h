@@ -22,7 +22,6 @@ public:
 public:
     void            main(int argc, char *argv[]);
     XServiceHandle *createHandle() override;
-    void            wait();
 };
 
 

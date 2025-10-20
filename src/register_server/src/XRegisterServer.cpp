@@ -15,11 +15,6 @@ auto XRegisterServer::main(int argc, char *argv[]) -> void
     this->setServerPort(port);
 }
 
-auto XRegisterServer::wait() -> void
-{
-    XThreadPool::wait();
-}
-
 auto XRegisterServer::createHandle() -> XServiceHandle *
 {
     auto handle = new XRegisterHandle();

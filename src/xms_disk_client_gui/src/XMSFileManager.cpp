@@ -2,6 +2,7 @@
 
 #include "XDiskCom.pb.h"
 #include "XGetDirClient.h"
+#include "XUploadClient.h"
 
 #include <thread>
 
@@ -33,7 +34,7 @@ auto XMSFileManager::initFileManager(std::string server_ip, int server_port) -> 
 {
     auto login = getLogin();
     XGetDirClient::regMsgCallback();
-
+    XUploadClient::regMsgCallback();
 
 #ifdef GATE_WAY_FORWARD
     XGetDirClient::get()->setServerIP(server_ip.c_str());
@@ -68,4 +69,27 @@ auto XMSFileManager::newDir(const std::string &path) -> void
 auto XMSFileManager::deleteFile(const xdisk::XFileInfo &file) -> void
 {
     XGetDirClient::get()->deleteFileReq(file);
+}
+
+auto XMSFileManager::uploadFile(const xdisk::XFileInfo &file) -> void
+{
+    auto ip   = "127.0.0.1";
+    auto port = UPLOAD_PORT;
+
+    auto login  = getLogin();
+    auto client = new XUploadClient();
+    /// 不用自动重连，失败就关闭重新开始
+    client->setAutoConnect(false);
+    client->setAutoDelete(false);
+    client->setServerIP(ip);
+    client->setServerPort(port);
+    client->setLogin(&login);
+    if (!client->setFile(file))
+    {
+        std::cout << "client->LoadFile failed!" << std::endl;
+        /// 返回一个错误消息
+        delete client;
+        return;
+    }
+    client->startConnect();
 }

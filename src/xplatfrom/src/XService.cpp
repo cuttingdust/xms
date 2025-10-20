@@ -125,6 +125,11 @@ auto XService::start() -> bool
     return true;
 }
 
+auto XService::wait() -> void
+{
+    XThreadPool::wait();
+}
+
 auto XService::setSSLContent(XSSL_CTX *ctx) -> void
 {
     impl_->ssl_ctx_ = ctx;

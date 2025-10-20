@@ -1,6 +1,5 @@
 ﻿#include <XRegisterClient.h>
 
-#include <XThreadPool.h>
 #include <XTools.h>
 
 #include <iostream>
@@ -40,6 +39,6 @@ int main(int argc, char *argv[])
     }
 
 
-    XThreadPool::wait();
+    XRegisterClient::get()->wait();
     return 0;
 }

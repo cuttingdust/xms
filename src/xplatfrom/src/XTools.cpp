@@ -516,6 +516,7 @@ auto XTools::XGetPortByName(const std::string &host_name) -> int
     static const std::unordered_map<std::string, int> port_map = { { API_GATEWAY_NAME, API_GATEWAY_PORT },
                                                                    { API_GATEWAY_SERVER_NAME, API_GATEWAY_PORT },
                                                                    { REGISTER_NAME, REGISTER_PORT },
+                                                                   { REGISTER_SERVER_NAME, REGISTER_PORT },
                                                                    { CONFIG_NAME, CONFIG_PORT },
                                                                    { AUTH_NAME, AUTH_PORT },
                                                                    { XLOG_NAME, XLOG_PORT },
