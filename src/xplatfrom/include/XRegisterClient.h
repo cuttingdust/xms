@@ -73,7 +73,7 @@ public:
     /// \param service_name 服务名称
     /// \param timeout_sec 超时时间
     /// \return 服务列表
-    auto getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList;
+    auto getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceList;
 
     auto regMsgCallback() -> void;
 

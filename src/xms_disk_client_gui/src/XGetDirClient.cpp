@@ -1,8 +1,10 @@
 ﻿#include "XGetDirClient.h"
 
-#include "XDiskCom.pb.h"
-
 #include "XFileManager.h"
+
+#include <XTools.h>
+#include <XDiskCom.pb.h>
+
 
 class XGetDirClient::PImpl
 {
@@ -18,6 +20,7 @@ public:
 XGetDirClient::PImpl::PImpl(XGetDirClient *owenr) : owenr_(owenr)
 {
     owenr_->setServiceName(DIR_NAME);
+    owenr_->setTimeMs(3000);
 }
 
 auto XGetDirClient::get() -> XGetDirClient *
@@ -32,6 +35,11 @@ XGetDirClient::XGetDirClient()
 }
 
 XGetDirClient::~XGetDirClient() = default;
+
+auto XGetDirClient::timerCB() -> void
+{
+    //getService();
+}
 
 auto XGetDirClient::getDirReq(xdisk::XGetDirReq req) -> void
 {
@@ -56,6 +64,10 @@ auto XGetDirClient::getDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     std::cout << file_list.DebugString();
     XFileManager::Instance()->RefreshData(file_list, impl_->cur_dir_);
 
+    /// 获取上传下载服务器列表
+    getService();
+
+    /// 刷新磁盘空间使用情况
     getDiskInfoReq();
 }
 
@@ -68,6 +80,7 @@ auto XGetDirClient::newDirReq(std::string path) -> void
 
 auto XGetDirClient::newDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
+    std::cout << "NewDirRes" << std::endl;
     xdisk::XGetDirReq req;
     req.set_root(impl_->cur_dir_);
 
@@ -81,9 +94,50 @@ auto XGetDirClient::deleteFileReq(const xdisk::XFileInfo &file) -> void
 
 auto XGetDirClient::deleteFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
+    std::cout << "DeleteFileRes" << std::endl;
     xdisk::XGetDirReq req;
     req.set_root(impl_->cur_dir_);
+    /// 删除成功
     getDirReq(req);
+}
+
+/// 定时获取 获取上传和下载的服务器列表
+auto XGetDirClient::getService() -> void
+{
+    xmsg::XMsgHead head;
+    head.set_msgtype(xmsg::MT_GET_OUT_SERVICE_REQ);
+    //SetHead(&head);
+
+    xmsg::XGetServiceReq req;
+    req.set_name(UPLOAD_NAME);
+    head.set_servername(req.name());
+    LOGINFO(head.DebugString());
+    sendMsg(&head, &req);
+
+    req.set_name(DOWNLOAD_NAME);
+    head.set_servername(req.name());
+    sendMsg(&head, &req);
+}
+
+
+auto XGetDirClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg) -> void
+{
+    xmsg::XServiceList res;
+    if (!res.ParseFromArray(msg->data, msg->size))
+    {
+        LOGINFO("XGetDirClient::GetServiceRes failed! ParseFromArray error");
+        return;
+    }
+    // std::cout << res.DebugString();
+
+    if (res.name() == UPLOAD_NAME)
+    {
+        XFileManager::Instance()->set_upload_servers(res);
+    }
+    else
+    {
+        XFileManager::Instance()->set_download_servers(res);
+    }
 }
 
 auto XGetDirClient::getDiskInfoReq() -> void
@@ -101,6 +155,7 @@ auto XGetDirClient::getDiskInfoRes(xmsg::XMsgHead *head, XMsg *msg) -> void
         std::cout << "XGetDirClient::GetDiskInfoRes failed!" << std::endl;
         return;
     }
+    std::cout << res.DebugString();
     XFileManager::Instance()->RefreshDiskInfo(res);
 }
 

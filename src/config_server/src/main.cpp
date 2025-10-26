@@ -10,7 +10,7 @@
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "zh_CN.UTF-8");
-    std::cout << "Config Server" << std::endl;
+    std::cout << "================Config Server================" << std::endl;
 
     if (ConfigDao::get()->init("localhost", "root", "System123@", "xms", 3306))
     {

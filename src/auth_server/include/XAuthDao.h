@@ -15,6 +15,8 @@
 
 namespace xmsg
 {
+    class XMsgHead;
+    class XChangePasswordReq;
     class XLoginReq;
     class XLoginRes;
     class XAddUserReq;
@@ -44,6 +46,17 @@ public:
     /// \param timeout_sec
     /// \return
     auto login(const xmsg::XLoginReq *user_req, xmsg::XLoginRes *user_res, int timeout_sec) -> bool;
+
+    /// \brief 接收修改密码消息
+    /// \param pass
+    /// \return
+    auto changePassword(const xmsg::XChangePasswordReq *pass) -> bool;
+
+    /// \brief 检查token
+    /// \param head
+    /// \param user_res
+    /// \return
+    auto checkToken(const xmsg::XMsgHead *head, xmsg::XLoginRes *user_res) -> bool;
 
 private:
     XAuthDao();

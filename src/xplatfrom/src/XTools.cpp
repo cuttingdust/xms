@@ -8,6 +8,8 @@
 #include <openssl/bio.h>
 #include <openssl/buffer.h>
 #include <openssl/evp.h>
+#include <openssl/aes.h>
+#include <openssl/sha.h>
 
 #include <filesystem>
 #include <iostream>
@@ -304,47 +306,56 @@ auto XTools::XGetIconFilename(const std::string &filename, bool is_dir) -> std::
     return iconpath;
 }
 
-auto XTools::GetSizeString(long long size) -> std::string
+auto XTools::XGetSizeString(long long size) -> std::string
 {
     std::string filesize_str = "";
     if (size > 1024 * 1024 * 1024) /// GB
     {
-        double    gb_size = (double)size / (double)(1024 * 1024 * 1024);
+        double    gb_size = static_cast<double>(size) / static_cast<double>(1024 * 1024 * 1024);
         long long tmp     = gb_size * 100;
 
         std::stringstream ss;
         ss << tmp / 100;
         if (tmp % 100 > 0)
+        {
             ss << "." << tmp % 100;
+        }
+
         ss << "GB";
         filesize_str = ss.str();
     }
     else if (size > 1024 * 1024) /// MB
     {
-        double    gb_size = (double)size / (double)(1024 * 1024);
+        double    gb_size = static_cast<double>(size) / static_cast<double>(1024 * 1024);
         long long tmp     = gb_size * 100;
 
         std::stringstream ss;
         ss << tmp / 100;
         if (tmp % 100 > 0)
+        {
             ss << "." << tmp % 100;
+        }
+
         ss << "MB";
         filesize_str = ss.str();
     }
     else if (size > 1024) /// KB
     {
-        float             gb_size = (float)size / (float)(1024);
+        float             gb_size = static_cast<float>(size) / static_cast<float>(1024);
         long long         tmp     = gb_size * 100;
         std::stringstream ss;
         ss << tmp / 100;
         if (tmp % 100 > 0)
+        {
             ss << "." << tmp % 100;
+        }
+
         ss << "KB";
         filesize_str = ss.str();
     }
     else //B
     {
-        float     gb_size = size / (float)(1024);
+        float     gb_size = size / static_cast<float>(1024);
         long long tmp     = gb_size * 100;
 
         std::stringstream ss;
@@ -453,8 +464,11 @@ auto XTools::XGetTime(int timestamp, std::string fmt) -> std::string
     char   time_buf[128] = { 0 };
     time_t tm            = timestamp;
     if (timestamp <= 0)
+    {
         tm = time(0);
-    strftime(time_buf, sizeof(time_buf), fmt.c_str(), gmtime(&tm));
+    }
+
+    ::strftime(time_buf, sizeof(time_buf), fmt.c_str(), ::gmtime(&tm));
     return time_buf;
 }
 
@@ -503,10 +517,13 @@ auto XTools::XGetHostByName(const std::string &host_name) -> std::string
         }
     }
 #endif
-    auto host = ::gethostbyname(host_name.c_str());
-    auto addr = host->h_addr_list;
+    auto       host = ::gethostbyname(host_name.c_str());
+    const auto addr = host->h_addr_list;
     if (!addr)
+    {
         return "";
+    }
+
     /// 只取第一个
     return ::inet_ntoa(*reinterpret_cast<in_addr *>(*addr));
 }
@@ -516,7 +533,7 @@ auto XTools::XGetPortByName(const std::string &host_name) -> int
     static const std::unordered_map<std::string, int> port_map = { { API_GATEWAY_NAME, API_GATEWAY_PORT },
                                                                    { API_GATEWAY_SERVER_NAME, API_GATEWAY_PORT },
                                                                    { REGISTER_NAME, REGISTER_PORT },
-                                                                   { REGISTER_SERVER_NAME, REGISTER_PORT },
+                                                                   { API_REGISTER_SERVER_NAME, REGISTER_PORT },
                                                                    { CONFIG_NAME, CONFIG_PORT },
                                                                    { AUTH_NAME, AUTH_PORT },
                                                                    { XLOG_NAME, XLOG_PORT },
@@ -552,13 +569,223 @@ auto XTools::PrintMsg(xmsg::XMsgHead *head, XMsg *msg)
     }
 }
 
+//////////////////////////////////////////////////////////////////
+
+bool       XMutex::is_debug = false;
+static int mutex_index      = 0;
+static int lock_count       = 0;
+static int unlock_count     = 0;
+
 XMutex::XMutex(std::mutex *mux)
 {
     mux_ = mux;
-    mux_->lock();
+    mux->lock();
+    mutex_index++;
+    lock_count++;
+    this->index_ = mutex_index;
+    if (is_debug)
+    {
+        std::cout << index_ << "|" << msg_ << ":Lock" << "L/U(" << lock_count << "/" << unlock_count << ")"
+                  << std::endl;
+    }
+}
+
+XMutex::XMutex(std::mutex *mux, const std::string &msg)
+{
+    mux_ = mux;
+    msg_ = msg;
+    mux->lock();
+    mutex_index++;
+    lock_count++;
+    this->index_ = mutex_index;
+    if (is_debug)
+    {
+        std::cout << index_ << "|" << msg_ << ":Lock" << "L/U(" << lock_count << "/" << unlock_count << ")"
+                  << std::endl;
+    }
 }
 
 XMutex::~XMutex()
 {
     mux_->unlock();
+    unlock_count++;
+    if (is_debug)
+    {
+        std::cout << index_ << "|" << msg_ << ":UnLock" << "L/U(" << lock_count << "/" << unlock_count << ")"
+                  << std::endl;
+    }
+}
+
+//////////////////////////////////////////////////////////////////
+/*
+void AES_ecb_encrypt(const unsigned char *in, unsigned char *out, const AES_KEY *key, const int enc)
+{
+    assert(in && out && key);
+    assert((AES_ENCRYPT == enc) || (AES_DECRYPT == enc));
+
+    if (AES_ENCRYPT == enc)
+        AES_encrypt(in, out, key);
+    else
+        AES_decrypt(in, out, key);
+}
+*/
+
+class CXAES : public XAES
+{
+    ///////////////////////////////////////////////////////
+    /// 设置加密秘钥 秘钥长度 128位（16字节） 192位 （24字节） 256位 (32字节)
+    /// 长度不能超过32字节，返回失败
+    /// 秘钥不足自动补充
+    /// @key 秘钥
+    /// @key_size 秘钥长度 字节
+    /// @is_enc true  加密 false 解密
+    /// @return 设置成功失败
+    virtual auto SetKey(const char *key, int key_size, bool is_enc) -> bool override
+    {
+        if (key_size > 32 || key_size <= 0)
+        {
+            std::cerr << "AES key size error(>32 && <=0 )! key_size= " << key_size << std::endl;
+            return false;
+        }
+        unsigned char aes_key[32] = { 0 };
+        memcpy(aes_key, key, key_size);
+        int bit_size = 0;
+        if (key_size > 24)
+        {
+            bit_size = 32 * 8;
+        }
+        else if (key_size > 16)
+        {
+            bit_size = 24 * 8;
+        }
+        else
+        {
+            bit_size = 16 * 8;
+        }
+
+        /*
+            if (bits != 128 && bits != 192 && bits != 256)
+             return -2;
+        */
+        if (is_enc)
+        {
+            is_set_encode = true;
+            if (AES_set_encrypt_key(aes_key, bit_size, &aes_) < 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        is_set_decode = true;
+        if (AES_set_decrypt_key(aes_key, bit_size, &aes_) < 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    virtual void Drop() override
+    {
+        delete this;
+    }
+
+    ///////////////////////////////////////////////////////
+    /// 解密
+    /// @in 输入数据
+    /// @in_size 输入数据大小
+    /// @out 输出 数据空间要保证16字节的倍数
+    /// @return  输出大小，失败返回<=0
+    virtual long long Encrypt(const unsigned char *in, long long in_size, unsigned char *out) override
+    {
+        if (!in || in_size <= 0 || !out)
+        {
+            std::cerr << "Encrypt input data error" << std::endl;
+            return 0;
+        }
+
+        if (!is_set_encode)
+        {
+            std::cerr << "Encrypt password not set" << std::endl;
+            return 0;
+        }
+        long long enc_byte = 0;
+        //AES_encrypt 默认 AES_ecb_encrypt 可分块并行加密  cbc加密强度更大，每段时间与上一段相关
+        /*
+        每次加密一个数据块16个字节，不全的需要补充
+            s0 = GETU32(in     ) ^ rk[0];
+            s1 = GETU32(in +  4) ^ rk[1];
+            s2 = GETU32(in +  8) ^ rk[2];
+            s3 = GETU32(in + 12) ^ rk[3];
+        */
+        unsigned char *p_in     = 0;
+        unsigned char *p_out    = 0;
+        unsigned char  data[16] = { 0 };
+        for (int i = 0; i < in_size; i += 16)
+        {
+            p_in  = const_cast<unsigned char *>(in) + i;
+            p_out = out + i;
+            //处理不足16字节的补全
+            if (in_size - i < 16)
+            {
+                memcpy(data, p_in, in_size - i);
+                p_in = data;
+            }
+            enc_byte += 16;
+            AES_encrypt(p_in, p_out, &aes_);
+        }
+        return enc_byte;
+    }
+
+    ///////////////////////////////////////////////////////
+    /// 解密
+    /// @in 输入数据
+    /// @in_size 输入数据大小
+    /// @out 输出 数据空间要保证16字节的倍数
+    /// @return  输出大小，失败返回<=0
+    virtual long long Decrypt(const unsigned char *in, long long in_size, unsigned char *out) override
+    {
+        if (!in || in_size <= 0 || !out || in_size % 16 != 0)
+        {
+            std::cerr << "Decrypt input data error" << std::endl;
+            return 0;
+        }
+
+        if (!is_set_decode)
+        {
+            std::cerr << "Decrypt password not set" << std::endl;
+            return 0;
+        }
+
+        long long enc_byte = 0;
+        //AES_encrypt 默认 AES_ecb_encrypt 可分块并行加密  cbc加密强度更大，每段时间与上一段相关
+        /*
+        每次加密一个数据块16个字节，不全的需要补充
+            s0 = GETU32(in     ) ^ rk[0];
+            s1 = GETU32(in +  4) ^ rk[1];
+            s2 = GETU32(in +  8) ^ rk[2];
+            s3 = GETU32(in + 12) ^ rk[3];
+        */
+        unsigned char *p_in     = 0;
+        unsigned char *p_out    = 0;
+        unsigned char  data[16] = { 0 };
+        for (int i = 0; i < in_size; i += 16)
+        {
+            p_in  = const_cast<unsigned char *>(in) + i;
+            p_out = out + i;
+            enc_byte += 16;
+            AES_decrypt(p_in, p_out, &aes_);
+        }
+        return enc_byte;
+    }
+
+private:
+    AES_KEY aes_;
+    bool    is_set_decode = false;
+    bool    is_set_encode = false;
+};
+
+
+auto XAES::Create() -> XAES *
+{
+    return new CXAES();
 }

@@ -17,7 +17,9 @@ static ConfigEdit *cur_edit = nullptr;
 static void ConfigMessageCB(bool is_ok, const char *msg)
 {
     if (cur_edit)
+    {
         cur_edit->signalMessageCB(is_ok, msg);
+    }
 }
 
 class ConfigEdit::PImpl
@@ -41,15 +43,14 @@ ConfigEdit::ConfigEdit(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)
 {
     cur_edit = this;
 
-    ui = new Ui::ConfigEdit;
-    ui->setupUi(this);
+    ui_ = new Ui::ConfigEdit;
+    ui_->setupUi(this);
 
     impl_ = std::make_unique<PImpl>(this);
 
     connect(this, &ConfigEdit::signalMessageCB, this, &ConfigEdit::slotMessageCB);
     XConfigClient::get()->setSendConfigCallBack(ConfigMessageCB);
-    impl_->config_row_count_ = ui->formLayout->rowCount();
-    // impl_->config_                        = new xmsg::XConfig();
+    impl_->config_row_count_ = ui_->formLayout->rowCount();
 }
 
 ConfigEdit::~ConfigEdit()
@@ -59,23 +60,30 @@ ConfigEdit::~ConfigEdit()
     impl_->config_ = nullptr;
 }
 
-void ConfigEdit::initGUI()
+auto ConfigEdit::initGUI() -> void
 {
     /// 清理之前的配置项目
-    while (ui->formLayout->rowCount() != impl_->config_row_count_)
-        ui->formLayout->removeRow(impl_->config_row_count_);
+    while (ui_->formLayout->rowCount() != impl_->config_row_count_)
+    {
+        ui_->formLayout->removeRow(impl_->config_row_count_);
+    }
+
+    if (!impl_->message_)
+    {
+        return;
+    }
+    ui_->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
+    LOGDEBUG(impl_->message_->DebugString());
 
     /// 服务配置的基础信息
     if (impl_->config_)
     {
-        ui->service_ipLineEdit->setText(impl_->config_->service_ip().c_str());
-        ui->service_nameLineEdit->setText(impl_->config_->service_name().c_str());
-        ui->service_portSpinBox->setValue(impl_->config_->service_port());
-        ui->proto_textEdit->setText(impl_->config_->proto().c_str());
+        ui_->service_ipLineEdit->setText(impl_->config_->service_ip().c_str());
+        ui_->service_nameLineEdit->setText(impl_->config_->service_name().c_str());
+        ui_->service_portSpinBox->setValue(impl_->config_->service_port());
+        ui_->proto_textEdit->setText(impl_->config_->proto().c_str());
     }
-    if (!impl_->message_)
-        return;
-    ui->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
+
 
     /// 通过反射生成吗message界面，并设定值
     /// 根据message 反射生成配置输入界面
@@ -110,69 +118,86 @@ void ConfigEdit::initGUI()
         {
                 /// 支持整形数字
             case google::protobuf::FieldDescriptor::TYPE_INT64:
-                int_box = new QSpinBox();
-                int_box->setMaximum(INT32_MAX);
-                int_box->setValue(ref->GetInt64(*impl_->message_, field));
-                ui->formLayout->addRow(field->name().c_str(), int_box);
-                break;
+                {
+                    int_box = new QSpinBox;
+                    int_box->setMaximum(INT32_MAX);
+                    int_box->setValue(ref->GetInt64(*impl_->message_, field));
+                    ui_->formLayout->addRow(field->name().c_str(), int_box);
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_INT32:
-                int_box = new QSpinBox();
-                int_box->setMaximum(INT32_MAX);
-                int_box->setValue(ref->GetInt32(*impl_->message_, field));
-                ui->formLayout->addRow(field->name().c_str(), int_box);
-                break;
-                /// 支持浮点数
-            case google::protobuf::FieldDescriptor::TYPE_DOUBLE:
-                double_box = new QDoubleSpinBox();
-                double_box->setMaximum(DBL_MAX);
-                double_box->setMinimum(0.02);
-                double_box->setSingleStep(0.02);
-                double_box->setValue(ref->GetDouble(*impl_->message_, field));
-                ui->formLayout->addRow(field->name().c_str(), double_box);
-                break;
+                {
+                    int_box = new QSpinBox;
+                    int_box->setMaximum(INT32_MAX);
+                    int_box->setValue(ref->GetInt32(*impl_->message_, field));
+                    ui_->formLayout->addRow(field->name().c_str(), int_box);
+                    break;
+                }
+            case google::protobuf::FieldDescriptor::TYPE_DOUBLE: /// 支持浮点数
+                {
+                    double_box = new QDoubleSpinBox;
+                    double_box->setMaximum(DBL_MAX);
+                    double_box->setMinimum(0.02);
+                    double_box->setSingleStep(0.02);
+                    double_box->setValue(ref->GetDouble(*impl_->message_, field));
+                    ui_->formLayout->addRow(field->name().c_str(), double_box);
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_FLOAT:
-                double_box = new QDoubleSpinBox();
-                double_box->setMinimum(0.02);
-                double_box->setMaximum(FLT_MAX);
-                double_box->setSingleStep(0.02);
-                double_box->setValue(ref->GetFloat(*impl_->message_, field));
-                ui->formLayout->addRow(field->name().c_str(), double_box);
-                break;
+                {
+                    double_box = new QDoubleSpinBox;
+                    double_box->setMinimum(0.02);
+                    double_box->setMaximum(FLT_MAX);
+                    double_box->setSingleStep(0.02);
+                    double_box->setValue(ref->GetFloat(*impl_->message_, field));
+                    ui_->formLayout->addRow(field->name().c_str(), double_box);
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_BYTES:
             case google::protobuf::FieldDescriptor::TYPE_STRING:
-                str_edit = new QLineEdit();
-                str_edit->setText(ref->GetString(*impl_->message_, field).c_str());
-                ui->formLayout->addRow(field->name().c_str(), str_edit);
-                break;
-            case google::protobuf::FieldDescriptor::TYPE_BOOL:
-                combo_box = new QComboBox();
-                combo_box->addItem("true", true);
-                combo_box->addItem("false", false);
-                if (ref->GetBool(*impl_->message_, field))
-                    combo_box->setCurrentIndex(0);
-                else
-                    combo_box->setCurrentIndex(1);
-                ui->formLayout->addRow(field->name().c_str(), combo_box);
-                break;
-            case google::protobuf::FieldDescriptor::TYPE_ENUM:
-                combo_box = new QComboBox();
-                for (int j = 0; j < field->enum_type()->value_count(); ++j)
                 {
-                    std::string enum_name = field->enum_type()->value(j)->name();
-                    int         enum_val  = field->enum_type()->value(j)->number();
-                    combo_box->addItem(enum_name.c_str(), enum_val);
+                    str_edit = new QLineEdit;
+                    str_edit->setText(ref->GetString(*impl_->message_, field).c_str());
+                    ui_->formLayout->addRow(field->name().c_str(), str_edit);
+                    break;
                 }
-                ui->formLayout->addRow(field->name().c_str(), combo_box);
-                /// 获取值对应的index
-                combo_box->setCurrentIndex(combo_box->findData(ref->GetEnumValue(*impl_->message_, field)));
-                break;
+            case google::protobuf::FieldDescriptor::TYPE_BOOL:
+                {
+                    combo_box = new QComboBox;
+                    combo_box->addItem("true", true);
+                    combo_box->addItem("false", false);
+                    if (ref->GetBool(*impl_->message_, field))
+                    {
+                        combo_box->setCurrentIndex(0);
+                    }
+                    else
+                    {
+                        combo_box->setCurrentIndex(1);
+                    }
+                    ui_->formLayout->addRow(field->name().c_str(), combo_box);
+                    break;
+                }
+            case google::protobuf::FieldDescriptor::TYPE_ENUM:
+                {
+                    combo_box = new QComboBox;
+                    for (int j = 0; j < field->enum_type()->value_count(); ++j)
+                    {
+                        std::string enum_name = field->enum_type()->value(j)->name();
+                        int         enum_val  = field->enum_type()->value(j)->number();
+                        combo_box->addItem(enum_name.c_str(), enum_val);
+                    }
+                    ui_->formLayout->addRow(field->name().c_str(), combo_box);
+                    combo_box->setCurrentIndex(
+                            combo_box->findData(ref->GetEnumValue(*impl_->message_, field))); /// 获取值对应的index
+                    break;
+                }
             default:
                 break;
         }
     }
 }
 
-bool ConfigEdit::loadConfig(const char *ip, int port)
+auto ConfigEdit::loadConfig(const char *ip, int port) -> bool
 {
     /// 发送消息获取配置项 XConfig 存储到config_成员
     XConfigClient::get()->loadConfig(ip, port);
@@ -215,14 +240,39 @@ bool ConfigEdit::loadConfig(const char *ip, int port)
     return true;
 }
 
-void ConfigEdit::loadProto(const char *filename, const char *class_name)
+auto ConfigEdit::loadConfig(xmsg::XConfig *config) -> bool
+{
+    if (!config)
+    {
+        return false;
+    }
+    if (!impl_->config_)
+    {
+        impl_->config_ = new xmsg::XConfig;
+    }
+    impl_->config_->CopyFrom(*config);
+    std::string   filename = "tmp.proto";
+    std::ofstream ofs(filename);
+    ofs << impl_->config_->proto();
+    ofs.close();
+    loadProto(filename.c_str(), 0);
+    initGUI();
+    return true;
+}
+
+auto ConfigEdit::loadProto(const char *filename, const char *class_name) -> void
 {
     /// 清理之前的配置项目
-    while (ui->formLayout->rowCount() != impl_->config_row_count_)
-        ui->formLayout->removeRow(impl_->config_row_count_);
+    while (ui_->formLayout->rowCount() != impl_->config_row_count_)
+    {
+        ui_->formLayout->removeRow(impl_->config_row_count_);
+    }
 
     if (!filename)
+    {
         return;
+    }
+
 
     /// 用户输入类型名称，如果没有名称，则使用proto文件中的第一个类型
     std::string class_name_str;
@@ -249,8 +299,8 @@ void ConfigEdit::slotSave()
         return;
     }
 
-    if (ui->service_nameLineEdit->text().isEmpty() || ui->service_ipLineEdit->text().isEmpty() ||
-        ui->proto_textEdit->toPlainText().isEmpty())
+    if (ui_->service_nameLineEdit->text().isEmpty() || ui_->service_ipLineEdit->text().isEmpty() ||
+        ui_->proto_textEdit->toPlainText().isEmpty())
     {
         QMessageBox::information(this, "", "service_name,service_ip,proto is empty");
         return;
@@ -265,30 +315,41 @@ void ConfigEdit::slotSave()
     /// message 反射
     auto ref = impl_->message_->GetReflection();
 
-    for (int i = impl_->config_row_count_; i < ui->formLayout->rowCount(); ++i)
+    for (int i = impl_->config_row_count_; i < ui_->formLayout->rowCount(); ++i)
     {
         //////////////////////////////////////////////
         ///找到key label的text
-        auto label_item = ui->formLayout->itemAt(i, QFormLayout::LabelRole);
+        auto label_item = ui_->formLayout->itemAt(i, QFormLayout::LabelRole);
         if (!label_item)
+        {
             continue;
+        }
+
         /// 运行时转换，失败返回NULL
         auto label = dynamic_cast<QLabel *>(label_item->widget());
         if (!label)
+        {
             continue;
+        }
+
         auto field_name = label->text().toStdString();
 
         //////////////////////////////////////////////
         /// 获取value 获取输入控件中的值 枚举、整形、浮点、字符串
         /// 获取控件
-        auto field_item = ui->formLayout->itemAt(i, QFormLayout::FieldRole);
+        auto field_item = ui_->formLayout->itemAt(i, QFormLayout::FieldRole);
         if (!field_item)
+        {
             continue;
+        }
+
         auto field_edit = field_item->widget();
         /// 获取字段描述（类型）
         auto field_desc = desc->FindFieldByName(field_name);
         if (!field_desc)
+        {
             continue;
+        }
         auto type = field_desc->type();
 
         /// 获取控件的值，设置到message
@@ -302,23 +363,33 @@ void ConfigEdit::slotSave()
         {
                 /// 支持整形数字
             case google::protobuf::FieldDescriptor::TYPE_INT64:
-                int_box = dynamic_cast<QSpinBox *>(field_edit);
-                if (!int_box)
-                    continue;
-                ref->SetInt64(impl_->message_, field_desc, int_box->value());
-                break;
+                {
+                    int_box = dynamic_cast<QSpinBox *>(field_edit);
+                    if (!int_box)
+                    {
+                        continue;
+                    }
+                    ref->SetInt64(impl_->message_, field_desc, int_box->value());
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_INT32:
-                int_box = dynamic_cast<QSpinBox *>(field_edit);
-                if (!int_box)
-                    continue;
-                ref->SetInt32(impl_->message_, field_desc, int_box->value());
-                break;
-                /// 支持浮点数
-            case google::protobuf::FieldDescriptor::TYPE_DOUBLE:
+                {
+                    int_box = dynamic_cast<QSpinBox *>(field_edit);
+                    if (!int_box)
+                    {
+                        continue;
+                    }
+                    ref->SetInt32(impl_->message_, field_desc, int_box->value());
+                    break;
+                }
+
+            case google::protobuf::FieldDescriptor::TYPE_DOUBLE: /// 支持浮点数
                 {
                     double_box = dynamic_cast<QDoubleSpinBox *>(field_edit);
                     if (!double_box)
+                    {
                         continue;
+                    }
                     double val = double_box->value();
                     // if (std::floor(val) == val)
                     //     continue;
@@ -329,7 +400,9 @@ void ConfigEdit::slotSave()
                 {
                     double_box = dynamic_cast<QDoubleSpinBox *>(field_edit);
                     if (!double_box)
+                    {
                         continue;
+                    }
                     float val = double_box->value();
                     // if (std::floor(val) == val)
                     //     continue;
@@ -338,23 +411,35 @@ void ConfigEdit::slotSave()
                 }
             case google::protobuf::FieldDescriptor::TYPE_BYTES:
             case google::protobuf::FieldDescriptor::TYPE_STRING:
-                str_edit = dynamic_cast<QLineEdit *>(field_edit);
-                if (!str_edit)
-                    continue;
-                ref->SetString(impl_->message_, field_desc, str_edit->text().toStdString());
-                break;
+                {
+                    str_edit = dynamic_cast<QLineEdit *>(field_edit);
+                    if (!str_edit)
+                    {
+                        continue;
+                    }
+                    ref->SetString(impl_->message_, field_desc, str_edit->text().toStdString());
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_BOOL:
-                combo_box = dynamic_cast<QComboBox *>(field_edit);
-                if (!combo_box)
-                    continue;
-                ref->SetBool(impl_->message_, field_desc, combo_box->currentData().toBool());
-                break;
+                {
+                    combo_box = dynamic_cast<QComboBox *>(field_edit);
+                    if (!combo_box)
+                    {
+                        continue;
+                    }
+                    ref->SetBool(impl_->message_, field_desc, combo_box->currentData().toBool());
+                    break;
+                }
             case google::protobuf::FieldDescriptor::TYPE_ENUM:
-                combo_box = dynamic_cast<QComboBox *>(field_edit);
-                if (!combo_box)
-                    continue;
-                ref->SetEnumValue(impl_->message_, field_desc, combo_box->currentData().toInt());
-                break;
+                {
+                    combo_box = dynamic_cast<QComboBox *>(field_edit);
+                    if (!combo_box)
+                    {
+                        continue;
+                    }
+                    ref->SetEnumValue(impl_->message_, field_desc, combo_box->currentData().toInt());
+                    break;
+                }
             default:
                 break;
         }
@@ -366,10 +451,10 @@ void ConfigEdit::slotSave()
     /// 遍历界面 区分基础信息和配置信息
     xmsg::XConfig config;
     /// 基础信息
-    config.set_service_name(ui->service_nameLineEdit->text().toStdString());
-    config.set_service_ip(ui->service_ipLineEdit->text().toStdString());
-    config.set_service_port(ui->service_portSpinBox->value());
-    config.set_proto(ui->proto_textEdit->toPlainText().toStdString());
+    config.set_service_name(ui_->service_nameLineEdit->text().toStdString());
+    config.set_service_ip(ui_->service_ipLineEdit->text().toStdString());
+    config.set_service_port(ui_->service_portSpinBox->value());
+    config.set_proto(ui_->proto_textEdit->toPlainText().toStdString());
     /// 配置信息
     /// 序列化message
     std::string msg_pb = impl_->message_->SerializeAsString();
@@ -390,11 +475,13 @@ void ConfigEdit::slotLoadProto()
 {
     LOGDEBUG("LoadProto");
     /// 清理之前的配置项目
-    while (ui->formLayout->rowCount() != impl_->config_row_count_)
-        ui->formLayout->removeRow(impl_->config_row_count_);
+    while (ui_->formLayout->rowCount() != impl_->config_row_count_)
+    {
+        ui_->formLayout->removeRow(impl_->config_row_count_);
+    }
 
     /// 用户输入类型名称，如果没有名称，则使用proto文件中的第一个类型
-    QString     class_name = ui->proto_nameEdit->text();
+    QString     class_name = ui_->proto_nameEdit->text();
     std::string class_name_str;
     if (!class_name.isEmpty())
     {
@@ -404,8 +491,10 @@ void ConfigEdit::slotLoadProto()
     /// 用户选择proto文件
     QString filename = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("请选择proto文件"), "", "*.proto");
     if (filename.isEmpty())
+    {
         return;
-    LOGDEBUG(filename.toStdString().c_str());
+    }
+    LOGDEBUG(filename.toStdString());
 
     std::string proto_code;
     impl_->message_ = XConfigClient::get()->loadProto(filename.toStdString(), class_name_str, proto_code);
@@ -414,11 +503,10 @@ void ConfigEdit::slotLoadProto()
         LOGDEBUG("XConfigClient::Get()->LoadProto failed!");
         return;
     }
-    ui->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
-    ui->proto_textEdit->setText(proto_code.c_str());
+    ui_->proto_nameEdit->setText(impl_->message_->GetTypeName().c_str());
+    ui_->proto_textEdit->setText(proto_code.c_str());
 
-    if (impl_->config_)
-        delete impl_->config_;
+    delete impl_->config_;
     impl_->config_ = nullptr;
 
     loadProto(filename.toStdString().c_str(), class_name_str.c_str());

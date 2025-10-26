@@ -33,6 +33,9 @@ private:
     ~XGetDirClient() override;
 
 public:
+    /// \brief 定时器获取上传和下载服务器列表
+    auto timerCB() -> void override;
+
     auto getDirReq(xdisk::XGetDirReq req) -> void;
 
     auto getDirRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
@@ -45,6 +48,12 @@ public:
 
     auto deleteFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
+    /// \brief 获取上传和下载的服务器列表
+    auto getService() -> void;
+
+    auto getServiceRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
+    /// \brief 获取网盘空间使用情况
     auto getDiskInfoReq() -> void;
 
     auto getDiskInfoRes(xmsg::XMsgHead *head, XMsg *msg) -> void;

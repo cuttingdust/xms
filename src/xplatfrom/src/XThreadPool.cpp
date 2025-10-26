@@ -71,7 +71,7 @@ auto XThreadPool::exitAllThread() -> void
 {
     isExitAll = true;
     allThreadsMutex.lock();
-    for (auto t : allThreads)
+    for (const auto t : allThreads)
     {
         t->exit();
     }

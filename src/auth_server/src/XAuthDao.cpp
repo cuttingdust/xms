@@ -45,7 +45,10 @@ auto XAuthDao::init() -> bool
 {
     XMutex mux(&auth_mutex);
     if (!impl_->mysql_)
-        impl_->mysql_ = new LXMysql();
+    {
+        impl_->mysql_ = new LXMysql;
+    }
+
     if (!impl_->mysql_->init())
     {
         LOGDEBUG("my_->Init() failed!");
@@ -119,7 +122,9 @@ auto XAuthDao::install() -> bool
 auto XAuthDao::addUser(xmsg::XAddUserReq *user) -> bool
 {
     if (!user || !impl_->mysql_)
+    {
         return false;
+    }
 
     XMutex mux(&auth_mutex);
     XDATA  data;
@@ -136,7 +141,9 @@ auto XAuthDao::addUser(xmsg::XAddUserReq *user) -> bool
 auto XAuthDao::login(const xmsg::XLoginReq *user_req, xmsg::XLoginRes *user_res, int timeout_sec) -> bool
 {
     if (!user_req || !user_res || !impl_->mysql_)
+    {
         return false;
+    }
 
     /// 注入攻击
     std::string username = user_req->username();
@@ -155,9 +162,12 @@ auto XAuthDao::login(const xmsg::XLoginReq *user_req, xmsg::XLoginRes *user_res,
         user_res->set_token("username or password error!");
         return false;
     }
-    std::string rolename = "";
+    std::string rolename;
     if (rows[0][1].data)
+    {
         rolename = rows[0][1].data;
+    }
+
     user_res->set_rolename(rolename);
     user_res->set_username(username);
 
@@ -195,6 +205,77 @@ auto XAuthDao::login(const xmsg::XLoginReq *user_req, xmsg::XLoginRes *user_res,
 
     /// 清理过期的登录信息
     impl_->mysql_->remove(table_name_token, { { col_expired_time, std::to_string(now) } }, LXMysql::LX_C_LT);
+    return true;
+}
+
+auto XAuthDao::changePassword(const xmsg::XChangePasswordReq *pass) -> bool
+{
+    LOGDEBUG("XAuthDao::ChangePassword");
+
+    XMutex mux(&auth_mutex);
+    if (!impl_->mysql_)
+    {
+        LOGERROR("mysql not init");
+        return false;
+    }
+
+    XDATA data;
+    data[col_user_passed] = pass->password().c_str();
+
+
+    if (!impl_->mysql_->update(data, table_name, { { col_user_name, pass->username() } }))
+    {
+        LOGERROR("Update xms_auth failed！");
+        return false;
+    }
+
+    return true;
+}
+
+auto XAuthDao::checkToken(const xmsg::XMsgHead *head, xmsg::XLoginRes *user_res) -> bool
+{
+    LOGDEBUG("ConfigDao::CheckToken");
+    std::string token;
+    if (!head || head->token().empty())
+    {
+        token = "token is null";
+        LOGERROR(token);
+        user_res->set_token(token);
+        return false;
+    }
+
+    token = head->token();
+    user_res->set_restype(xmsg::XLoginRes::XRT_ERR);
+    XMutex mux(&auth_mutex);
+    if (!impl_->mysql_)
+    {
+        token = "mysql not init";
+        LOGERROR(token);
+        user_res->set_token(token);
+        return false;
+    }
+
+    if (head->token().empty())
+    {
+        token = "token is empty!";
+        LOGERROR(token);
+        user_res->set_token(token);
+        return false;
+    }
+
+
+    /// 验证用户名密码
+    auto rows = impl_->mysql_->getRows(table_name_token, { col_user_name, col_user_role, col_expired_time },
+                                       { col_token, token });
+    if (rows.empty())
+    {
+        token = "token  invalid !";
+        LOGERROR(token);
+        user_res->set_token(token);
+        return false;
+    }
+    user_res->set_username(rows[0][0].data);
+    user_res->set_rolename(rows[0][1].data);
     return true;
 }
 

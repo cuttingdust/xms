@@ -79,14 +79,15 @@ void XLoginGui::Login()
         ui->err_msg->setText("用户名或密码不能为空！");
         return;
     }
-    XAuthClient::get()->loginReq(username, password);
-    xmsg::XLoginRes res;
-    if (XAuthClient::get()->getLoginInfo(username, &res, 2000))
+
+    if (!XAuthClient::get()->login(username, password))
     {
-        impl_->username_ = username;
-        ui->err_msg->setText("登录成功！");
-        QDialog::accept();
+        ui->err_msg->setText("用户名或者密码有误！");
         return;
     }
-    ui->err_msg->setText("用户名密码验证有误！");
+    static int count = 0;
+    count++;
+
+    ui->err_msg->setText(QString::number(count) + "登录成功！");
+    QDialog::accept();
 }

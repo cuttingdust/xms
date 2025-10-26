@@ -22,8 +22,10 @@ public:
 public:
     void readCB(xmsg::XMsgHead *head, XMsg *msg) override;
 
-    /// \brief
+    /// \brief 连接断开，超时，出错调用
     void close() override;
+
+    auto sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool override;
 };
 
 #endif // XROUTEHANDLE_H

@@ -27,6 +27,9 @@ public:
 public:
     auto connectCB() -> void override;
 
+    /// \brief 通过定时器跟踪进度
+    auto timerCB() -> void override;
+
     auto uploadFileRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     auto uploadFileEndRes(xmsg::XMsgHead *head, XMsg *msg) -> void;
@@ -36,6 +39,10 @@ public:
     static auto regMsgCallback() -> void;
 
     auto setFile(const xdisk::XFileInfo &file) -> bool;
+
+    auto set_task_id(int task_id) -> void;
+    auto task_id() const -> int;
+
 
 private:
     class PImpl;

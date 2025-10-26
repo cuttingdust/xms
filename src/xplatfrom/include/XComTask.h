@@ -36,7 +36,6 @@ public:
     /// \return
     auto connect() const -> bool;
 
-    // protected:
     /// \brief 是否已连接
     /// \return
     auto isConnected() const -> bool;
@@ -92,8 +91,13 @@ public:
     /// \return
     auto autoConnect(int timeout_sec) -> bool;
 
+    /// \brief 设置加密上下文
+    /// \param ctx
     auto setSSLContent(XSSL_CTX* ctx) -> void;
     auto getSSLContent() const -> XSSL_CTX*;
+
+    auto setTaskName(const char* name) -> void;
+    auto taskName() const -> const char*;
 
     /// \brief 设定要在加入线程池之前
     /// \param ms
@@ -119,19 +123,42 @@ public:
     /// \brief 激活写入回调
     virtual auto beginWriteCB() -> void;
 
+    /// \brief 现有缓冲（未发送）的大小
+    /// \return
+    virtual auto bufferSize() -> long long;
+
     virtual auto close() -> void;
 
+    /// \brief 清理所有定时器
     virtual auto clearTimer() -> void;
 
     virtual auto setTimer(int ms) -> void;
 
     virtual auto timerCB() -> void;
 
-    /// \brief 设置自动连接定时器
+    /// \brief 设定自动重连的定时器
     /// \param ms
     virtual auto setAutoConnectTimer(int ms) -> void;
 
+    /// \brief 自动重连定时器回调函数
     virtual auto autoConnectTimerCB() -> void;
+
+public:
+    /// \brief 连接服务端是否有错误
+    /// \return
+    auto hasError() const -> bool;
+
+    /// \brief 连接错误原因
+    /// \return
+    auto error() const -> const char*;
+
+    /// \brief 已经写入缓冲 （XMsg *msg ）的字节大小 不包含消息头
+    /// \return
+    auto getSendDataSize() const -> long long;
+
+    /// \brief 已经读取缓冲 （XMsg *msg ）的字节大小 不包含消息头
+    /// \return
+    auto getRecvDataSize() const -> long long;
 
 private:
     class PImpl;

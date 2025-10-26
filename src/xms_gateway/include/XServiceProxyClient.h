@@ -23,6 +23,10 @@ protected:
     ~XServiceProxyClient() override;
 
 public:
+    auto setFindFlag(bool bFind) -> void;
+
+    auto isFind() const -> bool;
+
     auto sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool;
 
     auto delEvent(XMsgEvent *ev) -> void;

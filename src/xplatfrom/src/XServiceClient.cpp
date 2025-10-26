@@ -35,9 +35,14 @@ XServiceClient::XServiceClient()
     impl_ = std::make_unique<PImpl>(this);
 }
 
-XServiceClient::~XServiceClient() = default;
+XServiceClient::~XServiceClient()
+{
+    XMutex mux(&impl_->login_mutex_);
+    delete impl_->login_;
+    impl_->login_ = NULL;
+}
 
-auto XServiceClient::setLogin(xmsg::XLoginRes *login) -> void
+auto XServiceClient::setLogin(const xmsg::XLoginRes *login) -> void
 {
     XMutex mux(&impl_->login_mutex_);
     if (!impl_->login_)
@@ -105,10 +110,20 @@ auto XServiceClient::sendMsg(const xmsg::MsgType &msgType, const google::protobu
 
 auto XServiceClient::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool
 {
+    xmsg::XMsgHead h;
+    h.CopyFrom(*head);
+    this->setHead(&h);
     return XMsgEvent::sendMsg(head, msg);
 }
 
 auto XServiceClient::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
 {
+    if (!head || !msg)
+    {
+        LOGDEBUG("head or msg is null");
+        return false;
+    }
+    this->setHead(head);
+
     return XMsgEvent::sendMsg(head, msg);
 }

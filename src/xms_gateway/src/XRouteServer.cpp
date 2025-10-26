@@ -15,7 +15,9 @@ XServiceHandle* XRouteServer::createHandle()
     bool is_ssl = XConfigClient::get()->GetBool("is_ssl");
     std::cout << "is_ssl = " << is_ssl << std::endl;
     if (!is_ssl)
+    {
         return router;
+    }
 
     /// 已经设置过， 暂时不考虑修改
     if (getSSLContent())

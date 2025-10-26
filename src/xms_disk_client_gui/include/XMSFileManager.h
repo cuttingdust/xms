@@ -31,9 +31,13 @@ public:
 
     auto newDir(const std::string &path) -> void override;
 
-    auto deleteFile(const xdisk::XFileInfo &file) -> void override;
+    auto deleteFile(xdisk::XFileInfo file) -> void override;
 
-    auto uploadFile(const xdisk::XFileInfo &file) -> void override;
+    auto uploadFile(xdisk::XFileInfo file) -> void override;
+
+    auto downloadFile(xdisk::XFileInfo file) -> void override;
+
+    auto setLogin(const xmsg::XLoginRes &login) -> void override;
 
 private:
     class PImpl;

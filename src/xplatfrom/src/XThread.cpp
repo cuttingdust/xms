@@ -124,8 +124,9 @@ auto XThread::notify(intptr_t fd, short which) -> void
     int re = ::read(fd, buf, 1);
 #endif
     if (re <= 0)
+    {
         return;
-
+    }
     std::cout << impl_->id_ << " thread :" << buf << std::endl;
 
     XTask *task = nullptr;

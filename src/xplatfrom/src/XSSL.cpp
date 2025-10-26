@@ -77,6 +77,7 @@ auto XSSL::accept() const -> bool
     {
         return false;
     }
+    /// 建立ssl连接验证，密钥协商
     int re = SSL_accept(impl_->ssl_);
     if (re <= 0)
     {
@@ -92,14 +93,19 @@ auto XSSL::accept() const -> bool
 auto XSSL::printCipher() const -> void
 {
     if (!impl_->ssl_)
+    {
         return;
+    }
     std::cout << SSL_get_cipher(impl_->ssl_) << std::endl;
 }
 
 auto XSSL::printCert() const -> void
 {
     if (!impl_->ssl_)
+    {
         return;
+    }
+
 
     /// 获取到证书
     X509 *cert = SSL_get_peer_certificate(impl_->ssl_);
@@ -190,7 +196,9 @@ Certificate:
 auto XSSL::write(const void *data, int data_size) -> int
 {
     if (!impl_->ssl_)
+    {
         return 0;
+    }
 
     // int sock_fd = SSL_get_fd(impl_->ssl_);
     // return ::send(sock_fd, (char *)data, data_size, 0);
@@ -201,7 +209,9 @@ auto XSSL::write(const void *data, int data_size) -> int
 auto XSSL::read(void *buf, int buf_size) -> int
 {
     if (!impl_->ssl_)
+    {
         return 0;
+    }
 
     // int sock_fd = SSL_get_fd(impl_->ssl_);
     // return ::recv(sock_fd, (char *)buf, buf_size, 0);

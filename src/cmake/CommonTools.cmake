@@ -220,6 +220,11 @@ macro(set_cpp name)
 			-D_CRT_SECURE_NO_WARNINGS
 		)
 		
+		
+		target_compile_options(${name} PUBLIC
+			/wd4251 # 添加抑制 C4251 警告的选项
+		)
+		
         set_target_properties(${name} PROPERTIES
             COMPILE_FLAGS "/Zc:wchar_t"	# 是
 			#COMPILE_FLAGS "/Zc:wchar_t-" #否

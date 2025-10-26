@@ -12,6 +12,8 @@ message XMsgHead
 	int64		msgID		= 5;	
 	string      username	= 6;	///< 用户名称
 	string 		rolename	= 7;	///< 用户角色
+	bytes		md5			= 8;	///< 消息内容md5校验
+	int64		offset		= 9;	///< 数据偏移
 }
 
 /// 心跳
@@ -70,18 +72,18 @@ message XLoginRes
 {
 	enum XLoginResType
 	{
-		XRT_NONE         = 0;    ///<<< 未处理	
+		XRT_NONE         = 0;   ///<<< 未处理	
 		XRT_LOGGING      = 1;	///<<< 登录中
 		XRT_OK			 = 2;	///<<< 登陆成功
 		XRT_ERR			 = 3;	///<<< 用户名密码错误
 		XRT_NO_USER		 = 4;	///<<< 用户不存在
 		XRT_SERVER_ERROR = 5;   ///<<< 服务端连接错误
 	}
-	XLoginResType resType = 1;	///< 登陆结果类型
-	string token		  = 2;	///< 登陆成功后的令牌, 失败为空
-	int32 expired_time 	  = 3;  ///< token 超时时间戳
-	string rolename 	  = 4;
-	string username       = 5;
+	XLoginResType	resType			= 1;	///< 登陆结果类型
+	string			token			= 2;	///< 登陆成功后的令牌, 失败为空
+	int32			expired_time	= 3;	///< token 超时时间戳
+	string			rolename 		= 4;
+	string			username		= 5;
 }
 
 
@@ -117,29 +119,34 @@ enum XServiceType
 	XT_ALL = 1;	///<<< 取全部服务
 }
 
+message XService
+{
+	string	name	= 1;
+	string	ip		= 2;
+	int32	port	= 3;
+	bool	is_find = 4; ///< 是否可以被外网的发现，默认不可以
+}
+
+message XServiceList
+{
+	repeated XService	services	= 1;
+	string				name		= 2;
+}
+
 message XServiceMap
 {
-	message XService
-	{
-		string name = 1;
-		string ip   = 2;
-		int32  port = 3;
-	}
-
-	message XServiceList
-	{
-		repeated XService services = 1;
-	}
-	map<string,XServiceList> serviceMap = 1;
+	map<string,XServiceList> service_map = 1;
 	XMessageRes				 res		= 2;
 	XServiceType			 type		= 3;	///< 服务类型，XT_ONE 只取一类服务，XT_ALL 取全部服务
 }
 
+/// MSG_REGISTER_REQ = 5;	//注册服务请求
 message XRegisterReq
 {
-	string name = 1; ///< 服务名称
-	int32  port = 2; ///< 服务端口
-	string ip	= 3; ///< 服务ip
+	string	name	= 1; ///< 服务名称
+	int32	port	= 2; ///< 服务端口
+	string	ip		= 3; ///< 服务ip
+	bool	is_find = 4; ///< 是否可以被外网发现
 }
 
 /// 通用响应 MT_REGISTER_RES 注册服务响应

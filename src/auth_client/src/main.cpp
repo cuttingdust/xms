@@ -11,19 +11,18 @@ int main(int argc, char *argv[])
     std::cout << "XAuth Client!\n";
     XAuthClient::regMsgCallback();
 
-    XAuthClient client;
-    client.setServerIP("127.0.0.1");
-    client.setServerPort(AUTH_PORT);
-    client.startConnect();
-    client.waitConnected(3);
+    XAuthClient::get()->setServerIP("127.0.0.1");
+    XAuthClient::get()->setServerPort(AUTH_PORT);
+    XAuthClient::get()->startConnect();
+    XAuthClient::get()->waitConnected(3);
     xmsg::XAddUserReq adduser;
     adduser.set_username("guest");
     adduser.set_password("12345678");
     adduser.set_rolename("guest");
-    client.addUserReq(&adduser);
+    XAuthClient::get()->addUserReq(&adduser);
 
-    client.loginReq("guest", "12345678");
-    client.wait();
+    XAuthClient::get()->login("guest", "12345678");
+    XAuthClient::get()->wait();
 
     return 0;
 }

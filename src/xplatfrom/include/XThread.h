@@ -13,7 +13,6 @@
 
 #include <memory>
 class XTask;
-struct evutil_socket_t;
 
 class XThread
 {

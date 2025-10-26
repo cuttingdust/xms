@@ -19,7 +19,7 @@ class XPLATFROM_EXPORT XService : public XTask
 {
 public:
     XService();
-    virtual ~XService();
+    ~XService() override;
 
 public:
     virtual auto createHandle() -> XServiceHandle * = 0;

@@ -1,9 +1,10 @@
-﻿#include "XConfigClient.h"
+﻿#include "XAuthProxy.h"
 #include "XRouteServer.h"
 #include "XServiceProxy.h"
 
 #include <XTools.h>
 #include <XRegisterClient.h>
+#include <XConfigClient.h>
 
 #include <iostream>
 
@@ -21,11 +22,15 @@ void ConfigTimer()
         auto confs = RegisterClient->getServices(CONFIG_NAME, 1);
         std::cout << confs.DebugString();
         if (confs.services_size() <= 0)
+        {
             return;
+        }
         auto conf = confs.services()[0];
 
         if (conf.ip().empty() || conf.port() <= 0)
+        {
             return;
+        }
         conf_ip   = conf.ip();
         conf_port = conf.port();
         ConfigClient->setServerIP(conf_ip.c_str());
@@ -40,21 +45,34 @@ int main(int argc, char *argv[])
     std::cout << "xms_gateway API_GATEWAY_PORT REGISTER_IP REGISTER_PORT" << std::endl;
     int server_port = API_GATEWAY_PORT;
     if (argc > 1)
+    {
         server_port = atoi(argv[1]);
+    }
     std::cout << "server port is " << server_port << std::endl;
-    std::string register_ip = XTools::XGetHostByName(REGISTER_SERVER_NAME);
+    std::string register_ip = XTools::XGetHostByName(API_REGISTER_SERVER_NAME);
     if (argc > 2)
+    {
         register_ip = argv[2];
+    }
     int register_port = REGISTER_PORT;
     if (argc > 3)
+    {
         register_port = atoi(argv[3]);
+    }
+
+    if (register_ip.empty())
+    {
+        register_ip = "127.0.0.1";
+    }
+
+    XAuthProxy::initAuth();
 
     /// 设置注册中心的IP和端口
     XRegisterClient::get()->setServerIP(register_ip.c_str());
     XRegisterClient::get()->setServerPort(register_port);
 
     /// 注册到注册中心
-    XRegisterClient::get()->registerServer(API_GATEWAY_NAME, server_port, nullptr);
+    XRegisterClient::get()->registerServer(API_GATEWAY_NAME, server_port, nullptr, true);
 
     /// 等待注册中心连接
     XRegisterClient::get()->waitConnected(3);

@@ -20,6 +20,8 @@ public:
     std::map<long long, XMsgEvent *> callback_task_;
 
     std::mutex callback_task_mutex_;
+
+    bool is_find_ = false;
 };
 
 XServiceProxyClient::PImpl::PImpl(XServiceProxyClient *owenr) : owenr_(owenr)
@@ -33,7 +35,7 @@ auto XServiceProxyClient::create(std::string service_name) -> XServiceProxyClien
     {
         return new XAuthProxy;
     }
-    return new XServiceProxyClient();
+    return new XServiceProxyClient;
 }
 
 XServiceProxyClient::XServiceProxyClient()
@@ -42,6 +44,16 @@ XServiceProxyClient::XServiceProxyClient()
 }
 
 XServiceProxyClient::~XServiceProxyClient() = default;
+
+auto XServiceProxyClient::setFindFlag(bool bFind) -> void
+{
+    impl_->is_find_ = bFind;
+}
+
+auto XServiceProxyClient::isFind() const -> bool
+{
+    return impl_->is_find_;
+}
 
 auto XServiceProxyClient::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool
 {
@@ -63,6 +75,8 @@ auto XServiceProxyClient::readCB(xmsg::XMsgHead *head, XMsg *msg) -> void
         return;
     }
 
+    std::cout << "***************************************" << std::endl;
+    std::cout << head->DebugString();
     XMutex mux(&impl_->callback_task_mutex_);
     /// 转发给XRouteHandle
     /// 每个XServiceProxyClient对象可能管理多个XRouterHandle

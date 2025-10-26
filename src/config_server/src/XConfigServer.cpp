@@ -6,13 +6,9 @@
 #include <XThreadPool.h>
 #include <XRegisterClient.h>
 
-XConfigServer::XConfigServer()
-{
-}
+XConfigServer::XConfigServer() = default;
 
-XConfigServer::~XConfigServer()
-{
-}
+XConfigServer::~XConfigServer() = default;
 
 void XConfigServer::main(int argc, char *argv[])
 {
@@ -25,11 +21,20 @@ void XConfigServer::main(int argc, char *argv[])
     int         register_port = REGISTER_PORT;
     std::string register_ip   = "127.0.0.1";
     if (argc > 1)
+    {
         register_ip = argv[1];
+    }
+
     if (argc > 2)
+    {
         register_port = atoi(argv[2]);
+    }
+
     if (argc > 3)
+    {
         service_port = atoi(argv[1]);
+    }
+
 
     /// 设置服务器监听端口
     this->setServerPort(service_port);

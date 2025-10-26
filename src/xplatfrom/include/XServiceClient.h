@@ -21,7 +21,7 @@ public:
     ~XServiceClient() override;
 
 public:
-    virtual auto setLogin(xmsg::XLoginRes *login) -> void;
+    virtual auto setLogin(const xmsg::XLoginRes *login) -> void;
 
     virtual auto setServiceName(const std::string &serviceName) -> void;
 
@@ -29,10 +29,22 @@ public:
 
     auto setHead(xmsg::XMsgHead *head) -> xmsg::XMsgHead *;
 
+    /// \brief 发送消息
+    /// \param msgType
+    /// \param msg
+    /// \return
     auto sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool override;
 
-    auto sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg) -> bool override;
+    /// \brief 发送消息
+    /// \param h
+    /// \param msg
+    /// \return
+    auto sendMsg(xmsg::XMsgHead *h, const google::protobuf::Message *msg) -> bool override;
 
+    /// \brief 发送文件用
+    /// \param head
+    /// \param msg
+    /// \return
     auto sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool override;
 
 public:

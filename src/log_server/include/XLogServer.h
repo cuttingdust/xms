@@ -20,6 +20,7 @@ public:
     ~XLogServer() override;
 
 public:
+    auto main(int argc, char *argv[]) -> void;
     auto createHandle() -> XServiceHandle * override;
 };
 

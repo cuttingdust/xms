@@ -20,15 +20,21 @@ public:
     ~XConfigHandle() override;
 
 public:
-    void saveConfig(xmsg::XMsgHead *head, XMsg *msg);
+    auto saveConfig(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-    void loadConfig(xmsg::XMsgHead *head, XMsg *msg);
+    auto loadConfig(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-    static void regMsgCallback();
+    static auto regMsgCallback() -> void;
 
-    void loadAllConfig(xmsg::XMsgHead *head, XMsg *msg);
+    /// \brief 下载全部配置（有分页）
+    /// \param head
+    /// \param msg
+    auto loadAllConfig(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
-    void deleteConfig(xmsg::XMsgHead *head, XMsg *msg);
+    /// \brief 删除配置
+    /// \param head
+    /// \param msg
+    auto deleteConfig(xmsg::XMsgHead *head, XMsg *msg) -> void;
 };
 
 

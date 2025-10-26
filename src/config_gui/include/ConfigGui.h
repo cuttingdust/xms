@@ -18,12 +18,12 @@ namespace Ui
     class ConfigGuiClass;
 };
 
-class CongfigGui : public QWidget
+class ConfigGui : public QWidget
 {
     Q_OBJECT
 public:
-    explicit CongfigGui(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
-    ~CongfigGui() override;
+    explicit ConfigGui(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
+    ~ConfigGui() override;
 
 public:
     bool eventFilter(QObject *object, QEvent *event) override;
@@ -31,10 +31,16 @@ public:
     void showEvent(QShowEvent *event) override;
 
     /// 显示在日志列表中
-    void addLog(const char *log);
+    auto addLog(const char *log) -> void;
+
+    auto checkLogin(std::string ip, int port) -> bool;
 
     /// \brief 刷新配置
     void updateUI();
+
+signals:
+    void SEditConfCB(void *config);
+
 public Q_SLOTS:
     /// 刷新显示配置
     void slotRefresh();
@@ -48,8 +54,10 @@ public Q_SLOTS:
     /// \brief 编辑配置
     void slotEditConfig();
 
+    void EditConfCB(void *config);
+
 private:
-    Ui::ConfigGuiClass *ui = nullptr;
+    Ui::ConfigGuiClass *ui_ = nullptr;
 };
 
 

@@ -30,7 +30,7 @@ public:
     {
         return sock_;
     }
-    auto set_sock(int sock) -> void
+    auto setSocket(int sock) -> void
     {
         this->sock_ = sock;
     }

@@ -36,12 +36,19 @@ public slots:
     void Checkall();
     void NewDir();
     void Upload();
+    void Download();
 
     void DoubleClicked(int row, int col);
     void Root();
     void Back();
     void Delete();
     void RefreshDiskInfo(xdisk::XDiskInfo info);
+
+    void SelectFile(QModelIndex index);
+    void TaskTab();
+    void MyTab();
+    void ErrorSlot(std::string err);
+    void FileEnc(); /// 文件是否加密上传
 
 protected:
     void mouseMoveEvent(QMouseEvent *e) override;

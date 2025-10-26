@@ -49,7 +49,7 @@ auto XServiceProxy::PImpl::threadFunc() -> void
             std::this_thread::sleep_for(std::chrono::seconds(1));
             continue;
         }
-        const auto &smap = service_map->servicemap();
+        const auto &smap = service_map->service_map();
         if (smap.empty())
         {
             LOGDEBUG("XServiceProxy : service_map->service_map is NULL");
@@ -92,10 +92,15 @@ auto XServiceProxy::PImpl::threadFunc() -> void
                 if (is_find)
                     continue;
 
+                /// 根据类型创建不同的proxy
                 auto proxy = XServiceProxyClient::create(service_name);
+                proxy->setFindFlag(s.is_find());
                 proxy->setServerIP(s.ip().c_str());
                 proxy->setServerPort(s.port());
+                /// 设置关闭后对象自动清理
                 proxy->setAutoDelete(false);
+
+                /// 连接任务加入线程池
                 proxy->startConnect();
                 client_map_[service_name].push_back(proxy);
                 client_map_last_index_[service_name] = 0;
@@ -109,7 +114,9 @@ auto XServiceProxy::PImpl::threadFunc() -> void
             for (const auto c : proxyClient)
             {
                 if (c->isConnected())
+                {
                     continue;
+                }
                 if (!c->isConnecting())
                 {
                     LOGDEBUG("start conncet service ");
@@ -181,7 +188,9 @@ auto XServiceProxy::init() -> bool
 auto XServiceProxy::delEvent(XMsgEvent *ev) -> void
 {
     if (!ev)
+    {
         return;
+    }
 
     XMutex mux(&impl_->callbacks_mutex_);
     auto   call = impl_->callbacks_.find(ev);
@@ -196,28 +205,57 @@ auto XServiceProxy::delEvent(XMsgEvent *ev) -> void
 auto XServiceProxy::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> bool
 {
     if (!head || !msg)
+    {
         return false;
+    }
+    std::string service_name = head->servername();
 
-    auto service_name = head->servername();
+    /// MSG_GET_SERVICE //获取微服务，只能获取is_find=true的微服务
+    if (head->msgtype() == xmsg::MT_GET_OUT_SERVICE_REQ)
+    {
+        /// 1 负载均衡找到客户端连接
+        xmsg::XServiceList services;
+        services.set_name(service_name);
+        auto client_list = impl_->client_map_.find(service_name);
+        if (client_list == impl_->client_map_.end())
+        {
+            return ev->sendMsg(head, &services);
+        }
+        /// 找到is_find = true的; 和可以连接的
+        for (auto c : client_list->second)
+        {
+            if (!c->isFind() || !c->isConnected())
+            {
+                continue;
+            }
+            auto ser = services.add_services();
+            ser->set_ip(c->getServerIP());
+            ser->set_port(c->getServerPort());
+        }
+        head->set_msgtype(xmsg::MT_GET_OUT_SERVICE_RES);
+        return ev->sendMsg(head, &services);
+    }
+
 
     XMutex mux(&impl_->client_map_mutex_);
-    /// 1 负载均衡找到客户端连接，进行数据发送
+
+    /// 1 负载均衡找到客户端连接
     auto client_list = impl_->client_map_.find(service_name);
     if (client_list == impl_->client_map_.end())
     {
         std::stringstream ss;
-        ss << service_name << "client_list not find!!! ";
+        ss << service_name << " client_map_ not find!";
         LOGDEBUG(ss.str());
         return false;
     }
 
-    /// 2. 轮询找到可用的微服务连接
+    /// 轮询找到可用的微服务连接
     int cur_index = impl_->client_map_last_index_[service_name];
     int list_size = client_list->second.size();
     for (int i = 0; i < list_size; i++)
     {
         cur_index++;
-        cur_index %= list_size;
+        cur_index                                   = cur_index % list_size;
         impl_->client_map_last_index_[service_name] = cur_index;
         auto client                                 = client_list->second[cur_index];
         if (client->isConnected())
@@ -230,8 +268,7 @@ auto XServiceProxy::sendMsg(xmsg::XMsgHead *head, XMsg *msg, XMsgEvent *ev) -> b
             return client->sendMsg(head, msg, ev);
         }
     }
-
-    LOGDEBUG("client not connected");
+    LOGDEBUG("can't find proxy");
     return false;
 }
 

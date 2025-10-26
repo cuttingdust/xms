@@ -27,15 +27,17 @@ public:
     typedef void (XMsgEvent::*MsgCBFunc)(xmsg::XMsgHead *head, XMsg *msg);
 
 public:
-    /// \brief 接收消息 分发消息
-    void readCB() override;
+    virtual auto dropInMsg() -> void;
 
-    virtual void readCB(xmsg::XMsgHead *head, XMsg *msg);
+    /// \brief 接收消息 分发消息
+    virtual auto readCB() -> void override;
+
+    virtual auto readCB(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     /// \brief 添加消息处理的回调函数，根据消息类型分发 ,同一个类型只能有一个回调函数
     /// \param type 消息类型
     /// \param func 消息回调函数
-    static void regCB(const xmsg::MsgType &type, MsgCBFunc func);
+    static auto regCB(const xmsg::MsgType &type, MsgCBFunc func) -> void;
 
 public:
     /// \brief 接收数据包，

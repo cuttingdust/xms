@@ -68,8 +68,10 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     {
         XMutex mutex(&service_map_mutex);
         if (!service_map)
-            service_map = new xmsg::XServiceMap();
-        auto smap = service_map->mutable_servicemap();
+        {
+            service_map = new xmsg::XServiceMap;
+        }
+        auto smap = service_map->mutable_service_map();
 
         /// 是否由同类型已经注册
         /// 集群微服务
@@ -77,7 +79,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
         if (service_list == smap->end())
         {
             /// 没有注册过
-            (*smap)[service_name] = xmsg::XServiceMap::XServiceList();
+            (*smap)[service_name] = xmsg::XServiceList();
             service_list          = smap->find(service_name);
         }
         auto services = service_list->second.mutable_services();
@@ -88,7 +90,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
             {
                 std::stringstream ss;
                 ss << service_name << "|" << service_ip << ":" << service_port << "微服务已经注册过";
-                LOGDEBUG(ss.str().c_str());
+                LOGDEBUG(ss.str());
                 res.set_return_(xmsg::XMessageRes::XR_ERROR);
                 res.set_msg(ss.str());
                 sendMsg(xmsg::MT_REGISTER_RES, &res);
@@ -100,6 +102,7 @@ auto XRegisterHandle::registerReq(xmsg::XMsgHead *head, XMsg *msg) -> void
         ser->set_ip(service_ip);
         ser->set_port(service_port);
         ser->set_name(service_name);
+        ser->set_is_find(req.is_find());
         std::stringstream ss;
         ss << service_name << "|" << service_ip << ":" << service_port << "新的微服务注册成功！";
         LOGDEBUG(ss.str());
@@ -118,7 +121,7 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 
     /// 错误处理
     xmsg::XServiceMap res;
-    res.mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_ERROR);
+    res.mutable_res()->set_return_(xmsg::XMessageRes::XR_ERROR);
     if (!req.ParseFromArray(msg->data, msg->size))
     {
         std::stringstream ss;
@@ -141,7 +144,6 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     if (!service_map)
     {
         service_map = new xmsg::XServiceMap();
-
     }
 
     ///返回全部
@@ -152,10 +154,10 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
     }
     else ///返回单种
     {
-        auto smap = service_map->mutable_servicemap();
+        auto smap = service_map->mutable_service_map();
         if (smap && smap->find(service_name) != smap->end())
         {
-            (*send_map->mutable_servicemap())[service_name] = (*smap)[service_name];
+            (*send_map->mutable_service_map())[service_name] = (*smap)[service_name];
         }
     }
     service_map_mutex.unlock();
@@ -163,7 +165,7 @@ auto XRegisterHandle::getServiceReq(xmsg::XMsgHead *head, XMsg *msg) -> void
 
     /// 返回单种还是全部
     service_map->set_type(req.type());
-    service_map->mutable_res()->set_return_(xmsg::XMessageRes_XReturn::XMessageRes_XReturn_XR_OK);
+    service_map->mutable_res()->set_return_(xmsg::XMessageRes::XR_OK);
     sendMsg(xmsg::MT_GET_SERVICE_RES, service_map);
 }
 

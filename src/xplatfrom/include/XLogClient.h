@@ -44,6 +44,8 @@ public:
 
     auto startLog() -> bool;
 
+    auto setPrint(bool is_out) -> void;
+
 private:
     class PImpl;
     std::unique_ptr<PImpl> impl_;

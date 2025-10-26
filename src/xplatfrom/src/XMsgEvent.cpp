@@ -35,7 +35,12 @@ XMsgEvent::XMsgEvent()
 
 XMsgEvent::~XMsgEvent() = default;
 
-void XMsgEvent::readCB()
+auto XMsgEvent::dropInMsg() -> void
+{
+    impl_->is_drop_ = true;
+}
+
+auto XMsgEvent::readCB() -> void
 {
     static int i = 0;
     i++;
@@ -65,10 +70,15 @@ void XMsgEvent::readCB()
         if (impl_->pb_head_)
         {
             //cout << "【MSG】" << pb_head_->service_name() << " " << msg->size << " " << msg->type << endl;
+
+            auto server_ip   = getServerIP();
+            auto server_port = getServerPort();
+            auto client_ip   = getClientIP();
+            auto client_port = getClientPort();
+
             std::stringstream ss;
-            ss << "【RECV】" << getServerIP() << ":" << getServerPort() << "|"
-               << XTools::XGetNameByPort(getServerPort()) << " " << getClientIP() << ":" << getClientPort() << " "
-               << impl_->pb_head_->DebugString();
+            ss << "【RECV】" << server_ip << ":" << server_port << "|" << XTools::XGetNameByPort(server_port) << " "
+               << client_ip << ":" << client_port << " " << impl_->pb_head_->DebugString();
             //cout << ss.str() << endl;
             if (impl_->pb_head_->msgtype() != xmsg::MT_ADD_LOG_REQ)
             {
@@ -91,7 +101,7 @@ void XMsgEvent::readCB()
     // std::cout << "<" << 0 << ">" << std::flush;
 }
 
-void XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg)
+auto XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg) -> void
 {
     /// 回调消息函数
     auto ptr = msg_callbacks.find(head->msgtype());
@@ -107,7 +117,8 @@ void XMsgEvent::readCB(xmsg::XMsgHead *head, XMsg *msg)
     auto func = ptr->second;
     (this->*func)(impl_->pb_head_, msg);
 }
-void XMsgEvent::regCB(const xmsg::MsgType &type, MsgCBFunc func)
+
+auto XMsgEvent::regCB(const xmsg::MsgType &type, MsgCBFunc func) -> void
 {
     if (msg_callbacks.contains(type))
     {
@@ -120,7 +131,7 @@ void XMsgEvent::regCB(const xmsg::MsgType &type, MsgCBFunc func)
     msg_callbacks[type] = func;
 }
 
-bool XMsgEvent::recvMsg()
+auto XMsgEvent::recvMsg() -> bool
 {
     //////////////////////////////解包/////////////////////////////
 
@@ -155,7 +166,11 @@ bool XMsgEvent::recvMsg()
         }
         impl_->head_.recvSize += len;
         if (!impl_->head_.recved())
+        {
             return true;
+        }
+
+
         if (!impl_->pb_head_)
         {
             impl_->pb_head_ = new xmsg::XMsgHead();
@@ -278,7 +293,9 @@ auto XMsgEvent::sendMsg(xmsg::XMsgHead *head, XMsg *msg) -> bool
 bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *msg)
 {
     if (!msg || !head)
+    {
         return false;
+    }
 
     ////////////////////////封包////////////////////////
 
@@ -295,7 +312,9 @@ bool XMsgEvent::sendMsg(xmsg::XMsgHead *head, const google::protobuf::Message *m
 auto XMsgEvent::sendMsg(const xmsg::MsgType &msgType, const google::protobuf::Message *msg) -> bool
 {
     if (!msg)
+    {
         return false;
+    }
 
     xmsg::XMsgHead head;
     head.set_msgtype(msgType);

@@ -17,9 +17,9 @@ set(PROTOC_EXPORT_CLASS
     XMsgHead 
     XDirReq
     XDirRes
+    XService
+    XServiceList
     XServiceMap
-    XServiceMap_XService
-    XServiceMap_XServiceList
 	XRegisterReq
 	XMessageRes
     XGetServiceReq
@@ -34,11 +34,15 @@ set(PROTOC_EXPORT_CLASS
     XAddUserReq
     XLoginRes
     XAddLogReq
+    XChangePasswordReq
+    XAuthConfig
     ###########
+    XFileSlice
     XFileInfo
     XFileInfoList
     XGetDirReq
     XDiskInfo
+    XFileTask
 )
 set(PROTOC_EXPORT_DEFINE "XPLATFROM_EXPORT")
 

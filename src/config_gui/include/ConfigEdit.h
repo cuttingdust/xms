@@ -12,6 +12,12 @@
 #define CONFIGEDIT_H
 
 #include <QDialog>
+
+namespace xmsg
+{
+    class XConfig;
+}
+
 namespace Ui
 {
     class ConfigEdit;
@@ -25,15 +31,17 @@ public:
     ~ConfigEdit() override;
 
 public:
-    void initGUI();
+    auto initGUI() -> void;
 
     /// \brief 加载配置项，从配置中心获取，并解析生成界面
     /// \param ip
     /// \param port
     /// \return
-    bool loadConfig(const char *ip, int port);
+    auto loadConfig(const char *ip, int port) -> bool;
 
-    void loadProto(const char *filename, const char *class_name);
+    auto loadConfig(xmsg::XConfig *config) -> bool;
+
+    auto loadProto(const char *filename, const char *class_name) -> void;
 
 signals:
     void signalAddLog(const char *log);
@@ -49,7 +57,7 @@ protected slots:
     void slotMessageCB(bool is_ok, const char *msg);
 
 public:
-    Ui::ConfigEdit *ui = nullptr;
+    Ui::ConfigEdit *ui_ = nullptr;
 
 private:
     class PImpl;

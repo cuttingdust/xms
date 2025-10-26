@@ -141,7 +141,10 @@ auto XSSL_CTX::createXSSL(int socket) -> XSSL::Ptr
     }
     /// bufferevent会自己创建
     if (socket > 0)
+    {
         SSL_set_fd(impl_->ssl_, socket);
+    }
+
     xssl->set_ssl(impl_->ssl_);
 
     return xssl;

@@ -100,7 +100,7 @@ auto XService::listenCB(int client_socket, struct sockaddr *addr, int socketlen)
 {
     /// 创建客户端处理对象
     auto handle = createHandle();
-    handle->set_sock(client_socket);
+    handle->setSocket(client_socket);
     handle->setSSLContent(this->getSSLContent());
 
     std::stringstream ss;

@@ -46,7 +46,10 @@ auto ConfigDao::init(const char *ip, const char *user, const char *pass, const c
     XMutex mux(&my_mutex);
 
     if (!impl_->mysql_)
-        impl_->mysql_ = new LXMysql();
+    {
+        impl_->mysql_ = new LXMysql;
+    }
+
     if (!impl_->mysql_->init())
     {
         LOGDEBUG("my_->Init() failed!");
@@ -55,7 +58,7 @@ auto ConfigDao::init(const char *ip, const char *user, const char *pass, const c
 
     impl_->mysql_->setReconnect(true);
     impl_->mysql_->setConnectTimeout(3);
-    if (!impl_->mysql_->connect(ip, user, pass, db_name, port, 0, true))
+    if (!impl_->mysql_->inputDBConfig())
     {
         LOGDEBUG("my_->Connect failed!");
         return false;
@@ -186,9 +189,11 @@ xmsg::XConfig ConfigDao::loadConfig(const char *ip, int port)
     }
 
     auto strPort = std::to_string(port);
-
     if (strPort.empty())
+    {
         return conf;
+    }
+
 
     auto rows =
             impl_->mysql_->getRows(table_name, col_private_pb, { { col_server_ip, ip }, { col_server_port, strPort } });

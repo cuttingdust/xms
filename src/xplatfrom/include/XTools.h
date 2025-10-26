@@ -99,11 +99,14 @@ public:
     static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
 
 public:
+    /// \brief 获取目录列表   //格式 文件名，文件大小（byte），是否是目录（0,1），文件修改时间（2020-01-22 19:30:13）
+    /// \param path
+    /// \return
     static auto GetDirList(const std::string &path) -> std::list<XToolFileInfo>;
 
     static auto XGetIconFilename(const std::string &filename, bool is_dir) -> std::string;
 
-    static auto GetSizeString(long long size) -> std::string;
+    static auto XGetSizeString(long long size) -> std::string;
 
     static auto NewDir(const std::string &path) -> void;
 
@@ -127,14 +130,50 @@ public:
     static auto XGetNameByPort(unsigned short port) -> const char *;
 };
 
+#define XMUTEX(s) XMutex tmp_mutex(s, #s)
 class XPLATFROM_EXPORT XMutex final
 {
 public:
+    static bool is_debug;
     explicit XMutex(std::mutex *mux);
+    explicit XMutex(std::mutex *mux, const std::string &msg);
     ~XMutex();
 
 private:
-    std::mutex *mux_ = nullptr;
+    int         index_ = 0;
+    std::string msg_   = "";
+    std::mutex *mux_   = nullptr;
 };
+
+/// AES 秘钥
+/// if (bits != 128 && bits != 192 && bits != 256)
+class XPLATFROM_EXPORT XAES
+{
+public:
+    static auto Create() -> XAES *;
+
+    /// \brief
+    /// 设置加密秘钥 秘钥长度 128位（16字节） 192位 （24字节） 256位 (32字节)
+    /// 长度不能超过32字节，返回失败
+    /// 秘钥不足自动补充
+    /// \param key              秘钥
+    /// \param key_byte_size    秘钥长度 字节 <=32 会自动补秘钥
+    /// \param is_enc           true  加密 false 解密
+    /// \return                 设置成功失败
+    virtual auto SetKey(const char *key, int key_byte_size, bool is_enc) -> bool = 0;
+
+    /// \brief 清理空间，删除对象
+    virtual auto Drop() -> void = 0;
+
+    /// \brief          加解密
+    /// \param in       输入数据
+    /// \param in_size  输入数据大小
+    /// \param out      输出 数据空间要保证16字节的倍数
+    /// \return         输出大小，失败返回<=0
+    virtual auto Decrypt(const unsigned char *in, long long in_size, unsigned char *out) -> long long = 0;
+
+    virtual auto Encrypt(const unsigned char *in, long long in_size, unsigned char *out) -> long long = 0;
+};
+
 
 #endif // XTOOLS_H

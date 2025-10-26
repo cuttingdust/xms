@@ -7,6 +7,7 @@
 
 #include <event2/bufferevent_ssl.h>
 #include <event2/bufferevent.h>
+#include <event2/buffer.h>
 #include <event2/event.h>
 
 #include <iostream>
@@ -77,14 +78,21 @@ public:
     /// 4 连接后失败 => 根据连接间隔时间，开始连接
     bool        is_connecting_ = true;    ///< 连接中
     bool        is_connected_  = false;   ///< 连接成功
+    bool        is_closed_     = false;   ///< 是否关闭了，只有非自动重连才用到此参数
+    bool        has_error_     = false;   ///< 是否有出错
+    char        error_[1024]   = { 0 };   ///< 出错原因
     std::mutex *mtx_           = nullptr; ///< 互斥锁
 
     struct event *timer_event_              = nullptr; ///< 定时器事件
     struct event *auto_connect_timer_event_ = nullptr; ///< 自动连接定时器事件 close时不清理
     XSSL_CTX     *ssl_ctx_                  = nullptr; ///< ssl上下文
+    char          task_name_[1024]          = { 0 };
 
     int read_timeout_ms_ = 0; ///< 读超时时间，毫秒
     int timer_ms_        = 0; ///< TimerCB 定时调用时间
+
+    long long send_data_size_ = 0; ///< 已经写入缓冲 （XMsg *msg ）的字节大小
+    long long recv_data_size_ = 0;
 };
 
 XComTask::PImpl::PImpl(XComTask *owenr) : owenr_(owenr)
@@ -171,7 +179,10 @@ auto XComTask::connect() const -> bool
     impl_->is_connected_  = false;
     impl_->is_connecting_ = false;
     if (!impl_->bev_)
+    {
         impl_->initBev(-1);
+    }
+
     if (!impl_->bev_)
     {
         LOGERROR("XComTask::Connect failed! bev is null!");
@@ -204,7 +215,10 @@ auto XComTask::init() -> bool
     /// 区分客户端和服务器
     int comSock = this->sock();
     if (comSock <= 0)
+    {
         comSock = -1;
+    }
+
 
     {
         XMutex xMtx(impl_->mtx_);
@@ -363,6 +377,19 @@ auto XComTask::getSSLContent() const -> XSSL_CTX *
     return impl_->ssl_ctx_;
 }
 
+auto XComTask::setTaskName(const char *name) -> void
+{
+    char *cp = impl_->task_name_;
+    while (*cp++ = *name++)
+        ;
+}
+
+auto XComTask::taskName() const -> const char *
+{
+    return impl_->task_name_;
+}
+
+
 auto XComTask::setReadTimeMs(int ms) -> void
 {
     impl_->read_timeout_ms_ = ms;
@@ -385,7 +412,7 @@ auto XComTask::eventCB(short events) -> void
         ss << "connnect server " << impl_->server_ip_ << ":" << impl_->server_port_ << " success!";
         LOGINFO(ss.str());
 
-        /// 连接成功后发送消息
+        /// 通知连接成功
         impl_->is_connected_  = true;
         impl_->is_connecting_ = false;
 
@@ -397,7 +424,7 @@ auto XComTask::eventCB(short events) -> void
             xssl.printCert();
         }
         /// 获取本地地址
-        int sock = bufferevent_getfd(impl_->bev_);
+        // int sock = bufferevent_getfd(impl_->bev_);
         /*if (sock > 0)
         {
             sockaddr_in sin;
@@ -415,8 +442,7 @@ auto XComTask::eventCB(short events) -> void
     /// 退出要处理缓冲内容
     if (events & BEV_EVENT_ERROR)
     {
-        auto ssl = bufferevent_openssl_get_ssl(impl_->bev_);
-        if (ssl)
+        if (auto ssl = bufferevent_openssl_get_ssl(impl_->bev_))
         {
             XSSL xssl;
             xssl.set_ssl(ssl);
@@ -428,10 +454,12 @@ auto XComTask::eventCB(short events) -> void
         int err  = evutil_socket_geterror(sock);
         //LOGDEBUG(server_ip());
         //std::stringstream log;
-        ss << getServerIP() << ":" << getServerPort() << " ";
-        ss << getLocalIP() << evutil_socket_error_to_string(err);
+        ss << impl_->server_ip_ << ":" << impl_->server_port_ << " ";
+        ss << impl_->local_ip_ << evutil_socket_error_to_string(err);
         //LOGDEBUG(log.str().c_str());
         LOGINFO(ss.str());
+        impl_->has_error_ = true;
+        strcpy(impl_->error_, evutil_socket_error_to_string(err));
 
         close();
     }
@@ -440,6 +468,8 @@ auto XComTask::eventCB(short events) -> void
     {
         ss << "BEV_EVENT_TIMEOUT";
         LOGINFO(ss.str());
+        impl_->has_error_ = true;
+        strcpy(impl_->error_, "BEV_EVENT_TIMEOUT");
         close();
     }
 
@@ -464,6 +494,11 @@ auto XComTask::read(void *data, int size) -> int
         return 0;
     }
     int re = bufferevent_read(impl_->bev_, data, size);
+    if (re > 0)
+    {
+        impl_->recv_data_size_ += re;
+    }
+
     return re;
 }
 
@@ -484,15 +519,31 @@ auto XComTask::write(const void *data, int size) -> bool
     {
         return false;
     }
+    impl_->send_data_size_ += size;
     return true;
 }
 
 auto XComTask::beginWriteCB() -> void
 {
     if (!impl_->bev_)
+    {
         return;
+    }
 
     bufferevent_trigger(impl_->bev_, EV_WRITE, 0);
+}
+
+auto XComTask::bufferSize() -> long long
+{
+    XMutex mux(impl_->mtx_);
+    if (!impl_->bev_)
+    {
+        return 0;
+    }
+
+    auto evbuf = bufferevent_get_output(impl_->bev_);
+    auto len   = evbuffer_get_length(evbuf);
+    return len;
 }
 
 auto XComTask::close() -> void
@@ -502,9 +553,11 @@ auto XComTask::close() -> void
 
         impl_->is_connected_  = false;
         impl_->is_connecting_ = false;
-
+        impl_->is_closed_     = true;
         if (impl_->bev_)
         {
+            /// 如果设置了 BEV_OPT_CLOSE_ON_FREE会释放ssl 和socket
+            /// 不一定能释放所有占用空间，任务列表中的释放不了通过event_base_loop(base, EVLOOP_NONBLOCK);取出
             bufferevent_free(impl_->bev_);
             impl_->bev_ = nullptr;
         }
@@ -527,12 +580,16 @@ auto XComTask::close() -> void
 auto XComTask::clearTimer() -> void
 {
     if (impl_->auto_connect_timer_event_)
+    {
         event_free(impl_->auto_connect_timer_event_);
-    impl_->auto_connect_timer_event_ = nullptr;
+        impl_->auto_connect_timer_event_ = nullptr;
+    }
 
     if (impl_->timer_event_)
+    {
         event_free(impl_->timer_event_);
-    impl_->timer_event_ = nullptr;
+        impl_->timer_event_ = nullptr;
+    }
 }
 
 auto XComTask::setTimer(int ms) -> void
@@ -599,4 +656,24 @@ auto XComTask::autoConnectTimerCB() -> void
         connect();
         std::cout << "." << std::flush;
     }
+}
+
+auto XComTask::hasError() const -> bool
+{
+    return impl_->has_error_;
+}
+
+auto XComTask::error() const -> const char *
+{
+    return impl_->error_;
+}
+
+auto XComTask::getSendDataSize() const -> long long
+{
+    return impl_->send_data_size_;
+}
+
+auto XComTask::getRecvDataSize() const -> long long
+{
+    return impl_->recv_data_size_;
 }

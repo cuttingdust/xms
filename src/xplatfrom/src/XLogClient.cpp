@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-#define LOG_LIST_MAX 100
+#define LOG_LIST_MAX 1000
 
 namespace xms
 {
@@ -30,6 +30,8 @@ public:
     std::ofstream               log_ofs_;
     std::mutex                  logs_mutex_;
     std::list<xmsg::XAddLogReq> logs_;
+
+    bool is_print_ = true; ///<  是否输出屏幕
 };
 
 XLogClient::PImpl::PImpl(XLogClient *owenr) : owenr_(owenr)
@@ -52,7 +54,10 @@ XLogClient::~XLogClient() = default;
 auto XLogClient::addLog(const xmsg::XAddLogReq *req) -> void
 {
     if (!req)
+    {
         return;
+    }
+
     if (req->log_level() < impl_->log_level_)
     {
         return;
@@ -86,10 +91,29 @@ auto XLogClient::addLog(const xmsg::XAddLogReq *req) -> void
     log_text << log_time << " " << level_str << "|" << req->filename() << ":" << req->line() << "\n";
     log_text << req->log_txt() << "\n";
     std::cout << log_text.str() << std::endl;
+
+    if (impl_->is_print_)
+    {
+        //std::cout << "-------------------------------------------------------------" << endl;
+        //std::cout << req->DebugString();
+        std::cout << log_text.str() << std::endl;
+    }
+
+    //////////////////////////////////////////////////////////////////
+
+
+    // if (impl_->log_ofs_)
+    // {
+    //     impl_->log_ofs_.write(log_text.str().c_str(), log_text.str().size());
+    // }
+
     if (impl_->log_ofs_)
     {
-        impl_->log_ofs_.write(log_text.str().c_str(), log_text.str().size());
+        impl_->log_ofs_ << "==========================================\n";
+        impl_->log_ofs_ << req->DebugString();
     }
+
+
     xmsg::XAddLogReq tmp = *req;
     if (tmp.log_time() <= 0)
     {
@@ -120,13 +144,19 @@ auto XLogClient::setOutFile(const std::string &filePath) -> void
 
 auto XLogClient::timerCB() -> void
 {
+    /// 任务过多，要考虑是否会阻塞其他任务事件
+    /// 客户端是独立的线程池，不影响其他业务
+
     for (;;)
     {
         xmsg::XAddLogReq log;
         {
             XMutex mutex(&impl_->logs_mutex_);
             if (impl_->logs_.empty())
+            {
                 return;
+            }
+
             log = impl_->logs_.front();
             impl_->logs_.pop_front();
         }
@@ -136,14 +166,24 @@ auto XLogClient::timerCB() -> void
 
 auto XLogClient::startLog() -> bool
 {
-    if (strlen(getServerIP()) == 0)
-        setServerIP("127.0.0.1");
-    if (getServerPort() <= 0)
-        setServerPort(XLOG_PORT);
+    if (strlen(this->getServerIP()) == 0)
+    {
+        this->setServerIP("127.0.0.1");
+    }
+
+    if (this->getServerPort() <= 0)
+    {
+        this->setServerPort(XLOG_PORT);
+    }
 
     setAutoConnect(true);
     setTimeMs(100);
 
     startConnect();
     return true;
+}
+
+auto XLogClient::setPrint(bool is_out) -> void
+{
+    impl_->is_print_ = is_out;
 }

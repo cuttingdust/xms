@@ -15,15 +15,18 @@
 
 namespace xmsg
 {
+    class XServiceList;
     class XLoginRes;
-}
+} // namespace xmsg
 
 namespace xdisk
 {
+    class XFileTask;
     class XDiskInfo;
     class XFileInfo;
     class XFileInfoList;
 } // namespace xdisk
+
 
 class XFileManager : public QObject
 {
@@ -44,6 +47,22 @@ public:
     /// \param root
     auto setRoot(const std::string& root) -> void;
 
+    /// \brief 刷新目录
+    auto refreshDir() -> void;
+
+    /// \brief 返回任务ID
+    /// \param file
+    /// \return
+    auto addUploadTask(const xdisk::XFileInfo& file) -> int;
+
+    auto addDownloadTask(const xdisk::XFileInfo& file) -> int;
+
+    auto upload_servers() const -> xmsg::XServiceList;
+    auto download_servers() const -> xmsg::XServiceList;
+
+    auto set_upload_servers(const xmsg::XServiceList& servers) -> void;
+    auto set_download_servers(const xmsg::XServiceList& servers) -> void;
+
 public:
     /// \brief 初始化管理器
     /// \param server_ip
@@ -52,7 +71,7 @@ public:
 
     /// \brief 设置登录信息
     /// \param login
-    virtual auto setLogin(xmsg::XLoginRes login) -> void;
+    virtual auto setLogin(const xmsg::XLoginRes& login) -> void;
 
     /// \brief 得到登录信息
     /// \return
@@ -68,16 +87,41 @@ public:
 
     /// \brief 删除目录
     /// \param file
-    virtual auto deleteFile(const xdisk::XFileInfo& file) -> void = 0;
+    virtual auto deleteFile(xdisk::XFileInfo file) -> void = 0;
 
     /// \brief 开始上传文件
     /// \param file
-    virtual auto uploadFile(const xdisk::XFileInfo& file) -> void = 0;
+    virtual auto uploadFile(xdisk::XFileInfo file) -> void = 0;
+
+    /// \brief 设置文件密钥
+    /// \param pass
+    virtual auto set_password(const std::string& pass) -> void;
+
+    virtual auto password() const -> std::string;
+
+    /// \brief 进度从0~1000 更新上传列表进度 线程安全
+    /// \param task_id_
+    /// \param sended
+    virtual auto uploadProcess(int task_id, int sended) -> void;
+    virtual auto uploadEnd(int task_id) -> void;
+
+    /// \brief 开始下载文件
+    /// \param file
+    virtual auto downloadFile(xdisk::XFileInfo file) -> void = 0;
+
+    virtual auto downloadProcess(int task_id, int recved) -> void;
+    virtual auto downloadEnd(int task_id) -> void;
 
 signals:
     void RefreshData(xdisk::XFileInfoList file_list, std::string cur_dir);
 
+    void RefreshUploadTask(std::list<xdisk::XFileTask> file_list);
+
+    void RefreshDownloadTask(std::list<xdisk::XFileTask> file_list);
+
     void RefreshDiskInfo(xdisk::XDiskInfo info);
+
+    void ErrorSig(std::string str);
 
 private:
     class PImpl;

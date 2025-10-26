@@ -25,7 +25,20 @@ public:
     /// \param msg
     auto loginReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
+    /// \brief 检查token
+    /// \param head
+    /// \param msg
+    auto checkTokenReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
+    /// \brief 接收添加用户消息
+    /// \param head
+    /// \param msg
     auto addUserReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
+
+    /// \brief 接收修改密码消息
+    /// \param head
+    /// \param msg
+    auto changePasswordReq(xmsg::XMsgHead *head, XMsg *msg) -> void;
 
     static void regMsgCallback();
 };

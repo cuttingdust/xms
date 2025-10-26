@@ -7,8 +7,8 @@
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "zh_CN.UTF-8");
-
-    std::string register_ip = XTools::XGetHostByName(REGISTER_SERVER_NAME);
+    std::cout << "xms_dir_service!\n";
+    std::string register_ip = XTools::XGetHostByName(API_REGISTER_SERVER_NAME);
     XRegisterClient::get()->setServerIP(register_ip.c_str());
     XRegisterClient::get()->registerServer(DIR_NAME, DIR_PORT, 0);
 

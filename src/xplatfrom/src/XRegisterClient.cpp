@@ -23,6 +23,7 @@ public:
     char             service_name_[32] = { 0 };
     int              service_port_     = 0;
     char             service_ip_[16]   = { 0 };
+    bool             is_find_          = false; /// 是否可以被外网发现
 };
 
 XRegisterClient::PImpl::PImpl(XRegisterClient *owenr) : owenr_(owenr)
@@ -44,6 +45,7 @@ auto XRegisterClient::connectCB() -> void
     req.set_name(impl_->service_name_);
     req.set_ip(impl_->service_ip_);
     req.set_port(impl_->service_port_);
+    req.set_is_find(impl_->is_find_);
     sendMsg(xmsg::MT_REGISTER_REQ, &req);
 }
 
@@ -59,6 +61,7 @@ auto XRegisterClient::timerCB() -> void
 
 auto XRegisterClient::registerServer(const char *service_name, int port, const char *ip, bool is_find) -> void
 {
+    impl_->is_find_ = is_find;
     regMsgCallback();
     /// 发送消息到服务器
     /// 服务器连接是否成功？
@@ -87,6 +90,16 @@ auto XRegisterClient::registerServer(const char *service_name, int port, const c
 
     /// 设定心跳定时器
     setTimeMs(3000);
+
+    /// 添加默认的IP和端口
+    if (getServerIP()[0] == '\0')
+    {
+        setServerIP("127.0.0.1");
+    }
+    if (getServerPort() <= 0)
+    {
+        setServerPort(REGISTER_PORT);
+    }
 
     /// 把任务加入到线程池中
     startConnect();
@@ -171,14 +184,16 @@ auto XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg) -> void
         else
         {
             /// 将刚读取的cmap数据存入  service_map 内存缓冲
-            auto cmap = cache_map->mutable_servicemap();
+            auto cmap = cache_map->mutable_service_map();
 
             /// 取第一个
             if (!cmap || cmap->empty())
+            {
                 return;
+            }
             auto one = cmap->begin();
 
-            auto smap = service_map->mutable_servicemap();
+            auto smap = service_map->mutable_service_map();
             /// 修改缓存
             (*smap)[one->first] = one->second;
         }
@@ -191,7 +206,9 @@ auto XRegisterClient::getServiceRes(xmsg::XMsgHead *head, XMsg *msg) -> void
     ss << "register_" << impl_->service_name_ << impl_->service_ip_ << impl_->service_port_ << ".cache";
     LOGDEBUG("Save local file!");
     if (!service_map)
+    {
         return;
+    }
     std::ofstream ofs;
     ofs.open(ss.str(), std::ios::binary);
     if (!ofs.is_open())
@@ -225,9 +242,9 @@ auto XRegisterClient::getAllService() -> xmsg::XServiceMap *
     return client_map;
 }
 
-auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceMap::XServiceList
+auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> xmsg::XServiceList
 {
-    xmsg::XServiceMap::XServiceList result;
+    xmsg::XServiceList result;
     /// 10ms判断一次
     int total_count = timeout_sec * 100;
     int count       = 0;
@@ -268,7 +285,7 @@ auto XRegisterClient::getServices(const char *service_name, int timeout_sec) -> 
             count++;
             continue;
         }
-        auto m = service_map->mutable_servicemap();
+        auto m = service_map->mutable_service_map();
         if (!m)
         {
             //cout << "#" << flush;

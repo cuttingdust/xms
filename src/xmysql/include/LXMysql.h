@@ -257,7 +257,15 @@ public:
     /// \param table_name 表名
     /// \param where 修改选中条件
     /// \return 语句
-    auto getUpdateSql(const XDATA &kv, const std::string &table_name, std::string where) -> std::string;
+    auto getUpdateSql(const XDATA &kv, const std::string &table_name, const std::string &where) -> std::string;
+
+    /// \brief 生成修改Sql语句
+    /// \param kv <字段名,字段值>
+    /// \param table_name 表名
+    /// \param wheres 修改选中条件
+    /// \return 语句
+    auto getUpdateSql(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres)
+            -> std::string;
 
     /// \brief 修改数据库(非二进制数据)
     /// \param kv  <字段名,字段值>
@@ -266,19 +274,29 @@ public:
     /// \return 返回更新数量，失败返回-1
     auto update(const XDATA &kv, const std::string &table_name, const std::string &where) -> int;
 
+
+    /// \brief 修改数据库(非二进制数据)
+    /// \param kv  <字段名,字段值>
+    /// \param table_name 表名
+    /// \param wheres 修改选中条件
+    /// \return 返回更新数量，失败返回-1
+    auto update(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres)
+            -> int;
+
     /// \brief 修改数据库(二进制数据)
     /// \param kv  <字段名,字段值>
     /// \param table_name 表名
     /// \param where 修改选中条件
     /// \return 返回更新数量，失败返回-1
-    int updateBin(const XDATA &kv, const std::string &table_name, const std::string &where);
+    auto updateBin(const XDATA &kv, const std::string &table_name, const std::string &where) -> int;
 
     /// \brief 修改数据库(二进制数据)
     /// \param kv  <字段名,字段值>
     /// \param table_name  表名
     /// \param wheres 修改选中条件
     /// \return 返回更新数量，失败返回-1
-    int updateBin(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres);
+    auto updateBin(const XDATA &kv, const std::string &table_name, const std::map<std::string, std::string> &wheres)
+            -> int;
 
     /// \brief 开启事务
     /// \return
@@ -305,6 +323,11 @@ public:
     /// \return
     auto getColumns(const char *table_name) -> XCOLUMNS;
 
+    //////////////////////////////////////////////////////////////////
+
+    /// TODO 如何考虑将 join on  having ... 加入查询
+    /// TODO 联合查询
+
     /// \brief 获取条件数据
     /// \param table_name   表名
     /// \param selectCol    选择的列(单个)
@@ -317,12 +340,12 @@ public:
                  const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
     auto getRows(const char *table_name, const char *selectCol = "*",
-                 const std::pair<std::string, std::string> &where = { "", "" }, const std::pair<int, int> & = { 0, 0 },
-                 const XORDER                              &order = { "", LXD_ADESC }) -> XROWS;
+                 const std::pair<std::string, std::string> &where = { "", "" },
+                 const std::pair<int, int> &limit = { 0, 0 }, const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
     auto getRows(const char *table_name, const std::vector<std::string> &selectCols,
-                 const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit,
-                 const XORDER &order) -> XROWS;
+                 const std::pair<std::string, std::string> &where, const std::pair<int, int> &limit = { 0, 0 },
+                 const XORDER &order = { "", LXD_ADESC }) -> XROWS;
 
     /// \brief
     /// \param table_name
