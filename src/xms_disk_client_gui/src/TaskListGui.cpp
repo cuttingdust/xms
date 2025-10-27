@@ -53,7 +53,7 @@ TaskListGui::~TaskListGui()
 void TaskListGui::Show()
 {
     this->show();
-    QWidget *p       = static_cast<QWidget *>(this->parent());
+    QWidget *p       = dynamic_cast<QWidget *>(this->parent());
     int      w       = p->width();
     auto     tab_pos = impl_->ui_->taskableWidget->pos();
     auto     size    = impl_->ui_->taskableWidget->size();
@@ -121,9 +121,9 @@ void TaskListGui::RefreshTask(std::list<xdisk::XFileTask> file_list)
     //{
     //    tab->removeRow(0);
     //}
-    for (auto task : file_list)
+    for (const auto &task : file_list)
     {
-        if (impl_->task_items_.find(task.index()) == impl_->task_items_.end())
+        if (!impl_->task_items_.contains(task.index()))
         {
             tab->insertRow(0);
             auto item = new TaskItemGui;
