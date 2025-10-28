@@ -455,7 +455,7 @@ auto XComTask::eventCB(short events) -> void
         //LOGDEBUG(server_ip());
         //std::stringstream log;
         ss << impl_->server_ip_ << ":" << impl_->server_port_ << " ";
-        ss << impl_->local_ip_ << evutil_socket_error_to_string(err);
+        ss << impl_->local_ip_ << XTools::GBKToUtf8(evutil_socket_error_to_string(err));
         //LOGDEBUG(log.str().c_str());
         LOGINFO(ss.str());
         impl_->has_error_ = true;
@@ -504,7 +504,7 @@ auto XComTask::read(void *data, int size) -> int
 
 auto XComTask::writeCB() -> void
 {
-    std::cout << "XComTask::writeCB" << std::endl;
+    // std::cout << "XComTask::writeCB" << std::endl;
 }
 
 auto XComTask::write(const void *data, int size) -> bool
@@ -614,7 +614,7 @@ auto XComTask::setTimer(int ms) -> void
 
 auto XComTask::timerCB() -> void
 {
-    std::cout << "XComTask::timerCB" << std::endl;
+    // std::cout << "XComTask::timerCB" << std::endl;
 }
 
 auto XComTask::setAutoConnectTimer(int ms) -> void

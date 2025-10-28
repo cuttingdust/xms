@@ -1,6 +1,8 @@
 ﻿#include "XLogClient.h"
 #include "XTools.h"
 
+#include <XLog.h>
+
 #include <fstream>
 
 #define LOG_LIST_MAX 1000
@@ -36,6 +38,11 @@ public:
 
 XLogClient::PImpl::PImpl(XLogClient *owenr) : owenr_(owenr)
 {
+    // #ifdef _WIN32
+    //     XLog::Instance()->ResetLogger(LogTarget::CONSOLE_FILE_MSVC, "");
+    // #else
+    //     XLog::Instance()->ResetLogger(LogTarget::CONSOLE_FILE, "");
+    // #endif
 }
 
 auto XLogClient::get() -> XLogClient *
@@ -90,13 +97,32 @@ auto XLogClient::addLog(const xmsg::XAddLogReq *req) -> void
     log_text << "=========================================================\n";
     log_text << log_time << " " << level_str << "|" << req->filename() << ":" << req->line() << "\n";
     log_text << req->log_txt() << "\n";
+    /// 重新集成MLog
+    // if (level_str == "Debug")
+    // {
+    //     XDebug(log_text.str());
+    // }
+    // else if (level_str == "INFO")
+    // {
+    //     XInfo(log_text.str());
+    // }
+    // else if (level_str == "ERROR")
+    // {
+    //     XError(log_text.str());
+    // }
+    // else if (level_str == "FATAL")
+    // {
+    //     XCritical(log_text.str());
+    // }
+
     std::cout << log_text.str() << std::endl;
+
 
     if (impl_->is_print_)
     {
         //std::cout << "-------------------------------------------------------------" << endl;
         //std::cout << req->DebugString();
-        std::cout << log_text.str() << std::endl;
+        // std::cout << log_text.str() << std::endl;
     }
 
     //////////////////////////////////////////////////////////////////

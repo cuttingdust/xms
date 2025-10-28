@@ -98,6 +98,8 @@ public:
 
     static auto PrintMsg(xmsg::XMsgHead *head, XMsg *msg);
 
+    static auto GBKToUtf8(const char *data) -> std::string;
+
 public:
     /// \brief 获取目录列表   //格式 文件名，文件大小（byte），是否是目录（0,1），文件修改时间（2020-01-22 19:30:13）
     /// \param path

@@ -3,8 +3,12 @@ get_filename_component(CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
 project(${CURRENT_DIR})
 
+set(DPS_TARGETS 
+    xlog
+)
+
 set(DPS_LIBRARYS 
-    ${LOG_MOUDLES}
+    # ${LOG_MOUDLES}
     ${SSL_MOUDLES}
     ${Protobuf_MOUDLES}
 )

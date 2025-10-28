@@ -143,10 +143,12 @@ auto XUploadClient::timerCB() -> void
         return;
     }
 
-    auto size = bufferSize();
+    auto sendSize  = getSendDataSize();
+    auto size      = bufferSize();
+    auto beginSize = impl_->begin_send_data_size_;
 
     /// 已发送的数据 不完全准确，还有确认的数据包发送
-    long long sended = getSendDataSize() - impl_->begin_send_data_size_ - bufferSize();
+    long long sended = sendSize - beginSize - size;
 
     std::cout << sended << ":" << impl_->file_.filesize() << std::endl;
 

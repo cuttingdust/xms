@@ -90,6 +90,7 @@ include(CommonTools)
 
 add_subdirectory(xmysql)
 add_subdirectory(xplatfrom)
+add_subdirectory(xlog)
 add_subdirectory(xtest_service_client)
 add_subdirectory(xtest_pb_service)
 add_subdirectory(xms_gateway)
