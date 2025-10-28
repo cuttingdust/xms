@@ -1,0 +1,9 @@
+@echo off
+start log_server
+start register_server
+start xms_gateway
+start auth_server
+start xms_dir_service
+start xms_upload_service
+start xms_download_service
+start xms_disk_client_gui
