@@ -8,16 +8,16 @@
  * @date   2025-10-27
  */
 
-#ifndef XLOG_H
-#define XLOG_H
+#ifndef __SPD_MLOG_H__
+#define __SPD_MLOG_H__
 
 #include "XLog_Global.h"
 
 #include <spdlog/logger.h>
-
 #include <memory>
+#include <string>
+#include <filesystem>
 #include <string_view>
-
 
 // =============================================================================
 namespace crypt
@@ -90,7 +90,7 @@ namespace crypt
 
 #define XorS(name, my_string) constexpr crypt::Xor_string<(sizeof(my_string) / sizeof(char)), char> name(my_string)
 // Because of a limitation/bug in msvc 2017 we need to declare crypt::Xor_string() as a constexpr
-// otherwise the constructor iso not evaluated at compile time. The lambda function is here to allow this declaration inside the macro
+// otherwise the constructor is not evaluated at compile time. The lambda function is here to allow this declaration inside the macro
 // because there is no such thing as casting to 'constexpr' (and casting to const does not solve this bug).
 #define XorString(my_string)                                                                   \
     []                                                                                         \
@@ -116,36 +116,38 @@ namespace crypt
 // crypt  wide characters
 #define _EWS_(string) XorWideString(string)
 
-
 enum class LogTarget
 {
     FILE,
     CONSOLE,
     CONSOLE_FILE,
+#ifdef _WIN32
     CONSOLE_FILE_MSVC,
     MSVC,
     MSVC_FILE
+#endif
 };
 
 class XLOG_EXPORT XLog
 {
 public:
-    static auto Instance() -> XLog*;
-    virtual ~XLog();
-    using SmartLog = std::shared_ptr<spdlog::logger>;
+    static XLog* Instance();
+    ~XLog();
 
-public:
-    auto ResetLogger(LogTarget target, std::string_view logPath) -> void;
+    [[nodiscard]]
+    auto GetLogger() const noexcept -> std::shared_ptr<spdlog::logger>;
+
+    auto ResetLogger(LogTarget target, std::string_view logPath = {}) -> void;
 
     auto FreeLogger() -> void;
 
-    [[nodiscard]]
-    auto GetLogger() const noexcept -> SmartLog;
-
 private:
     XLog();
-    class PImpl;
-    std::unique_ptr<PImpl> impl_;
+    XLog(const XLog&)            = delete;
+    XLog& operator=(const XLog&) = delete;
+
+    std::shared_ptr<spdlog::logger> logger_;
+    LogTarget                       currentTarget_ = LogTarget::CONSOLE_FILE_MSVC;
 };
 
 #define XTrace(fmt, ...)    XLog::Instance()->GetLogger()->trace(fmt, __VA_ARGS__)
@@ -155,5 +157,4 @@ private:
 #define XError(fmt, ...)    XLog::Instance()->GetLogger()->error(fmt, __VA_ARGS__)
 #define XCritical(fmt, ...) XLog::Instance()->GetLogger()->critical(fmt, __VA_ARGS__)
 
-
-#endif // XLOG_H
+#endif // !__SPD_MLOG_H__

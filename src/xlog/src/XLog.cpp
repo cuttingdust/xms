@@ -8,18 +8,19 @@
 #include <spdlog/sinks/base_sink.h>
 #include <spdlog/spdlog.h>
 
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <vector>
+#include <format>
 #include <span>
+#include <source_location>
+#include <unordered_map>
+
+namespace fs = std::filesystem;
 
 namespace
 {
     constexpr std::string_view DEFAULT_LOGGER_NAME = "mlog";
 
-    /// 全局变量
+    // 全局变量
     std::string g_logName{ std::string(DEFAULT_LOGGER_NAME) };
     std::string g_logFilePath;
     std::string g_currWorkDir;
@@ -27,22 +28,28 @@ namespace
     constexpr size_t           DEFAULT_PATH_LENGTH = 1024;
     constexpr std::string_view DEBUG_FILE_NAME     = "DBG.CO";
 
+    // 检查文件是否存在
+    [[nodiscard]]
+    bool FileExists(const fs::path& path) noexcept
+    {
+        std::error_code ec;
+        return fs::exists(path, ec) && !ec;
+    }
 } // namespace
-
-//////////////////////////////////////////////////////////////////
-
-namespace fs = std::filesystem;
 
 namespace spdlog
 {
     namespace sinks
     {
+        /*
+ * Windows-specific file sink that properly handles Unicode filenames
+ */
         template <typename Mutex>
             requires std::same_as<Mutex, std::mutex> || std::same_as<Mutex, spdlog::details::null_mutex>
         class unicode_file_sink final : public base_sink<Mutex>
         {
         public:
-            explicit unicode_file_sink(const fs::path &filename, bool truncate = false) : file_path_(filename)
+            explicit unicode_file_sink(const fs::path& filename, bool truncate = false) : filename_(filename)
             {
                 open_file(truncate);
             }
@@ -52,9 +59,9 @@ namespace spdlog
                 close_file();
             }
 
-            [[nodiscard]] const fs::path &filename() const noexcept
+            [[nodiscard]] const fs::path& filename() const noexcept
             {
-                return file_path_;
+                return filename_;
             }
 
             void truncate()
@@ -65,7 +72,7 @@ namespace spdlog
             }
 
         protected:
-            void sink_it_(const spdlog::details::log_msg &msg) override
+            void sink_it_(const spdlog::details::log_msg& msg) override
             {
                 spdlog::memory_buf_t formatted;
                 base_sink<Mutex>::formatter_->format(msg, formatted);
@@ -75,7 +82,7 @@ namespace spdlog
                 DWORD bytes_written = 0;
                 if (!WriteFile(file_handle_, data.data(), static_cast<DWORD>(data.size()), &bytes_written, nullptr))
                 {
-                    throw spdlog_ex(std::format("Failed to write to file: {}", file_path_.string()));
+                    throw spdlog_ex(std::format("Failed to write to file: {}", filename_.string()));
                 }
             }
 
@@ -88,7 +95,7 @@ namespace spdlog
             }
 
         private:
-            fs::path file_path_;
+            fs::path filename_;
             HANDLE   file_handle_{ INVALID_HANDLE_VALUE };
 
             void open_file(bool truncate)
@@ -96,14 +103,14 @@ namespace spdlog
                 close_file();
 
                 // Create parent directory if needed
-                auto parent_path = file_path_.parent_path();
+                auto parent_path = filename_.parent_path();
                 if (!parent_path.empty())
                 {
                     std::error_code ec;
                     fs::create_directories(parent_path, ec);
                     if (ec)
                     {
-                        throw spdlog_ex(std::format("Failed to create directories for: {}", file_path_.string()));
+                        throw spdlog_ex(std::format("Failed to create directories for: {}", filename_.string()));
                     }
                 }
 
@@ -112,12 +119,12 @@ namespace spdlog
                 DWORD share_mode           = FILE_SHARE_READ;
                 DWORD creation_disposition = truncate ? CREATE_ALWAYS : OPEN_ALWAYS;
 
-                file_handle_ = CreateFileW(file_path_.c_str(), access_mode, share_mode, nullptr, creation_disposition,
+                file_handle_ = CreateFileW(filename_.c_str(), access_mode, share_mode, nullptr, creation_disposition,
                                            FILE_ATTRIBUTE_NORMAL, nullptr);
 
                 if (file_handle_ == INVALID_HANDLE_VALUE)
                 {
-                    throw spdlog_ex(std::format("Failed to open file: {}", file_path_.string()));
+                    throw spdlog_ex(std::format("Failed to open file: {}", filename_.string()));
                 }
 
                 if (!truncate)
@@ -145,25 +152,21 @@ namespace spdlog
     //
     template <typename Factory = spdlog::synchronous_factory>
     [[nodiscard]] inline std::shared_ptr<logger> unicode_logger_mt(std::string_view logger_name,
-                                                                   const fs::path &filename, bool truncate = false)
+                                                                   const fs::path& filename, bool truncate = false)
     {
         return Factory::template create<sinks::unicode_file_sink_mt>(logger_name, filename, truncate);
     }
 
 } // namespace spdlog
 
-
-//////////////////////////////////////////////////////////////////
-
-
 [[nodiscard]]
-auto GetOrCreateUnicodeFileSink(const fs::path &logPath)
+auto GetOrCreateUnicodeFileSink(const fs::path& logPath)
 {
-    /// 使用static缓存已创建的sink
+    // 使用static缓存已创建的sink
     static std::unordered_map<std::string, std::weak_ptr<spdlog::sinks::unicode_file_sink_mt>> existingSinks;
     std::string path_str = logPath.string();
 
-    /// Clean up expired sinks
+    // Clean up expired sinks
     for (auto it = existingSinks.begin(); it != existingSinks.end();)
     {
         if (it->second.expired())
@@ -176,7 +179,7 @@ auto GetOrCreateUnicodeFileSink(const fs::path &logPath)
         }
     }
 
-    ///  尝试获取现有sink
+    // 尝试获取现有sink
     if (auto it = existingSinks.find(path_str); it != existingSinks.end())
     {
         if (auto existing = it->second.lock())
@@ -196,95 +199,29 @@ auto GetOrCreateUnicodeFileSink(const fs::path &logPath)
     return unicode_file_sink;
 }
 
-//////////////////////////////////////////////////////////////////
-
-
-#ifdef _WIN32
-#include <windows.h>
-std::wstring getExecutablePath()
+XLog::XLog()
 {
-    std::vector<wchar_t> buffer(DEFAULT_PATH_LENGTH);
-    DWORD                length = GetModuleFileName(nullptr, buffer.data(), buffer.size());
-    if (length > 0 && length < buffer.size())
-    {
-        return std::wstring(buffer.data(), length);
-    }
-    return {};
-}
-
-#elif __linux__
-#include <unistd.h>
-#include <limits.h>
-
-std::string getExecutablePath()
-{
-    char    buffer[DEFAULT_PATH_LENGTH];
-    ssize_t length = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
-    if (length != -1)
-    {
-        buffer[length] = '\0';
-        return std::string(buffer);
-    }
-    return {};
-}
-
-#elif __APPLE__
-#include <mach-o/dyld.h>
-
-std::string getExecutablePath()
-{
-    char     buffer[1024];
-    uint32_t size = sizeof(buffer);
-    if (_NSGetExecutablePath(buffer, &size) == 0)
-    {
-        return std::string(buffer);
-    }
-    return {};
-}
-
-#else
-#error "Unsupported platform"
-#endif
-
-
-class XLog::PImpl
-{
-public:
-    PImpl(XLog *owenr);
-    ~PImpl();
-
-public:
-    XLog    *owenr_  = nullptr;
-    SmartLog logger_ = nullptr;
-
-#ifdef _WIN32
-    LogTarget currentTarget_ = LogTarget::CONSOLE_FILE_MSVC;
-#else
-    LogTarget currentTarget_ = LogTarget::CONSOLE_FILE;
-#endif
-};
-
-XLog::PImpl::PImpl(XLog *owenr) : owenr_(owenr)
-{
-    ///  设置控制台代码页为UTF-8以正确显示Unicode字符
-
-    setlocale(LC_ALL, "zh_CN.UTF-8");
-#ifdef _WIN32
-    ::SetConsoleOutputCP(CP_UTF8);
-#endif
+    /// 设置控制台代码页为UTF-8以正确显示Unicode字符
+    SetConsoleOutputCP(CP_UTF8);
+    std::setlocale(LC_ALL, ".UTF8");
 
     fs::path modulePath;
 
-    auto wModulePathStr = getExecutablePath();
-    if (!wModulePathStr.empty())
+    /// 尝试获取可执行文件路径
+    std::wstring wModulePathStr;
+    wModulePathStr.resize(DEFAULT_PATH_LENGTH);
+
+    DWORD pathLength = GetModuleFileNameW(nullptr, wModulePathStr.data(), DEFAULT_PATH_LENGTH);
+    if (pathLength > 0 && pathLength < DEFAULT_PATH_LENGTH)
     {
+        wModulePathStr.resize(pathLength); /// 调整为实际长度
         modulePath = fs::path(wModulePathStr);
 
         /// 将当前工作目录设置为包含可执行文件的目录
         g_currWorkDir = modulePath.parent_path().string();
 
         /// 创建日志文件路径，将.exe替换为_log.txt
-        if (modulePath.extension() == ".exe")
+        if (modulePath.extension() == L".exe")
         {
             fs::path logPath = modulePath.stem(); /// 只获取文件名部分（不含扩展名）
             logPath += "_log.txt";                /// 添加自定义后缀
@@ -311,7 +248,7 @@ XLog::PImpl::PImpl(XLog *owenr) : owenr_(owenr)
 
     /// 检查DBG.CO是否存在
     fs::path dbgFilePath     = fs::path(g_currWorkDir) / std::string(DEBUG_FILE_NAME);
-    bool     debugFileExists = fs::exists(dbgFilePath);
+    bool     debugFileExists = FileExists(dbgFilePath);
 
     auto file_sink = GetOrCreateUnicodeFileSink(g_logFilePath);
     file_sink->set_level(spdlog::level::trace);
@@ -331,39 +268,46 @@ XLog::PImpl::PImpl(XLog *owenr) : owenr_(owenr)
     spdlog::flush_every(std::chrono::seconds(3));
 }
 
-XLog::PImpl::~PImpl()
+XLog::~XLog()
 {
-    owenr_->FreeLogger();
+    fs::path dbgFilePath = fs::path(g_currWorkDir) / std::string(DEBUG_FILE_NAME);
+    if (FileExists(dbgFilePath))
+    {
+        FreeConsole();
+    }
+
+    spdlog::drop_all();
 }
 
-auto XLog::Instance() -> XLog *
+XLog* XLog::Instance()
 {
-    static XLog log;
-    return &log;
+    static XLog mlog;
+    return &mlog;
 }
 
-XLog::~XLog() = default;
+std::shared_ptr<spdlog::logger> XLog::GetLogger() const noexcept
+{
+    return logger_;
+}
 
-auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
+void XLog::ResetLogger(LogTarget target, std::string_view logPath)
 {
     spdlog::drop(g_logName);
-    impl_->currentTarget_ = target;
+    currentTarget_ = target;
 
     /// 使用提供的日志路径或默认路径（如果为空）
     fs::path actualLogPath = logPath.empty() ? fs::path(g_logFilePath) : fs::path(std::string(logPath));
 
     /// 检查是否通过DBG.CO文件启用了调试模式
     fs::path dbgFilePath     = fs::path(g_currWorkDir) / std::string(DEBUG_FILE_NAME);
-    bool     debugFileExists = fs::exists(dbgFilePath);
+    bool     debugFileExists = FileExists(dbgFilePath);
 
     /// Setup console if debug file exists
     if (debugFileExists)
     {
-        setlocale(LC_ALL, "zh_CN.UTF-8");
-#ifdef _WIN32
-        ::SetConsoleOutputCP(CP_UTF8);
-        ::AllocConsole();
-#endif
+        SetConsoleOutputCP(CP_UTF8);
+        std::setlocale(LC_ALL, ".UTF8");
+        AllocConsole();
     }
     else
     {
@@ -381,9 +325,9 @@ auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
                     fs::create_directories(actualLogPath.parent_path(), ec);
                 }
 
-                impl_->logger_ = spdlog::basic_logger_mt(g_logName, actualLogPath.string(), true);
-                impl_->logger_->flush_on(spdlog::level::warn);
-                spdlog::register_logger(impl_->logger_);
+                logger_ = spdlog::basic_logger_mt(g_logName, actualLogPath.string(), true);
+                logger_->flush_on(spdlog::level::warn);
+                spdlog::register_logger(logger_);
                 spdlog::flush_every(std::chrono::seconds(3));
                 break;
             }
@@ -398,12 +342,12 @@ auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
                 msvc_sink->set_level(spdlog::level::trace);
                 msvc_sink->set_pattern("%v %$");
 
-                impl_->logger_ =
+                logger_ =
                         std::make_shared<spdlog::logger>(g_logName, spdlog::sinks_init_list{ console_sink, msvc_sink });
-                impl_->logger_->set_level(spdlog::level::trace);
+                logger_->set_level(spdlog::level::trace);
 
-                spdlog::register_logger(impl_->logger_);
-                spdlog::set_default_logger(impl_->logger_);
+                spdlog::register_logger(logger_);
+                spdlog::set_default_logger(logger_);
                 break;
             }
 
@@ -417,13 +361,13 @@ auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
                 file_sink->set_level(spdlog::level::trace);
                 file_sink->set_pattern("%^[%H:%M:%S.%e][%t] %v %$");
 
-                impl_->logger_ =
+                logger_ =
                         std::make_shared<spdlog::logger>(g_logName, spdlog::sinks_init_list{ console_sink, file_sink });
-                spdlog::set_default_logger(impl_->logger_);
-                impl_->logger_->set_level(spdlog::level::trace);
-                impl_->logger_->flush_on(spdlog::level::info);
+                spdlog::set_default_logger(logger_);
+                logger_->set_level(spdlog::level::trace);
+                logger_->flush_on(spdlog::level::info);
 
-                spdlog::register_logger(impl_->logger_);
+                spdlog::register_logger(logger_);
                 spdlog::flush_every(std::chrono::seconds(3));
                 break;
             }
@@ -443,14 +387,14 @@ auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
                 msvc_sink->set_level(spdlog::level::trace);
                 msvc_sink->set_pattern("%v %$");
 
-                impl_->logger_ = std::make_shared<spdlog::logger>(
+                logger_ = std::make_shared<spdlog::logger>(
                         g_logName, spdlog::sinks_init_list{ console_sink, file_sink, msvc_sink });
 
-                impl_->logger_->set_level(spdlog::level::trace);
-                impl_->logger_->flush_on(spdlog::level::info);
+                logger_->set_level(spdlog::level::trace);
+                logger_->flush_on(spdlog::level::info);
 
-                spdlog::register_logger(impl_->logger_);
-                spdlog::set_default_logger(impl_->logger_);
+                spdlog::register_logger(logger_);
+                spdlog::set_default_logger(logger_);
                 spdlog::flush_every(std::chrono::seconds(3));
                 break;
             }
@@ -461,8 +405,8 @@ auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
                 msvc_sink->set_level(spdlog::level::trace);
                 msvc_sink->set_pattern("%v %$");
 
-                impl_->logger_ = std::make_shared<spdlog::logger>(g_logName, msvc_sink);
-                impl_->logger_->set_level(spdlog::level::trace);
+                logger_ = std::make_shared<spdlog::logger>(g_logName, msvc_sink);
+                logger_->set_level(spdlog::level::trace);
                 break;
             }
 
@@ -476,35 +420,23 @@ auto XLog::ResetLogger(LogTarget target, std::string_view logPath) -> void
                 msvc_sink->set_level(spdlog::level::trace);
                 msvc_sink->set_pattern("%v %$");
 
-                impl_->logger_ =
-                        std::make_shared<spdlog::logger>(g_logName, spdlog::sinks_init_list{ file_sink, msvc_sink });
+                logger_ = std::make_shared<spdlog::logger>(g_logName, spdlog::sinks_init_list{ file_sink, msvc_sink });
 
-                impl_->logger_->set_level(spdlog::level::trace);
-                spdlog::register_logger(impl_->logger_);
+                logger_->set_level(spdlog::level::trace);
+                spdlog::register_logger(logger_);
                 spdlog::flush_every(std::chrono::seconds(3));
                 break;
             }
     }
 }
 
-auto XLog::FreeLogger() -> void
+void XLog::FreeLogger()
 {
     fs::path dbgFilePath = fs::path(g_currWorkDir) / std::string(DEBUG_FILE_NAME);
-    if (fs::exists(dbgFilePath))
+    if (FileExists(dbgFilePath))
     {
-#ifdef _WIN32
-        ::FreeConsole();
-#endif
+        FreeConsole();
     }
+
     spdlog::drop_all();
-}
-
-auto XLog::GetLogger() const noexcept -> SmartLog
-{
-    return impl_->logger_;
-}
-
-XLog::XLog()
-{
-    impl_ = std::make_unique<XLog::PImpl>(this);
 }

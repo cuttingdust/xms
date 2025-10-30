@@ -1,7 +1,10 @@
 ﻿#include "XLogClient.h"
 #include "XTools.h"
 
+#ifdef WITH_XLOG_MOUDLUE
 #include <XLog.h>
+#endif
+
 
 #include <fstream>
 
@@ -38,11 +41,13 @@ public:
 
 XLogClient::PImpl::PImpl(XLogClient *owenr) : owenr_(owenr)
 {
-    // #ifdef _WIN32
-    //     XLog::Instance()->ResetLogger(LogTarget::CONSOLE_FILE_MSVC, "");
-    // #else
-    //     XLog::Instance()->ResetLogger(LogTarget::CONSOLE_FILE, "");
-    // #endif
+#ifdef WITH_XLOG_MOUDLUE
+#ifdef _WIN32
+    XLog::Instance()->ResetLogger(LogTarget::CONSOLE_FILE_MSVC, "");
+#else
+    XLog::Instance()->ResetLogger(LogTarget::CONSOLE_FILE, "");
+#endif
+#endif
 }
 
 auto XLogClient::get() -> XLogClient *
@@ -97,25 +102,27 @@ auto XLogClient::addLog(const xmsg::XAddLogReq *req) -> void
     log_text << "=========================================================\n";
     log_text << log_time << " " << level_str << "|" << req->filename() << ":" << req->line() << "\n";
     log_text << req->log_txt() << "\n";
+#ifdef WITH_XLOG_MOUDLUE
     /// 重新集成MLog
-    // if (level_str == "Debug")
-    // {
-    //     XDebug(log_text.str());
-    // }
-    // else if (level_str == "INFO")
-    // {
-    //     XInfo(log_text.str());
-    // }
-    // else if (level_str == "ERROR")
-    // {
-    //     XError(log_text.str());
-    // }
-    // else if (level_str == "FATAL")
-    // {
-    //     XCritical(log_text.str());
-    // }
-
+    if (level_str == "Debug")
+    {
+        XDebug(log_text.str());
+    }
+    else if (level_str == "INFO")
+    {
+        XInfo(log_text.str());
+    }
+    else if (level_str == "ERROR")
+    {
+        XError(log_text.str());
+    }
+    else if (level_str == "FATAL")
+    {
+        XCritical(log_text.str());
+    }
+#else
     std::cout << log_text.str() << std::endl;
+#endif
 
 
     if (impl_->is_print_)
